@@ -1,0 +1,203 @@
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { commerce, formatPrice } from "@/lib/commerce";
+import { ProductImage } from "@/components/ui/ProductImage";
+import { ProductCard } from "@/components/ui/ProductCard";
+import { ProductPurchase } from "@/components/product/ProductPurchase";
+import { Section, SectionHeading } from "@/components/ui/Section";
+
+export async function generateStaticParams() {
+  const products = await commerce.getProducts();
+  return products.map((p) => ({ slug: p.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await commerce.getProduct(slug);
+  if (!product) return { title: "Not found" };
+
+  return {
+    title: `${product.title} — ${product.tagline}`,
+    description: product.description.slice(0, 155),
+    openGraph: { title: product.title, description: product.tagline },
+  };
+}
+
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const product = await commerce.getProduct(slug);
+  if (!product) notFound();
+
+  const related = await commerce.getRelated(slug, 4);
+
+  // Explicit product typing so search engines never file this under intimates.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: `${product.title} — Human Hair Wig`,
+    category: "Human Hair Wigs",
+    description: product.description,
+    brand: { "@type": "Brand", name: "Beyond Lace" },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: product.rating,
+      reviewCount: product.reviewCount,
+    },
+    ...(product.price > 0 && {
+      offers: {
+        "@type": "Offer",
+        price: (product.price / 100).toFixed(2),
+        priceCurrency: product.currency,
+        availability: product.inStock
+          ? "https://schema.org/InStock"
+          : "https://schema.org/PreOrder",
+      },
+    }),
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      <div className="mx-auto max-w-[1440px] px-[4vw] pt-12 pb-24">
+        <div className="flex items-center gap-2 text-[0.75rem] text-neutral-400">
+          <a href="/shop" className="hover:text-paper">
+            Collection
+          </a>
+          <span aria-hidden="true">/</span>
+          <span className="text-neutral-200">{product.title}</span>
+        </div>
+
+        <div className="mt-10 grid gap-16 lg:grid-cols-[1.1fr_1fr]">
+          {/* Gallery */}
+          <div className="space-y-5">
+            <ProductImage src={product.images[0].src} alt={product.images[0].alt} ratio="4 / 5" />
+            {product.images.length > 1 && (
+              <div className="grid grid-cols-2 gap-5">
+                {product.images.slice(1).map((img, i) => (
+                  <ProductImage key={i} src={img.src} alt={img.alt} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Buy column */}
+          <div className="lg:sticky lg:top-32 lg:self-start">
+            {product.badges.length > 0 && (
+              <div className="mb-5 flex flex-wrap gap-2">
+                {product.badges.map((badge) => (
+                  <span
+                    key={badge}
+                    className="border border-gold/40 px-2.5 py-1 text-[0.625rem] tracking-[0.14em] text-gold uppercase"
+                  >
+                    {badge}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <h1 className="text-[clamp(2.25rem,5vw,3.5rem)] leading-[1.02] text-paper">
+              {product.title}
+            </h1>
+            <p className="mt-3 font-[family-name:var(--font-display)] text-xl text-blush-300 italic">
+              {product.tagline}
+            </p>
+
+            <div className="mt-5 flex items-center gap-2 text-[0.8125rem] text-neutral-400">
+              <span className="text-gold" aria-hidden="true">
+                {"★".repeat(Math.round(product.rating))}
+              </span>
+              <span className="tabular-nums">
+                {product.rating.toFixed(1)} · {product.reviewCount.toLocaleString()} reviews
+              </span>
+            </div>
+
+            <p className="mt-7 text-[1.0625rem] leading-relaxed text-neutral-400">
+              {product.description}
+            </p>
+
+            <div className="rule-gilded my-9" />
+
+            <ProductPurchase product={product} />
+          </div>
+        </div>
+      </div>
+
+      {/* Specifications */}
+      <Section
+        className="py-24"
+        eyebrowLeft="The engineering"
+        eyebrowCenter="Specification"
+        eyebrowRight="Batch-guaranteed"
+      >
+        <div className="grid gap-16 lg:grid-cols-[1fr_1.3fr]">
+          <SectionHeading
+            title="What it's actually made of."
+            body="Competitors argue over grade labels. We publish the construction, because the grade was never the thing that failed you."
+          />
+          <dl className="divide-y divide-white/[0.07] border-t border-white/[0.07]">
+            {product.specs.map((spec) => (
+              <div key={spec.label} className="grid grid-cols-[140px_1fr] gap-6 py-5">
+                <dt className="eyebrow pt-0.5">{spec.label}</dt>
+                <dd className="text-[0.9375rem] leading-relaxed text-neutral-200">{spec.value}</dd>
+              </div>
+            ))}
+            {product.origin && (
+              <div className="grid grid-cols-[140px_1fr] gap-6 py-5">
+                <dt className="eyebrow pt-0.5">Origin</dt>
+                <dd className="text-[0.9375rem] leading-relaxed text-neutral-200">
+                  {product.origin}
+                </dd>
+              </div>
+            )}
+          </dl>
+        </div>
+      </Section>
+
+      {/* Related */}
+      {related.length > 0 && (
+        <Section className="py-24" eyebrowLeft="Also consider" eyebrowRight="Matched to this unit">
+          <h2 className="mb-12 text-[clamp(1.75rem,3.5vw,2.75rem)] text-paper">
+            Chosen alongside {product.title}.
+          </h2>
+          <div className="grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
+            {related.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {/* Return-reduction cross-sell */}
+      {product.slug !== "lace-test-kit" && product.price > 0 && (
+        <section className="border-t border-white/[0.07] bg-plum-900 py-20">
+          <div className="mx-auto flex max-w-[1440px] flex-col items-start gap-8 px-[4vw] md:flex-row md:items-center md:justify-between">
+            <div className="max-w-2xl">
+              <p className="eyebrow mb-3 text-gold">Before you commit</p>
+              <h2 className="text-[clamp(1.5rem,3vw,2.25rem)] text-paper">
+                {formatPrice(product.price, product.currency)} is a lot to guess with.
+              </h2>
+              <p className="mt-4 text-[0.9375rem] leading-relaxed text-blush-200/70">
+                Order The Lace Test for $5 first. Six swatches, five shade cards, credited back in
+                full when you buy this unit.
+              </p>
+            </div>
+            <a
+              href="/product/lace-test-kit"
+              className="shrink-0 border border-gold px-8 py-4 text-[0.8125rem] tracking-[0.14em] text-gold uppercase transition-all duration-500 hover:bg-gold hover:text-ink"
+            >
+              Order the kit
+            </a>
+          </div>
+        </section>
+      )}
+    </>
+  );
+}

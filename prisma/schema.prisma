@@ -1,0 +1,286 @@
+// Beyond Lace — Prisma schema (locked stack, Phase 2).
+// Models map 1:1 to docs/brand/07-tech-stack-locked.md and the 6-pillar spec:
+// batch-consistency inventory is the supply-chain pillar's core feature;
+// orders carry a channel tag so retail and wholesale never blur.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Prisma 7: connection URLs live in prisma.config.ts (migrations) and the
+// Neon driver adapter passed to PrismaClient (runtime) — not in this file.
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Users & roles (7 avatars → 6 system roles) ────────────────────────────────
+
+enum UserRole {
+  CONSUMER
+  SALON_PARTNER
+  WHITE_LABEL_RESELLER
+  DISTRIBUTOR
+  AMBASSADOR
+  ADMIN
+}
+
+enum PartnerTier {
+  BRONZE
+  SILVER
+  GOLD
+}
+
+model User {
+  id            String    @id @default(cuid())
+  clerkId       String?   @unique // linked once Clerk auth is live
+  email         String    @unique
+  name          String?
+  role          UserRole  @default(CONSUMER)
+  partnerTier   PartnerTier?
+  // Wholesale verification gate — pricing is released only after approval.
+  approvedAt    DateTime?
+  loyaltyPoints Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  orders        Order[]
+  reviews       Review[]
+  carts         Cart[]
+  applications  WholesaleApplication[]
+}
+
+// ── Catalog ───────────────────────────────────────────────────────────────────
+
+enum ProductLine {
+  LUXE
+  SILK
+  PRO
+  CARE
+  TRY_ON
+}
+
+model Collection {
+  id       String    @id @default(cuid())
+  slug     String    @unique
+  title    String    // HD Lace · Medical Comfort · Men's Systems · Beyond Luxe · Beyond Pro
+  products Product[]
+}
+
+model Product {
+  id             String       @id @default(cuid())
+  slug           String       @unique
+  title          String
+  line           ProductLine
+  tagline        String
+  description    String
+  /// Minor units (cents)
+  basePrice      Int
+  compareAtPrice Int?
+  currency       String       @default("USD")
+  texture        String?
+  laceType       String?
+  hairOrigin     String?      // e.g. "Single-donor virgin Remy, cuticle intact"
+  active         Boolean      @default(true)
+  /// Salon-exclusive products never appear on D2C (capsule rule)
+  wholesaleOnly  Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  collections Collection[]
+  variants    ProductVariant[]
+  inventory   InventoryLot[]
+  reviews     Review[]
+}
+
+model ProductVariant {
+  id         String  @id @default(cuid())
+  productId  String
+  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  /// e.g. { "Length": "20\"", "Shade": "Espresso", "Density": "180" }
+  selections Json
+  sku        String  @unique
+  /// Minor units, absolute (not a delta) — the source of truth for charging
+  price      Int
+  /// Exclusive shade for a specific salon partner, null = general availability
+  exclusiveToUserId String?
+
+  orderLines OrderLine[]
+  cartLines  CartLine[]
+
+  @@index([productId])
+}
+
+// ── Inventory — batch consistency is the pillar, so lots are first-class ─────
+
+model InventoryLot {
+  id            String   @id @default(cuid())
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id])
+  /// Production run identifier from the Xuchang floor
+  batchCode     String
+  /// Measured against the reference batch: texture / tone / density deltas
+  batchReport   Json?
+  quantity      Int
+  lowStockAlert Int      @default(10)
+  receivedAt    DateTime @default(now())
+
+  @@unique([productId, batchCode])
+  @@index([productId])
+}
+
+// ── Carts & orders ────────────────────────────────────────────────────────────
+
+enum OrderChannel {
+  RETAIL
+  WHOLESALE
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  IN_PRODUCTION
+  DISPATCHED
+  DELIVERED
+  RETURN_REQUESTED
+  REFUNDED
+  CANCELLED
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String?
+  user      User?      @relation(fields: [userId], references: [id])
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  lines     CartLine[]
+}
+
+model CartLine {
+  id        String         @id @default(cuid())
+  cartId    String
+  cart      Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  quantity  Int
+
+  @@unique([cartId, variantId])
+}
+
+model Order {
+  id                String       @id @default(cuid())
+  ref               String       @unique // BL-XXXXXX
+  userId            String?
+  user              User?        @relation(fields: [userId], references: [id])
+  channel           OrderChannel @default(RETAIL)
+  status            OrderStatus  @default(PENDING)
+  /// Minor units
+  total             Int
+  currency          String       @default("USD")
+  shippingAddress   Json
+  discreetPackaging Boolean      @default(false)
+  /// Stripe payment intent / PayPal order id once payments are live
+  paymentRef        String?
+  trackingNumber    String?
+  placedAt          DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  lines             OrderLine[]
+
+  @@index([userId])
+  @@index([channel, status])
+}
+
+model OrderLine {
+  id        String         @id @default(cuid())
+  orderId   String
+  order     Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  quantity  Int
+  /// Minor units at time of purchase — never recomputed from catalog
+  unitPrice Int
+  /// Which batch the fulfilled unit came from — the consistency audit trail
+  batchCode String?
+}
+
+// ── Reviews & UGC (moderated — nothing goes live unreviewed) ─────────────────
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Review {
+  id         String           @id @default(cuid())
+  productId  String
+  product    Product          @relation(fields: [productId], references: [id])
+  userId     String?
+  user       User?            @relation(fields: [userId], references: [id])
+  rating     Int
+  body       String
+  mediaUrls  String[]
+  moderation ModerationStatus @default(PENDING)
+  createdAt  DateTime         @default(now())
+
+  @@index([productId, moderation])
+}
+
+// ── B2B: applications & white-label assets ───────────────────────────────────
+
+enum ApplicationStatus {
+  RECEIVED
+  IN_REVIEW
+  APPROVED
+  DECLINED
+}
+
+model WholesaleApplication {
+  id              String            @id @default(cuid())
+  businessName    String
+  businessType    String
+  contactName     String
+  email           String
+  phone           String
+  country         String
+  estimatedVolume String
+  message         String?
+  status          ApplicationStatus @default(RECEIVED)
+  reviewedById    String?
+  reviewedBy      User?             @relation(fields: [reviewedById], references: [id])
+  createdAt       DateTime          @default(now())
+}
+
+model WhiteLabelAsset {
+  id          String   @id @default(cuid())
+  /// Owning partner (User with WHITE_LABEL_RESELLER / SALON_PARTNER role)
+  ownerId     String
+  kind        String   // packaging-mockup | logo | photography | spec-sheet
+  storageUrl  String   // Vercel Blob URL
+  approvedAt  DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([ownerId])
+}
+
+// ── Zero-party data (Pillar 4) ───────────────────────────────────────────────
+
+model QuizLead {
+  id          String   @id @default(cuid())
+  email       String
+  answers     Json
+  /// Consent is required by the API schema; recorded here for auditability
+  consentedAt DateTime @default(now())
+
+  @@index([email])
+}
+
+model ContactMessage {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  topic       String
+  orderNumber String?
+  body        String
+  resolvedAt  DateTime?
+  createdAt   DateTime @default(now())
+}

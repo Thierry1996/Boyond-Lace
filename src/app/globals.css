@@ -1,0 +1,230 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Beyond Lace — Design Tokens (Brand Kit v2)
+   Generated from docs/brand/06-brand-kit-v2.md. That file is the source of
+   truth; do not introduce raw hex values in components.
+   ========================================================================== */
+
+@theme {
+  /* --- Core palette (locked, kit v2) ------------------------------------- */
+  --color-ink: #090909; /* Infinite Black */
+  --color-paper: #f8f5f1; /* Luminous White — warm */
+  --color-plum: #5a2d67; /* Velvet Plum */
+  --color-blush: #eecad5; /* Blush Aura */
+  --color-gold: #c9a66b; /* Gilded Gold — champagne */
+  --color-ivory: #fbf8f4; /* Warm Ivory */
+
+  /* --- Plum ramp (900 = Deep Aubergine, from the kit) --------------------- */
+  --color-plum-900: #321528;
+  --color-plum-800: #46215a;
+  --color-plum-700: #5a2d67;
+  --color-plum-600: #71407f;
+  --color-plum-500: #895898;
+
+  /* --- Rose ramp (Dust Rose / Blush Aura / Rose Quartz, from the kit) ----- */
+  --color-rose-400: #dca8b7;
+  --color-rose-300: #eecad5;
+  --color-rose-200: #f7e7ec;
+
+  /* Legacy aliases — keep existing component classes valid. */
+  --color-blush-400: #dca8b7;
+  --color-blush-300: #eecad5;
+  --color-blush-200: #f7e7ec;
+  --color-amethyst-400: #dca8b7;
+
+  /* --- Gold ramp (300 = Champagne, from the kit) -------------------------- */
+  --color-gold-600: #a9834d;
+  --color-gold-500: #c9a66b;
+  --color-gold-400: #dbbf92;
+  --color-gold-300: #f6ebd5;
+
+  /* --- Neutrals ----------------------------------------------------------- */
+  --color-neutral-950: #090909;
+  --color-neutral-900: #121012;
+  --color-neutral-800: #1c181c;
+  --color-neutral-700: #2a252a;
+  --color-neutral-400: #8a8388;
+  --color-neutral-200: #d8d2d4;
+  --color-neutral-50: #f8f5f1;
+
+  /* --- Type (kit fonts only — no substitutes) ------------------------------
+     Canela and Neue Haas Grotesk are commercial: their names lead the stacks
+     and win automatically once licensed files are installed. Until then the
+     loaded serif is Cormorant Garamond (the kit's own headline font), and the
+     sans falls back through Neue Haas's direct Helvetica lineage. */
+  --font-display: "Canela", var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-sans:
+    "Neue Haas Grotesk Display Pro", "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
+
+  /* --- Motion ------------------------------------------------------------- */
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* --- Semantic + gradient tokens ------------------------------------------ */
+:root {
+  --grad-aurora: linear-gradient(
+    135deg,
+    #5a2d67 0%,
+    #dca8b7 35%,
+    #eecad5 58%,
+    #f6ebd5 80%,
+    #c9a66b 100%
+  );
+  --grad-gilded: linear-gradient(100deg, #a9834d 0%, #f6ebd5 48%, #c9a66b 100%);
+  --grad-velvet: radial-gradient(120% 90% at 50% 0%, #5a2d67 0%, #321528 55%, #090909 100%);
+
+  /* Theme surface contract. Overridden per avatar theme below. */
+  --surface-canvas: var(--color-ink);
+  --surface-raised: #121012;
+  --surface-text: var(--color-paper);
+  --surface-muted: var(--color-neutral-400);
+  --surface-accent: var(--color-gold);
+  --surface-rule: rgb(201 166 107 / 0.35);
+}
+
+/* Medical Necessity avatar. Dignified, never glamorous.
+   Gold and the aurora gradient are deliberately absent. */
+[data-theme="clinical"] {
+  --surface-canvas: var(--color-ivory);
+  --surface-raised: #ffffff;
+  --surface-text: var(--color-plum-900);
+  --surface-muted: #6f6470;
+  --surface-accent: var(--color-plum-700);
+  --surface-rule: rgb(90 45 103 / 0.25);
+}
+
+/* Gen Z avatar. Crisp, light, minimal — Rose Quartz surfaces. */
+[data-theme="editorial"] {
+  --surface-canvas: var(--color-ivory);
+  --surface-raised: #f7e7ec;
+  --surface-text: var(--color-plum-900);
+  --surface-muted: #6b5f68;
+  --surface-accent: var(--color-rose-400);
+  --surface-rule: rgb(201 166 107 / 0.3);
+}
+
+/* Beyond Lace Men. Technical, discreet, monochrome-leaning.
+   No blush, no aurora — see docs/brand/05-visual-identity.md §6. */
+[data-theme="men"] {
+  --surface-canvas: var(--color-ink);
+  --surface-raised: var(--color-neutral-800);
+  --surface-text: var(--color-paper);
+  --surface-muted: var(--color-neutral-400);
+  --surface-accent: rgb(201 166 107 / 0.6);
+  --surface-rule: rgb(255 255 255 / 0.12);
+}
+
+/* --- Base ---------------------------------------------------------------- */
+@layer base {
+  * {
+    border-color: var(--surface-rule);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--surface-canvas);
+    color: var(--surface-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Cormorant runs light — display sizes carry weight 500 to hold the page. */
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.02;
+  }
+
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+
+  ::selection {
+    background: var(--color-plum-600);
+    color: var(--color-paper);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  /* Small caps eyebrow — lifted directly off the brand boards. */
+  .eyebrow {
+    font-size: 0.625rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--surface-muted);
+    font-weight: 500;
+  }
+
+  /* Gold hairline. The brand's primary section separator. */
+  .rule-gilded {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--surface-rule) 12%,
+      var(--surface-rule) 88%,
+      transparent 100%
+    );
+  }
+
+  /* Kit divider element: hairline with a centred gold diamond. */
+  .divider-seal {
+    position: relative;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--surface-rule) 15%,
+      var(--surface-rule) 85%,
+      transparent 100%
+    );
+  }
+  .divider-seal::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    transform: translate(-50%, -50%) rotate(45deg);
+    background: var(--color-gold);
+  }
+
+  /* The crown jewel. At most once per viewport. */
+  .text-aurora {
+    background: var(--grad-aurora);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .surface-velvet {
+    background: var(--grad-velvet);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
