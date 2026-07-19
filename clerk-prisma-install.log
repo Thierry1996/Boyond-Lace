@@ -1,8 +1,0 @@
-
-added 97 packages in 1m
-npm warn allow-scripts 3 packages have install scripts not yet covered by allowScripts:
-npm warn allow-scripts   sharp@0.34.5 (install: node install/check.js || npm run build)
-npm warn allow-scripts   prisma@7.8.0 (preinstall: node scripts/preinstall-entry.js)
-npm warn allow-scripts   @prisma/engines@7.8.0 (postinstall: node scripts/postinstall.js)
-npm warn allow-scripts
-npm warn allow-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
