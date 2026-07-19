@@ -1,5 +1,9 @@
-import "dotenv/config";
+import { config as loadEnv } from "dotenv";
 import { defineConfig } from "prisma/config";
+
+// Next.js loads .env.local natively at runtime; the Prisma CLI does not, so
+// load it here (first match wins per variable).
+loadEnv({ path: [".env.local", ".env"] });
 
 /**
  * Prisma 7 config. Runtime connections use the Neon adapter in src/lib/db.ts;

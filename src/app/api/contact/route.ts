@@ -3,7 +3,7 @@ import { contactSchema } from "@/lib/schemas";
 
 export const runtime = "nodejs";
 
-/** Support contact intake. Zod-validated; ticketing lands with Gorgias/DB phase. */
+/** Support contact intake — Zod-validated, persisted to Postgres when configured. */
 export async function POST(request: Request) {
   let body: unknown;
   try {
@@ -20,7 +20,22 @@ export async function POST(request: Request) {
     );
   }
 
-  console.log("[contact]", JSON.stringify(parsed.data));
+  if (process.env.DATABASE_URL) {
+    try {
+      const { db } = await import("@/lib/db");
+      const { message, ...rest } = parsed.data;
+      await db.contactMessage.create({ data: { ...rest, body: message } });
+    } catch (err) {
+      console.error("[contact] persistence failed:", err);
+      return NextResponse.json(
+        { ok: false, error: "We could not save your message. Please try again." },
+        { status: 503 },
+      );
+    }
+  } else {
+    console.log("[contact]", JSON.stringify(parsed.data));
+  }
+
   return NextResponse.json({
     ok: true,
     message: "Received. We reply within one business day.",

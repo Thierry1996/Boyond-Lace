@@ -5,8 +5,9 @@ export const runtime = "nodejs";
 
 /**
  * Wholesale partner application intake. Validates against the shared Zod
- * schema; persistence lands with the Prisma/Neon phase (locked stack, Phase 2)
- * — until then applications are logged server-side.
+ * schema and persists to Postgres (Neon) when DATABASE_URL is configured.
+ * Without a database the application is logged server-side so nothing is
+ * silently dropped in development.
  */
 export async function POST(request: Request) {
   let body: unknown;
@@ -24,7 +25,21 @@ export async function POST(request: Request) {
     );
   }
 
-  console.log("[wholesale-application]", JSON.stringify(parsed.data));
+  if (process.env.DATABASE_URL) {
+    try {
+      const { db } = await import("@/lib/db");
+      await db.wholesaleApplication.create({ data: parsed.data });
+    } catch (err) {
+      console.error("[wholesale-application] persistence failed:", err);
+      return NextResponse.json(
+        { ok: false, error: "We could not save your application. Please try again." },
+        { status: 503 },
+      );
+    }
+  } else {
+    console.log("[wholesale-application]", JSON.stringify(parsed.data));
+  }
+
   return NextResponse.json({
     ok: true,
     message: "Application received. Reviews complete within two business days.",
