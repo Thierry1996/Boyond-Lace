@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 /* ==========================================================================
    Beyond Lace — Design Tokens (Brand Kit v2)
@@ -82,6 +86,41 @@
   --surface-muted: var(--color-neutral-400);
   --surface-accent: var(--color-gold);
   --surface-rule: rgb(201 166 107 / 0.35);
+  /* shadcn semantic variables, remapped to Brand Kit v2 — never the neutral
+     defaults. Components consume these names; the brand supplies the values.
+     Theme-aware: surface-* vars are overridden per avatar theme below. */
+  --background: var(--surface-canvas);
+  --foreground: var(--surface-text);
+  --card: var(--surface-raised);
+  --card-foreground: var(--surface-text);
+  --popover: var(--color-neutral-800);
+  --popover-foreground: var(--color-paper);
+  --primary: var(--color-gold);
+  --primary-foreground: var(--color-ink);
+  --secondary: var(--color-plum-800);
+  --secondary-foreground: var(--color-paper);
+  --muted: var(--color-neutral-800);
+  --muted-foreground: var(--color-neutral-400);
+  --accent: var(--color-plum-600);
+  --accent-foreground: var(--color-paper);
+  --destructive: #a93a33;
+  --border: var(--surface-rule);
+  --input: rgb(255 255 255 / 0.15);
+  --ring: var(--color-gold);
+  --chart-1: var(--color-plum-500);
+  --chart-2: var(--color-gold);
+  --chart-3: var(--color-rose-400);
+  --chart-4: var(--color-plum-600);
+  --chart-5: var(--color-gold-300);
+  --radius: 4px; /* brand corners — sharp or lightly rounded, per kit §5 */
+  --sidebar: var(--surface-raised);
+  --sidebar-foreground: var(--surface-text);
+  --sidebar-primary: var(--color-gold);
+  --sidebar-primary-foreground: var(--color-ink);
+  --sidebar-accent: var(--color-plum-800);
+  --sidebar-accent-foreground: var(--color-paper);
+  --sidebar-border: var(--surface-rule);
+  --sidebar-ring: var(--color-gold);
 }
 
 /* Medical Necessity avatar. Dignified, never glamorous.
@@ -120,10 +159,12 @@
 @layer base {
   * {
     border-color: var(--surface-rule);
+    @apply border-border outline-ring/50;
   }
 
   html {
     scroll-behavior: smooth;
+    @apply font-sans;
   }
 
   body {
@@ -132,6 +173,7 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    @apply bg-background text-foreground;
   }
 
   /* Cormorant runs light — display sizes carry weight 500 to hold the page. */
@@ -227,4 +269,82 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+@theme inline {
+  /* Headings are the display serif — shadcn's default wrongly mapped them to sans.
+     shadcn's generated `--font-sans: var(--font-sans)` self-reference is removed:
+     it is circular once no font variable overrides it at the html level, which
+     invalidates the declaration and drops body text to the browser default. */
+  --font-heading: var(--font-display);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* The brand is dark-first: :root already IS the dark identity, and avatar
+   themes switch via [data-theme], not a .dark class. This block exists only so
+   any component with dark: variants resolves to brand values, never gray. */
+.dark {
+  --background: var(--color-ink);
+  --foreground: var(--color-paper);
+  --card: var(--color-neutral-900);
+  --card-foreground: var(--color-paper);
+  --popover: var(--color-neutral-800);
+  --popover-foreground: var(--color-paper);
+  --primary: var(--color-gold);
+  --primary-foreground: var(--color-ink);
+  --secondary: var(--color-plum-800);
+  --secondary-foreground: var(--color-paper);
+  --muted: var(--color-neutral-800);
+  --muted-foreground: var(--color-neutral-400);
+  --accent: var(--color-plum-600);
+  --accent-foreground: var(--color-paper);
+  --destructive: #b8524b;
+  --border: rgb(201 166 107 / 0.35);
+  --input: rgb(255 255 255 / 0.15);
+  --ring: var(--color-gold);
+  --sidebar: var(--color-neutral-900);
+  --sidebar-foreground: var(--color-paper);
+  --sidebar-primary: var(--color-gold);
+  --sidebar-primary-foreground: var(--color-ink);
+  --sidebar-accent: var(--color-plum-800);
+  --sidebar-accent-foreground: var(--color-paper);
+  --sidebar-border: rgb(201 166 107 / 0.35);
+  --sidebar-ring: var(--color-gold);
 }
