@@ -145,9 +145,14 @@ export function HeaderSearch({ className = "" }: { className?: string }) {
 
   return (
     <div ref={rootRef} className={`relative ${className}`}>
+      {/* A pill field with a circular action inside it. The previous full-height
+          button with a border-l divider fought the rounded corners and left the
+          glyph sitting off the field's centre line; everything here shares one
+          horizontal axis via items-center, and the button is a fixed square so
+          the icon cannot drift. */}
       <div
         ref={fieldRef}
-        className="flex items-center border border-white/20 bg-white/[0.04] transition-colors duration-300 focus-within:border-gold"
+        className="flex items-center gap-1 rounded-full border border-white/20 bg-white/[0.05] py-1 pr-1.5 pl-5 transition-colors duration-300 focus-within:border-gold focus-within:bg-white/[0.08]"
       >
         <input
           ref={inputRef}
@@ -166,7 +171,8 @@ export function HeaderSearch({ className = "" }: { className?: string }) {
           aria-controls="header-search-results"
           aria-autocomplete="list"
           aria-activedescendant={active >= 0 ? `header-search-opt-${active}` : undefined}
-          className="w-full bg-transparent px-4 py-2.5 text-[0.875rem] text-paper placeholder:text-neutral-400/70 focus:outline-none"
+          // The WebKit cancel glyph would sit beside our own clear button.
+          className="min-w-0 flex-1 bg-transparent py-1.5 text-[0.875rem] text-paper placeholder:text-neutral-400/70 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
         />
         {term && (
           <button
@@ -176,16 +182,16 @@ export function HeaderSearch({ className = "" }: { className?: string }) {
               inputRef.current?.focus();
             }}
             aria-label="Clear search"
-            className="px-2 text-neutral-400 transition-colors hover:text-gold"
+            className="grid size-7 shrink-0 place-items-center rounded-full text-neutral-400 transition-colors hover:bg-white/10 hover:text-paper"
           >
-            <X size={14} strokeWidth={1.75} />
+            <X size={13} strokeWidth={1.75} />
           </button>
         )}
         <button
           type="button"
           onClick={submit}
           aria-label="Search"
-          className="flex h-full shrink-0 items-center gap-2 self-stretch border-l border-white/15 px-4 text-neutral-200 transition-colors duration-300 hover:bg-gold/15 hover:text-gold"
+          className="grid size-8 shrink-0 place-items-center rounded-full bg-white/10 text-neutral-200 transition-colors duration-300 hover:bg-gold hover:text-ink"
         >
           {isFetching ? (
             <Loader2 size={15} strokeWidth={1.75} className="animate-spin" />
@@ -209,7 +215,7 @@ export function HeaderSearch({ className = "" }: { className?: string }) {
             id="header-search-results"
             role="listbox"
             aria-label="Search results"
-            className="dark-island fixed z-[90] max-h-[70vh] overflow-y-auto border border-gold/25 bg-neutral-900 shadow-[0_30px_80px_-20px_rgb(0_0_0/0.8)]"
+            className="dark-island fixed z-[90] max-h-[70vh] overflow-y-auto rounded-2xl border border-gold/25 bg-neutral-900 shadow-[0_30px_80px_-20px_rgb(0_0_0/0.8)]"
             style={{
               top: anchor.top,
               left: anchor.left,

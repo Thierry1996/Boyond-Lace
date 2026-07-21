@@ -72,16 +72,10 @@ export function Header() {
         style={{ maxHeight: condensed ? 0 : 160, opacity: condensed ? 0 : 1 }}
       >
         <div className="mx-auto grid max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center gap-6 px-[4vw] py-2">
-          {/* Left — currency/language, then the search field beside the wordmark.
-              The theme toggle and WhatsApp moved to the right cluster: with all
-              four preference controls here the search column collapsed to ~56px
-              at 1100px wide, which is a field nobody can type into. */}
-          <div className="hidden items-center gap-4 lg:flex">
-            <nav aria-label="Preferences" className="flex shrink-0 items-center gap-4">
-              <CurrencySelector />
-              <LanguageSelector />
-            </nav>
-            <HeaderSearch className="min-w-0 flex-1" />
+          {/* Left — search only. Three zones in this bar and nothing else:
+              search, wordmark, then every control grouped at the right corner. */}
+          <div className="hidden items-center lg:flex">
+            <HeaderSearch className="min-w-0 flex-1 xl:max-w-[26rem]" />
           </div>
 
           {/* Mobile menu trigger sits where the locale nav would be */}
@@ -107,52 +101,61 @@ export function Header() {
             <LogoMark width={230} priority className="w-[9.5rem] sm:w-[11.5rem] lg:w-[13rem]" />
           </Link>
 
-          {/* Right — commerce */}
-          <nav aria-label="Account and cart" className="flex items-center justify-end gap-5">
-            {/* Below lg the inline field is hidden, so keep a route to search. */}
-            <Link
-              href="/search"
-              aria-label="Search"
-              className="text-neutral-400 transition-colors duration-300 hover:text-gold lg:hidden"
+          {/* Right — preferences and commerce, grouped into one corner cluster
+              and separated by a hairline so the two roles stay legible. */}
+          <div className="flex items-center justify-end gap-4">
+            <nav
+              aria-label="Preferences"
+              className="hidden items-center gap-4 border-r border-white/12 pr-4 lg:flex"
             >
-              <Search size={18} strokeWidth={1.5} />
-            </Link>
-            <span className="hidden lg:block">
+              <CurrencySelector />
+              <LanguageSelector />
               <ThemeToggle />
-            </span>
-            <a
-              href={URLS.whatsappPrefilled}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="WhatsApp"
-              className="hidden text-neutral-400 transition-colors duration-300 hover:text-gold lg:block"
-            >
-              <WhatsAppGlyph size={17} />
-            </a>
-            <Link
-              href="/wishlist"
-              aria-label="Wishlist"
-              className="hidden text-neutral-400 transition-colors duration-300 hover:text-gold sm:block"
-            >
-              <Heart size={18} strokeWidth={1.5} />
-            </Link>
-            <div className="hidden sm:block">
-              <AuthControls />
-            </div>
-            <Link
-              href="/cart"
-              aria-label="Cart"
-              className="group relative text-neutral-400 transition-colors duration-300 hover:text-gold"
-            >
-              <ShoppingBag size={18} strokeWidth={1.5} />
-              <span
-                suppressHydrationWarning
-                className="count-badge absolute -top-2 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[0.625rem] font-medium tabular-nums"
+              <a
+                href={URLS.whatsappPrefilled}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="WhatsApp"
+                className="text-neutral-400 transition-colors duration-300 hover:text-gold"
               >
-                {hydrated ? count : 0}
-              </span>
-            </Link>
-          </nav>
+                <WhatsAppGlyph size={17} />
+              </a>
+            </nav>
+
+            <nav aria-label="Account and cart" className="flex items-center gap-5">
+              {/* Below lg the inline field is hidden, so keep a route to search. */}
+              <Link
+                href="/search"
+                aria-label="Search"
+                className="text-neutral-400 transition-colors duration-300 hover:text-gold lg:hidden"
+              >
+                <Search size={18} strokeWidth={1.5} />
+              </Link>
+              <Link
+                href="/wishlist"
+                aria-label="Wishlist"
+                className="hidden text-neutral-400 transition-colors duration-300 hover:text-gold sm:block"
+              >
+                <Heart size={18} strokeWidth={1.5} />
+              </Link>
+              <div className="hidden sm:block">
+                <AuthControls />
+              </div>
+              <Link
+                href="/cart"
+                aria-label="Cart"
+                className="group relative text-neutral-400 transition-colors duration-300 hover:text-gold"
+              >
+                <ShoppingBag size={18} strokeWidth={1.5} />
+                <span
+                  suppressHydrationWarning
+                  className="count-badge absolute -top-2 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[0.625rem] font-medium tabular-nums"
+                >
+                  {hydrated ? count : 0}
+                </span>
+              </Link>
+            </nav>
+          </div>
         </div>
       </div>
 
