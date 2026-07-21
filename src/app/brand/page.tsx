@@ -227,6 +227,28 @@ export default function BrandPage() {
               texture, tone, and density. Not approximately. Measurably. It is the least glamorous
               commitment we make and the one customers feel most.
             </p>
+            <p className="mt-4 text-[1.0625rem] leading-relaxed text-blush-200/70">
+              We build in Xuchang, Henan — the district that supplies most of the world&apos;s human
+              hair. Proximity is not a cost decision. It means raw material is inspected in person
+              before it is bought, a sample is a walk across the floor rather than a six-week
+              shipment, and the people sorting, wefting and hand-tying your unit are employed by us
+              rather than subcontracted away.
+            </p>
+
+            <dl className="mt-9 grid grid-cols-2 gap-x-8 gap-y-6 border-t border-white/10 pt-8">
+              {[
+                ["Sourced", "Single-donor virgin Remy, cuticle-aligned"],
+                ["Sorted", "By texture and tone before any processing"],
+                ["Constructed", "Hand-tied caps, individually bleached knots"],
+                ["Verified", "Measured against the reference batch, every run"],
+              ].map(([k, v]) => (
+                <div key={k}>
+                  <dt className="eyebrow mb-1.5 text-gold">{k}</dt>
+                  <dd className="text-[0.875rem] leading-relaxed text-blush-200/70">{v}</dd>
+                </div>
+              ))}
+            </dl>
+
             <Link
               href="/wholesale#sourcing"
               className="mt-8 inline-block border-b border-gold pb-1 text-[0.8125rem] tracking-[0.1em] text-gold uppercase"

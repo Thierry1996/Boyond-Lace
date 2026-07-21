@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { URLS } from "@/lib/contact";
 
 /**
  * Brand social glyphs as uniform inline SVGs — one visual language across the
@@ -117,13 +118,16 @@ export interface SocialLink {
   Glyph: (p: IconProps) => React.ReactElement;
 }
 
-/** Brand handles — @BeyondLace across platforms, per docs/brand strategy. */
+/**
+ * Brand handles — @BeyondLace across platforms. URLs resolve from lib/contact
+ * so the number and handles live in exactly one place.
+ */
 export const SOCIAL_LINKS: SocialLink[] = [
-  { label: "Instagram", href: "https://instagram.com/beyondlace", Glyph: InstagramGlyph },
-  { label: "TikTok", href: "https://tiktok.com/@beyondlace", Glyph: TikTokGlyph },
-  { label: "YouTube", href: "https://youtube.com/@beyondlace", Glyph: YouTubeGlyph },
-  { label: "Pinterest", href: "https://pinterest.com/beyondlace", Glyph: PinterestGlyph },
-  { label: "WhatsApp", href: "https://wa.me/10000000000", Glyph: WhatsAppGlyph },
+  { label: "Instagram", href: URLS.instagram, Glyph: InstagramGlyph },
+  { label: "TikTok", href: URLS.tiktok, Glyph: TikTokGlyph },
+  { label: "YouTube", href: URLS.youtube, Glyph: YouTubeGlyph },
+  { label: "Pinterest", href: URLS.pinterest, Glyph: PinterestGlyph },
+  { label: "WhatsApp", href: URLS.whatsapp, Glyph: WhatsAppGlyph },
 ];
 
 /** Consistent social row — gold glyphs on plum tiles, per the icon board. */

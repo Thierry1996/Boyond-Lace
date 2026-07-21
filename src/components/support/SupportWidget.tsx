@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MessageCircle, X, Send, Sparkles, ArrowLeft } from "lucide-react";
 import { WhatsAppGlyph, InstagramGlyph } from "@/components/brand/SocialIcons";
+import { URLS } from "@/lib/contact";
 
 /**
  * Floating support hub. Offers every contact channel with a visible icon
@@ -11,9 +12,8 @@ import { WhatsAppGlyph, InstagramGlyph } from "@/components/brand/SocialIcons";
  * concierge fallback otherwise).
  */
 
-const WHATSAPP_URL =
-  "https://wa.me/10000000000?text=Hi%20Beyond%20Lace%2C%20I%20have%20a%20question";
-const INSTAGRAM_URL = "https://ig.me/m/beyondlace";
+const WHATSAPP_URL = URLS.whatsappPrefilled;
+const INSTAGRAM_URL = URLS.instagramDm;
 
 type View = "menu" | "chat";
 interface Msg {

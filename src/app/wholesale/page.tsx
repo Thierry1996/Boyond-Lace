@@ -174,6 +174,67 @@ export default function WholesalePage() {
         </div>
       </section>
 
+      {/* Operations */}
+      <Section
+        className="py-28"
+        eyebrowLeft="Operations"
+        eyebrowCenter="How a partnership runs"
+        eyebrowRight="Day one onward"
+      >
+        <div id="operations" className="scroll-mt-32">
+          <SectionHeading
+            title="What partnership actually looks like."
+            body="The programme is judged on the unglamorous parts: how fast a quote comes back, who picks up when something goes wrong, and whether stock is where your customers are."
+          />
+          <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                t: "Factory-direct, no middleman",
+                b: "You buy from the floor that builds the unit. There is no trading company between us adding a margin and a week to every question.",
+              },
+              {
+                t: "Warehouses in two hemispheres",
+                b: "Stock held in both the US and China. Domestic US orders move in three to five days rather than waiting on an inbound container.",
+              },
+              {
+                t: "Global dispatch",
+                b: "DHL, FedEx and EMS to more than 180 countries, fully tracked. Express lanes run three to seven days door to door.",
+              },
+              {
+                t: "One named account manager",
+                b: "The same person for orders, logistics and custom requests. Not a shared inbox, not a ticket number, not a new introduction every month.",
+              },
+              {
+                t: "Quotes inside one business day",
+                b: "Applying costs nothing and commits you to nothing. Verified partners receive personalised pricing within twenty-four hours.",
+              },
+              {
+                t: "Customisation as standard",
+                b: "Private label packaging, custom lengths, densities and cap constructions — available from your first order, not held back for volume.",
+              },
+            ].map((o) => (
+              <div
+                key={o.t}
+                className="border-t border-gold/20 pt-6 transition-colors duration-300 hover:border-gold"
+              >
+                <h3 className="text-lg text-paper">{o.t}</h3>
+                <p className="mt-3 text-[0.9375rem] leading-relaxed text-neutral-400">{o.b}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 border border-gold/25 p-7">
+            <p className="eyebrow mb-3 text-gold">One thing we do not offer</p>
+            <p className="max-w-3xl text-[0.9375rem] leading-relaxed text-neutral-400">
+              Marketplace dropshipping. We will fulfil directly to your customers under your
+              branding, but not onto Amazon, Etsy or any venue where listings race each other to the
+              bottom. That restraint is what makes the MAP floor enforceable — and the margin you
+              hold is worth more than the channel you lose.
+            </p>
+          </div>
+        </div>
+      </Section>
+
       {/* Sourcing */}
       <Section
         className="py-28"
