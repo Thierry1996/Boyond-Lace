@@ -1,5 +1,8 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+
+/** The ambassador portal is members-only; the public programme pages are not. */
+const isProtectedRoute = createRouteMatcher(["/ambassadors/dashboard(.*)", "/account(.*)"]);
 
 /**
  * Next.js 16 proxy (the middleware convention). Clerk activates only when its
@@ -13,7 +16,12 @@ import { NextResponse } from "next/server";
 const clerkEnabled =
   !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && !!process.env.CLERK_SECRET_KEY;
 
-export default clerkEnabled ? clerkMiddleware() : () => NextResponse.next();
+export default clerkEnabled
+  ? clerkMiddleware(async (auth, req) => {
+      // Verified-email sign-in required for the portal and account areas.
+      if (isProtectedRoute(req)) await auth.protect();
+    })
+  : () => NextResponse.next();
 
 export const config = {
   matcher: [

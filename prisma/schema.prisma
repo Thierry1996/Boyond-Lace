@@ -47,6 +47,225 @@ model User {
   reviews       Review[]
   carts         Cart[]
   applications  WholesaleApplication[]
+  ambassador    Ambassador?
+}
+
+// ── Beyond Ambassadors (Pillar 5) ─────────────────────────────────────────────
+// Three tiers, each a different commercial relationship — see
+// docs/brand/02-brand-strategy.md §5. Tier is assigned by the social marketing
+// division at approval, never self-selected.
+
+enum AmbassadorTier {
+  TIER_3_MICRO // 10k–50k · affiliate, 15–20% commission
+  TIER_2_MACRO // 100k+ · exclusive contract, early access
+  TIER_1_ELITE // celebrities / A-list stylists · equity + retainer
+}
+
+enum AmbassadorStatus {
+  PENDING
+  IN_REVIEW
+  APPROVED
+  DECLINED
+  SUSPENDED
+}
+
+enum SocialPlatform {
+  INSTAGRAM
+  TIKTOK
+  YOUTUBE
+  PINTEREST
+}
+
+/** Public application — captured before any account exists. */
+model AmbassadorApplication {
+  id             String           @id @default(cuid())
+  fullName       String
+  email          String
+  phone          String
+  country        String
+  instagramUrl   String
+  tiktokUrl      String?
+  youtubeUrl     String?
+  followerCount  Int
+  primaryNiche   String
+  portfolioUrl   String?
+  message        String?
+  /// Tier the social marketing division assigns at review, not the applicant.
+  proposedTier   AmbassadorTier?
+  status         AmbassadorStatus @default(PENDING)
+  reviewNotes    String?
+  reviewedAt     DateTime?
+  createdAt      DateTime         @default(now())
+
+  @@index([status])
+  @@index([email])
+}
+
+model Ambassador {
+  id            String           @id @default(cuid())
+  userId        String           @unique
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tier          AmbassadorTier   @default(TIER_3_MICRO)
+  status        AmbassadorStatus @default(PENDING)
+  /// Vanity code embedded in every affiliate link, e.g. BL-AVA24
+  referralCode  String           @unique
+  /// Commission basis points (1500 = 15%), set per tier at approval.
+  commissionBps Int              @default(1500)
+  displayName   String
+  country       String?
+  city          String?
+  approvedAt    DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  socialAccounts SocialAccount[]
+  links          AffiliateLink[]
+  campaigns      Campaign[]
+  commissions    CommissionEntry[]
+  payoutMethods  PayoutMethod[]
+  payouts        Payout[]
+
+  @@index([tier, status])
+}
+
+/** A linked creator account. Verification is manual until platform OAuth lands. */
+model SocialAccount {
+  id            String         @id @default(cuid())
+  ambassadorId  String
+  ambassador    Ambassador     @relation(fields: [ambassadorId], references: [id], onDelete: Cascade)
+  platform      SocialPlatform
+  handle        String
+  profileUrl    String
+  followerCount Int            @default(0)
+  verifiedAt    DateTime?
+  createdAt     DateTime       @default(now())
+
+  @@unique([ambassadorId, platform, handle])
+  @@index([ambassadorId])
+}
+
+enum AdFormat {
+  UGC_REEL
+  TRANSFORMATION_BEFORE_AFTER
+  LONG_FORM_TUTORIAL
+  STORY
+  LIVE
+  STATIC_POST
+  PAID_BOOST
+}
+
+/** Self-reported content/ad log — the transparency + supervision record. */
+model Campaign {
+  id           String         @id @default(cuid())
+  ambassadorId String
+  ambassador   Ambassador     @relation(fields: [ambassadorId], references: [id], onDelete: Cascade)
+  title        String
+  platform     SocialPlatform
+  format       AdFormat
+  postUrl      String?
+  /// Which line/product the content promotes.
+  promotedSlug String?
+  startDate    DateTime
+  endDate      DateTime?
+  /// Self-reported performance; reconciled against affiliate link data.
+  impressions  Int            @default(0)
+  reactions    Int            @default(0)
+  comments     Int            @default(0)
+  shares       Int            @default(0)
+  clicks       Int            @default(0)
+  /// Minor units (cents) — paid boost spend, if any.
+  adSpend      Int            @default(0)
+  notes        String?
+  createdAt    DateTime       @default(now())
+
+  @@index([ambassadorId, startDate])
+}
+
+model AffiliateLink {
+  id           String     @id @default(cuid())
+  ambassadorId String
+  ambassador   Ambassador @relation(fields: [ambassadorId], references: [id], onDelete: Cascade)
+  /// Full short code, e.g. BL-AVA24-LUXE
+  code         String     @unique
+  /// Destination path on the storefront, e.g. /product/the-reinvention-...
+  targetPath   String
+  label        String
+  clicks       Int        @default(0)
+  conversions  Int        @default(0)
+  createdAt    DateTime   @default(now())
+
+  @@index([ambassadorId])
+}
+
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+  REVERSED
+}
+
+model CommissionEntry {
+  id           String           @id @default(cuid())
+  ambassadorId String
+  ambassador   Ambassador       @relation(fields: [ambassadorId], references: [id], onDelete: Cascade)
+  orderRef     String
+  /// Minor units
+  orderTotal   Int
+  rateBps      Int
+  amount       Int
+  status       CommissionStatus @default(PENDING)
+  payoutId     String?
+  payout       Payout?          @relation(fields: [payoutId], references: [id])
+  createdAt    DateTime         @default(now())
+
+  @@index([ambassadorId, status])
+}
+
+enum PayoutChannel {
+  PAYPAL
+  CASHAPP
+  BANK_TRANSFER
+  USDC_WALLET
+  BTC_WALLET
+  ETH_WALLET
+}
+
+model PayoutMethod {
+  id           String        @id @default(cuid())
+  ambassadorId String
+  ambassador   Ambassador    @relation(fields: [ambassadorId], references: [id], onDelete: Cascade)
+  channel      PayoutChannel
+  /// Email, $cashtag, or wallet address depending on channel.
+  destination  String
+  isDefault    Boolean       @default(false)
+  verifiedAt   DateTime?
+  createdAt    DateTime      @default(now())
+
+  @@index([ambassadorId])
+}
+
+enum PayoutStatus {
+  REQUESTED
+  PROCESSING
+  PAID
+  FAILED
+}
+
+model Payout {
+  id           String            @id @default(cuid())
+  ambassadorId String
+  ambassador   Ambassador        @relation(fields: [ambassadorId], references: [id], onDelete: Cascade)
+  /// Minor units
+  amount       Int
+  channel      PayoutChannel
+  destination  String
+  status       PayoutStatus      @default(REQUESTED)
+  reference    String?
+  requestedAt  DateTime          @default(now())
+  settledAt    DateTime?
+  entries      CommissionEntry[]
+
+  @@index([ambassadorId, status])
 }
 
 // ── Catalog ───────────────────────────────────────────────────────────────────

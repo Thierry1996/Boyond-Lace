@@ -5,21 +5,33 @@
  * an existing in-page anchor; nothing 404s.
  */
 
+import type { ImageryKey } from "@/lib/imagery";
+
 export interface NavLink {
   label: string;
   href: string;
   note?: string;
+  /** Downloads and third-party destinations open in a new tab. */
+  external?: boolean;
+  /** Nested third level, e.g. the three ambassador tiers. */
+  children?: NavLink[];
 }
 
 export interface NavGroup {
   heading: string;
   links: NavLink[];
+  /** Photograph shown when this column is hovered — guides where you are. */
+  image?: ImageryKey;
+  /** One-line orientation copy for the image panel. */
+  blurb?: string;
 }
 
 export interface PrimaryNavItem {
   label: string;
   href: string;
   groups?: NavGroup[];
+  /** Default panel image before any column is hovered. */
+  image?: ImageryKey;
   feature?: { eyebrow: string; title: string; body: string; href: string; cta: string };
 }
 
@@ -27,6 +39,7 @@ export const primaryNav: PrimaryNavItem[] = [
   {
     label: "Shop",
     href: "/shop",
+    image: "navShop",
     groups: [
       {
         heading: "Collections",
@@ -79,6 +92,7 @@ export const primaryNav: PrimaryNavItem[] = [
   {
     label: "Wholesale",
     href: "/wholesale",
+    image: "navWholesale",
     groups: [
       {
         heading: "Programmes",
@@ -117,6 +131,7 @@ export const primaryNav: PrimaryNavItem[] = [
   {
     label: "Our Brand",
     href: "/brand",
+    image: "navBrand",
     groups: [
       {
         heading: "The Why",
@@ -144,10 +159,57 @@ export const primaryNav: PrimaryNavItem[] = [
       },
     ],
   },
-  { label: "The Beyond Circle", href: "/circle" },
+  {
+    label: "The Beyond Circle",
+    href: "/circle",
+    image: "navCircle",
+    groups: [
+      {
+        heading: "Community",
+        image: "navCircle",
+        blurb: "The proof arrives before the parcel does.",
+        links: [
+          { label: "The Circle", href: "/circle" },
+          { label: "Transformation Stories", href: "/circle#stories" },
+          { label: "Loyalty Rewards", href: "/circle#loyalty" },
+          { label: "Masterclasses & Events", href: "/circle#events" },
+        ],
+      },
+      {
+        heading: "Ambassador Programme",
+        image: "educationPartnership",
+        blurb: "Three tiers. Not gifting — partnership.",
+        links: [
+          { label: "Programme Overview", href: "/ambassadors" },
+          { label: "Apply to Join", href: "/ambassadors/apply" },
+          { label: "Tier 3 — Micro Affiliate", href: "/ambassadors/apply/tier-3" },
+          { label: "Tier 2 — Macro Contract", href: "/ambassadors/apply/tier-2" },
+          { label: "Tier 1 — Celebrity Stylist", href: "/ambassadors/apply/tier-1" },
+        ],
+      },
+      {
+        heading: "Ambassador Portal",
+        image: "tier2",
+        blurb: "Track sales, log content, request payouts.",
+        links: [
+          { label: "Sign In", href: "/sign-in" },
+          { label: "Create Account", href: "/sign-up" },
+          { label: "Ambassador Dashboard", href: "/ambassadors/dashboard" },
+        ],
+      },
+    ],
+    feature: {
+      eyebrow: "Earn from your reach",
+      title: "15–20% commission, tracked honestly",
+      body: "Link your Instagram and TikTok, log the content you run, and watch commission accrue against your own affiliate links. Paid by PayPal, CashApp, or crypto wallet.",
+      href: "/ambassadors",
+      cta: "See the programme",
+    },
+  },
   {
     label: "Learn",
     href: "/learn",
+    image: "navLearn",
     groups: [
       {
         heading: "Before You Buy",
@@ -173,7 +235,89 @@ export const primaryNav: PrimaryNavItem[] = [
       },
     ],
   },
-  { label: "Support", href: "/support" },
+  {
+    label: "Support",
+    href: "/support",
+    image: "navSupport",
+    groups: [
+      {
+        heading: "Fit & Product Guides",
+        image: "fitGuides",
+        blurb: "Get the shade and the cap right before you commit.",
+        links: [
+          { label: "Size Guide", href: "/support/size-guide" },
+          { label: "Lace Comparison Chart", href: "/support/lace-comparison" },
+        ],
+      },
+      {
+        heading: "B2B Resources",
+        image: "b2bResources",
+        blurb: "Everything a salon or reseller needs to sell the line.",
+        links: [
+          { label: "Wholesale Pricing PDF", href: "/support/wholesale-pricing", note: "Download" },
+          { label: "Private Label Mockup Gallery", href: "/support/private-label-gallery" },
+        ],
+      },
+      {
+        heading: "Brand & Press",
+        image: "brandPress",
+        blurb: "Logos, palette, and media assets, correctly licensed.",
+        links: [
+          { label: "Full Brand Kit", href: "/support/brand-kit", note: "Download" },
+          { label: "Press Kit for Influencers & Media", href: "/support/press-kit" },
+        ],
+      },
+      {
+        heading: "Education & Partnership",
+        image: "educationPartnership",
+        blurb: "Learn the craft, then get paid to teach it.",
+        links: [
+          { label: "All Tutorial Videos Library", href: "/support/tutorials" },
+          {
+            label: "Influencer Partnership Application",
+            href: "/ambassadors/apply",
+            children: [
+              { label: "Tier 3 — Micro Affiliate Sign-Up", href: "/ambassadors/apply/tier-3" },
+              { label: "Tier 2 — Macro Exclusive Contract", href: "/ambassadors/apply/tier-2" },
+              {
+                label: "Tier 1 — Celebrity Stylist Collaboration",
+                href: "/ambassadors/apply/tier-1",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        heading: "Orders & Logistics",
+        image: "ordersLogistics",
+        blurb: "Track, return, or scale an order without an email chain.",
+        links: [
+          { label: "Return Portal — Self-Service", href: "/support/returns-portal" },
+          { label: "Bulk Order Support", href: "/support/bulk-orders" },
+          { label: "Track My Order", href: "/support#track" },
+          { label: "Shipping & Returns Policy", href: "/legal/shipping-policy" },
+          { label: "Warranty", href: "/support#warranty" },
+        ],
+      },
+      {
+        heading: "Company",
+        image: "company",
+        blurb: "Who we are, how we hire, and how to reach us.",
+        links: [
+          { label: "Accessibility Statement", href: "/legal/accessibility" },
+          { label: "Careers", href: "/careers" },
+          { label: "Contact Headquarters", href: "/support/contact-hq" },
+        ],
+      },
+    ],
+    feature: {
+      eyebrow: "Fastest answer",
+      title: "Ask the virtual stylist",
+      body: "Shade, texture, sizing and fit — answered in the support hub, bottom-right of any page. WhatsApp and Instagram reach a human within the hour.",
+      href: "/support#contact",
+      cta: "Contact options",
+    },
+  },
 ];
 
 export const utilityNav: NavLink[] = [

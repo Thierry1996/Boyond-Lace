@@ -9,6 +9,7 @@ import { AuthControls } from "@/components/auth/AuthControls";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { CurrencySelector } from "@/components/ui/CurrencySelector";
 import { LanguageSelector } from "@/components/ui/LanguageSelector";
+import { MegaMenu } from "./MegaMenu";
 
 export function Header() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -127,58 +128,7 @@ export function Header() {
         (item) =>
           item.groups &&
           openMenu === item.label && (
-            <div
-              key={item.label}
-              className="absolute inset-x-0 top-full hidden border-t border-white/[0.07] bg-ink/98 backdrop-blur-xl lg:block"
-            >
-              <div className="mx-auto grid max-w-[1440px] grid-cols-12 gap-10 px-[4vw] py-12">
-                <div
-                  className={`grid gap-10 ${item.feature ? "col-span-8" : "col-span-12"}`}
-                  style={{
-                    gridTemplateColumns: `repeat(${item.groups.length}, minmax(0, 1fr))`,
-                  }}
-                >
-                  {item.groups.map((group) => (
-                    <div key={group.heading}>
-                      <p className="eyebrow mb-5">{group.heading}</p>
-                      <ul className="space-y-3">
-                        {group.links.map((link) => (
-                          <li key={link.href + link.label}>
-                            <Link
-                              href={link.href}
-                              className="group block text-[0.9375rem] text-neutral-200 transition-colors hover:text-paper"
-                            >
-                              {link.label}
-                              {link.note && (
-                                <span className="mt-0.5 block text-[0.75rem] text-neutral-400">
-                                  {link.note}
-                                </span>
-                              )}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-
-                {item.feature && (
-                  <div className="col-span-4 border-l border-white/[0.07] pl-10">
-                    <p className="eyebrow mb-4 text-gold">{item.feature.eyebrow}</p>
-                    <h3 className="mb-3 text-2xl text-paper">{item.feature.title}</h3>
-                    <p className="mb-6 text-sm leading-relaxed text-neutral-400">
-                      {item.feature.body}
-                    </p>
-                    <Link
-                      href={item.feature.href}
-                      className="inline-block border-b border-gold pb-1 text-[0.8125rem] tracking-[0.08em] text-gold uppercase"
-                    >
-                      {item.feature.cta}
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </div>
+            <MegaMenu key={item.label} item={item} onNavigate={() => setOpenMenu(null)} />
           ),
       )}
 
