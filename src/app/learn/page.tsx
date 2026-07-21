@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Section, SectionHeading } from "@/components/ui/Section";
+import { Accordion } from "@/components/ui/Accordion";
 import { ProductImage } from "@/components/ui/ProductImage";
 
 export const metadata: Metadata = {
@@ -243,21 +244,9 @@ export default function LearnPage() {
         eyebrowRight={`${FAQS.length} questions`}
       >
         <div id="faq" className="scroll-mt-32">
-          <SectionHeading title="Asked constantly, answered honestly." />
-          <div className="mt-12 divide-y divide-white/[0.07] border-t border-white/[0.07]">
-            {FAQS.map((f) => (
-              <details key={f.q} className="group py-6">
-                <summary className="flex cursor-pointer items-center justify-between text-[1.0625rem] text-paper [&::-webkit-details-marker]:hidden">
-                  {f.q}
-                  <span className="ml-6 shrink-0 text-gold transition-transform duration-300 group-open:rotate-45">
-                    +
-                  </span>
-                </summary>
-                <p className="mt-4 max-w-3xl text-[0.9375rem] leading-relaxed text-neutral-400">
-                  {f.a}
-                </p>
-              </details>
-            ))}
+          <SectionHeading title="Asked constantly, answered honestly." italicFrom={2} />
+          <div className="mt-12">
+            <Accordion items={FAQS.map((f) => ({ q: f.q, a: f.a }))} defaultOpen={0} />
           </div>
         </div>
       </Section>

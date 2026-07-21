@@ -322,6 +322,86 @@
   .surface-velvet {
     background: var(--grad-velvet);
   }
+
+  /* --- Material -----------------------------------------------------------
+     Film grain over large gradient fields. A flat CSS gradient is the single
+     clearest "generated" tell; ~3% noise gives it the tooth of printed matter
+     and kills banding on cheap panels at the same time. */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.045;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Ambient light source behind hero content. Layered radials read as depth
+     where a single linear gradient reads as a background. */
+  .aurora-bloom {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(110px);
+    pointer-events: none;
+    animation: blDrift 18s ease-in-out infinite;
+  }
+
+  /* Editorial vertical rhythm. Sections breathe wider as viewports grow —
+     fixed padding is what makes a layout feel cramped on desktop. */
+  .section-rhythm {
+    padding-block: clamp(4.5rem, 9vw, 9.5rem);
+  }
+
+  /* Gilded text fill, for figures and display accents. */
+  .text-gilded {
+    background: var(--grad-gilded);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Card surface with an interior gold edge that lights on hover. */
+  .card-lift {
+    position: relative;
+    transition:
+      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.5s ease;
+  }
+  .card-lift:hover {
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-bloom {
+    animation: none;
+  }
+  .card-lift:hover {
+    transform: none;
+  }
+}
+
+/* Infinite marquee — two tracks, one translates a full width. */
+@keyframes blMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* Slow ambient drift for hero light sources. */
+@keyframes blDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(2%, -3%, 0) scale(1.06);
+  }
 }
 
 /* Mega-menu panel copy cross-fade as the hovered column changes. */

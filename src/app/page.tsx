@@ -5,39 +5,7 @@ import { ProductCard } from "@/components/ui/ProductCard";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { MonogramAurora, CrownWave } from "@/components/brand/Logo";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
-
-const PILLARS = [
-  {
-    n: "01",
-    title: "Supply Chain Mastery",
-    body: "Exclusive single-donor contracts and a batch consistency guarantee. Every run matches the last in texture, tone, and density.",
-  },
-  {
-    n: "02",
-    title: "White-Label Agility",
-    body: "Fifty-unit minimums, custom packaging, turnkey assets. Boutique salons get what only volume buyers used to.",
-  },
-  {
-    n: "03",
-    title: "Dual Revenue",
-    body: "Retail proves the product. Wholesale steadies the year. Neither channel is permitted to undercut the other.",
-  },
-  {
-    n: "04",
-    title: "Data-First Advertising",
-    body: "Real transformations, measured. The same unit shown on four skin tones, because that is the objection worth answering.",
-  },
-  {
-    n: "05",
-    title: "Tiered Partnership",
-    body: "Three tiers, from micro-affiliate to celebrity stylist. We court the stylists first — they decide what walks the carpet.",
-  },
-  {
-    n: "06",
-    title: "Retention Engineering",
-    body: "A five-dollar test kit, a monthly care ritual, a private community. The industry loses a third to returns. We designed that out.",
-  },
-];
+import { BrandMarquee, ProofBand, EditorialSplit, PillarBento } from "@/components/home/Sections";
 
 export default async function HomePage() {
   // Scoped to the signature line on purpose. An unscoped "featured" sort ranks
@@ -61,41 +29,14 @@ export default async function HomePage() {
       </h1>
       <HeroCarousel />
 
-      {/* ── The Lace Test ─────────────────────────────────────────────────── */}
-      <Section
-        className="py-28"
-        eyebrowLeft="Return reduction"
-        eyebrowCenter="The Lace Test"
-        eyebrowRight="$5"
-      >
-        <div className="grid items-center gap-16 lg:grid-cols-2">
-          <div>
-            <h2 className="text-[clamp(2rem,4.5vw,3.5rem)] text-paper">
-              Five dollars, so the eight hundred is never a gamble.
-            </h2>
-            <p className="mt-6 text-[1.0625rem] leading-relaxed text-neutral-400">
-              A third of this industry&apos;s units go back in the box. Almost all of it is shade
-              mismatch — lace that looked right under a ringlight and wrong in daylight.
-            </p>
-            <p className="mt-4 text-[1.0625rem] leading-relaxed text-neutral-400">
-              So we send you six lace swatches and five shade cards for five dollars, redeemable in
-              full against any unit. Hold them against your own skin, in your own light. We would
-              rather spend five dollars than have you return eight hundred.
-            </p>
-            <Link
-              href="/product/lace-test-kit"
-              className="mt-9 inline-block border border-gold px-8 py-3.5 text-[0.8125rem] tracking-[0.14em] text-gold uppercase transition-all duration-500 hover:bg-gold hover:text-ink"
-            >
-              Order the kit
-            </Link>
-          </div>
-          <ProductImage
-            src="blush"
-            alt="The Lace Test kit — six lace swatches and five shade cards"
-            ratio="4 / 3"
-          />
-        </div>
-      </Section>
+      {/* Gilded statement ticker — a pulse between two dark blocks. */}
+      <BrandMarquee />
+
+      {/* Figures that resolve on scroll, before any sales copy. */}
+      <ProofBand />
+
+      {/* Asymmetric editorial split, replacing the old equal-halves layout. */}
+      <EditorialSplit />
 
       {/* ── Bestsellers ──────────────────────────────────────────────────── */}
       <Section
@@ -120,32 +61,8 @@ export default async function HomePage() {
         </div>
       </Section>
 
-      {/* ── Six Pillars ──────────────────────────────────────────────────── */}
-      <Section
-        className="py-28"
-        eyebrowLeft="The architecture"
-        eyebrowCenter="Six Pillars"
-        eyebrowRight="How it holds"
-      >
-        <SectionHeading
-          eyebrow="Why this brand can charge what it charges"
-          title="An empire, not a storefront."
-          body="Most hair brands are a supplier relationship and a Shopify theme. This one is built on six load-bearing systems, each one feeding the next."
-        />
-        <div className="mt-16 grid gap-x-10 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
-          {PILLARS.map((pillar) => (
-            <div key={pillar.n} className="border-t border-white/[0.07] pt-6">
-              <span className="font-[family-name:var(--font-display)] text-2xl text-gold tabular-nums">
-                {pillar.n}
-              </span>
-              <h3 className="mt-3 text-xl text-paper">{pillar.title}</h3>
-              <p className="mt-3 text-[0.9375rem] leading-relaxed text-neutral-400">
-                {pillar.body}
-              </p>
-            </div>
-          ))}
-        </div>
-      </Section>
+      {/* ── Six Pillars — broken bento, not a uniform 3×2 ─────────────────── */}
+      <PillarBento />
 
       {/* ── Capsule ──────────────────────────────────────────────────────── */}
       <Section

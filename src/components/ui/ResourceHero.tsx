@@ -21,7 +21,7 @@ export function ResourceHero({
   cta?: { label: string; href: string; external?: boolean };
 }) {
   return (
-    <section className="relative overflow-hidden border-b border-gold/15">
+    <section className="grain relative overflow-hidden border-b border-gold/15">
       <div className="absolute inset-0">
         <BrandImage
           name={image}

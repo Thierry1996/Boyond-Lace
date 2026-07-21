@@ -81,7 +81,7 @@ export function HeroCarousel() {
 
   return (
     <section aria-label="Beyond Lace highlights">
-      <div className="relative min-h-[82vh] overflow-hidden">
+      <div className="grain relative min-h-[82vh] overflow-hidden">
         {SLIDES.map((slide, i) => (
           <div
             key={slide.eyebrow}
