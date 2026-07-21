@@ -102,7 +102,7 @@ export default function ReturnsPortalPage() {
           <div className="mt-10 flex flex-wrap gap-5">
             <Link
               href="/support#contact"
-              className="border border-gold bg-gold px-8 py-3.5 text-[0.8125rem] tracking-[0.14em] text-ink uppercase transition-all duration-500 hover:bg-transparent hover:text-gold"
+              className="cta-primary px-8 py-3.5 text-[0.8125rem] tracking-[0.14em] uppercase"
             >
               Start a return
             </Link>

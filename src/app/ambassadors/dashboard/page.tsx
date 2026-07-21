@@ -33,7 +33,7 @@ export default function AmbassadorDashboard() {
         </div>
         <Link
           href="/ambassadors/dashboard/links"
-          className="border border-gold bg-gold px-7 py-3.5 text-[0.75rem] tracking-[0.12em] text-ink uppercase transition-all duration-500 hover:bg-transparent hover:text-gold"
+          className="cta-primary px-7 py-3.5 text-[0.75rem] tracking-[0.12em] uppercase"
         >
           Generate affiliate link
         </Link>

@@ -160,6 +160,76 @@ export const primaryNav: PrimaryNavItem[] = [
     ],
   },
   {
+    /**
+     * Recommended — the conversion hub. Category names below are generic
+     * industry terms; the hrefs deliberately resolve to Beyond Lace's own
+     * filtered shop routes rather than the competitor URLs they were sourced
+     * from. Linking a competitor from your own primary nav hands them the
+     * traffic you paid to acquire.
+     */
+    label: "Recommended",
+    href: "/recommended",
+    image: "navShop",
+    groups: [
+      {
+        heading: "By Construction",
+        image: "laceDetail",
+        blurb: "How the cap is built decides how it wears.",
+        links: [
+          { label: "Glueless Wigs", href: "/shop?lace=glueless" },
+          { label: "HD Lace Wigs", href: "/shop?lace=hd-swiss-full" },
+          { label: "Front Lace Wigs", href: "/shop?lace=hd-swiss-13x6" },
+          { label: "V / U Part Wigs", href: "/recommended#v-u-part" },
+          { label: "Headband Wigs", href: "/recommended#headband" },
+          { label: "Drawstring 360 Wigs", href: "/recommended#drawstring-360" },
+        ],
+      },
+      {
+        heading: "By Silhouette",
+        image: "navShop",
+        blurb: "The shape people actually ask for by name.",
+        links: [
+          { label: "Bob & Short Wigs", href: "/recommended#bob-short" },
+          { label: "Layer Cut Wigs", href: "/recommended#layer-cut" },
+          { label: "Wigs With Bangs", href: "/recommended#bangs" },
+          { label: "Crochet Wigs", href: "/recommended#crochet" },
+          { label: "3-in-1 Half Wigs", href: "/recommended#half-wig" },
+          { label: "4C Edge Hairline", href: "/recommended#4c-edge" },
+        ],
+      },
+      {
+        heading: "By Purpose",
+        image: "navBrand",
+        blurb: "Restoration, reinvention, or the red carpet.",
+        links: [
+          { label: "Medical & Sensitive Scalp", href: "/shop?lace=silk-top" },
+          { label: "Colored & Fashion Wigs", href: "/shop?shade=platinum" },
+          { label: "Salon Quality Series", href: "/wholesale" },
+          { label: "Top Picks — Hottest Now", href: "/recommended#top-picks" },
+        ],
+      },
+      {
+        heading: "Beyond Care",
+        image: "fitGuides",
+        blurb: "What decides twelve months versus thirty.",
+        links: [
+          { label: "Shampoo & Conditioners", href: "/shop?line=care" },
+          { label: "Treatment & Scalp Oils", href: "/recommended#treatment-oils" },
+          { label: "Edge Control & Restoration", href: "/recommended#edge-control" },
+          { label: "Bonnets & Wig Stands", href: "/recommended#bonnets" },
+          { label: "Adhesives & Solvents", href: "/product/the-hold-lace-adhesive" },
+        ],
+      },
+    ],
+    feature: {
+      eyebrow: "Before you decide",
+      title: "Compare us honestly",
+      body: "A side-by-side against the category norm — construction, batch policy, returns and what actually drives the price. Including where we are not the cheapest.",
+      href: "/recommended#compare",
+      cta: "Open the comparison",
+    },
+  },
+  {
     label: "The Beyond Circle",
     href: "/circle",
     image: "navCircle",

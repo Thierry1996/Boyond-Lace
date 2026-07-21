@@ -2,23 +2,43 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { primaryNav, utilityNav } from "@/lib/navigation";
-import { Wordmark } from "@/components/brand/Logo";
+import { Search, Heart, ShoppingBag, Menu, X } from "lucide-react";
+import { primaryNav } from "@/lib/navigation";
 import { useCart } from "@/lib/stores/cart";
 import { AuthControls } from "@/components/auth/AuthControls";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { CurrencySelector } from "@/components/ui/CurrencySelector";
 import { LanguageSelector } from "@/components/ui/LanguageSelector";
+import { LogoMark } from "@/components/brand/LogoMark";
+import { AnnouncementBar } from "./AnnouncementBar";
 import { MegaMenu } from "./MegaMenu";
+import { WhatsAppGlyph } from "@/components/brand/SocialIcons";
+import { URLS } from "@/lib/contact";
 
+/**
+ * Three-row stacked header.
+ *
+ *   Row 1 · Announcement marquee (dismissible)
+ *   Row 2 · Utility left / centred wordmark / commerce right
+ *   Row 3 · Primary navigation
+ *
+ * Rows 1 and 2 stay ink in both themes on purpose: the supplied wordmark is an
+ * opaque PNG on a black ground, so a dark band is the only place it can sit
+ * without a visible rectangle — and a dark masthead over a light page is a
+ * luxury convention rather than a compromise.
+ *
+ * On scroll, rows 1 and 2 collapse away and row 3 alone stays pinned, so the
+ * navigation is always reachable without a 200px header following you down the
+ * page.
+ */
 export function Header() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [condensed, setCondensed] = useState(false);
   const { count, hydrated } = useCart();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const onScroll = () => setCondensed(window.scrollY > 140);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -37,39 +57,117 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50" onMouseLeave={() => setOpenMenu(null)}>
-      {/* Utility bar — secondary nav per the sitemap. Stays ink in both modes. */}
-      <div className="hidden bg-ink md:block">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-[4vw] py-2.5">
-          <p className="eyebrow">Complimentary worldwide shipping over $400</p>
-          <nav aria-label="Utility" className="flex items-center gap-6">
-            {utilityNav
-              .filter((link) => link.label !== "Account")
-              .map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="eyebrow transition-colors hover:text-blush-300"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            <AuthControls />
-            <span className="h-3 w-px bg-white/15" />
-            <ThemeToggle />
+      {/* ── Row 1 · Announcement marquee ─────────────────────────────────── */}
+      <div
+        className="overflow-hidden transition-[max-height,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        style={{ maxHeight: condensed ? 0 : 60, opacity: condensed ? 0 : 1 }}
+      >
+        <AnnouncementBar />
+      </div>
+
+      {/* ── Row 2 · Utility / centred wordmark / commerce ─────────────────── */}
+      <div
+        className="overflow-hidden bg-ink transition-[max-height,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        style={{ maxHeight: condensed ? 0 : 160, opacity: condensed ? 0 : 1 }}
+      >
+        <div className="mx-auto grid max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center gap-6 px-[4vw] py-4">
+          {/* Left — locale + contact */}
+          <nav aria-label="Preferences" className="hidden items-center gap-5 lg:flex">
             <CurrencySelector />
             <LanguageSelector />
+            <ThemeToggle />
+            <a
+              href={URLS.whatsappPrefilled}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp"
+              className="text-neutral-400 transition-colors duration-300 hover:text-gold"
+            >
+              <WhatsAppGlyph size={17} />
+            </a>
+          </nav>
+
+          {/* Mobile menu trigger sits where the locale nav would be */}
+          <button
+            className="lg:hidden"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen ? (
+              <X size={20} strokeWidth={1.5} className="text-paper" />
+            ) : (
+              <Menu size={20} strokeWidth={1.5} className="text-paper" />
+            )}
+          </button>
+
+          {/* Centre — the wordmark */}
+          <Link
+            href="/"
+            aria-label="Beyond Lace — home"
+            className="justify-self-center transition-opacity duration-300 hover:opacity-85"
+          >
+            <LogoMark width={230} priority className="w-[10.5rem] sm:w-[13rem] lg:w-[14.5rem]" />
+          </Link>
+
+          {/* Right — commerce */}
+          <nav aria-label="Account and cart" className="flex items-center justify-end gap-5">
+            <Link
+              href="/search"
+              aria-label="Search"
+              className="text-neutral-400 transition-colors duration-300 hover:text-gold"
+            >
+              <Search size={18} strokeWidth={1.5} />
+            </Link>
+            <Link
+              href="/wishlist"
+              aria-label="Wishlist"
+              className="hidden text-neutral-400 transition-colors duration-300 hover:text-gold sm:block"
+            >
+              <Heart size={18} strokeWidth={1.5} />
+            </Link>
+            <div className="hidden sm:block">
+              <AuthControls />
+            </div>
+            <Link
+              href="/cart"
+              aria-label="Cart"
+              className="group relative text-neutral-400 transition-colors duration-300 hover:text-gold"
+            >
+              <ShoppingBag size={18} strokeWidth={1.5} />
+              <span
+                suppressHydrationWarning
+                className="count-badge absolute -top-2 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[0.625rem] font-medium tabular-nums"
+              >
+                {hydrated ? count : 0}
+              </span>
+            </Link>
           </nav>
         </div>
       </div>
 
-      {/* Primary bar — gilded band per the reference navbar, ink type on gold. */}
-      <div style={{ background: "var(--grad-gilded)" }}>
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-8 px-[4vw] py-4">
-          <Link href="/" aria-label="Beyond Lace — home">
-            <Wordmark className="text-[1.5rem] text-ink" />
+      {/* ── Row 3 · Primary navigation ───────────────────────────────────── */}
+      <div
+        className={`border-y border-gold/20 transition-shadow duration-500 ${
+          condensed ? "shadow-[0_10px_40px_-18px_rgb(0_0_0/0.7)]" : ""
+        }`}
+        style={{ background: "var(--grad-gilded)" }}
+      >
+        <div className="mx-auto flex max-w-[1440px] items-center justify-center gap-1 px-[4vw]">
+          {/* Condensed state reintroduces a small mark so the brand never vanishes */}
+          <Link
+            href="/"
+            aria-label="Beyond Lace — home"
+            className={`mr-4 shrink-0 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              condensed ? "max-w-[7rem] opacity-100" : "max-w-0 opacity-0"
+            }`}
+          >
+            <span className="font-[family-name:var(--font-display)] text-[1.0625rem] whitespace-nowrap text-ink">
+              Beyond Lace
+            </span>
           </Link>
 
-          <nav aria-label="Primary" className="hidden items-center gap-8 lg:flex">
+          <nav aria-label="Primary" className="hidden items-center lg:flex">
             {primaryNav.map((item) => (
               <div
                 key={item.label}
@@ -77,13 +175,14 @@ export function Header() {
               >
                 <Link
                   href={item.href}
-                  className="relative py-2 text-[0.8125rem] tracking-[0.06em] text-ink/75 uppercase transition-colors hover:text-ink"
                   aria-expanded={item.groups ? openMenu === item.label : undefined}
+                  className="relative block px-4 py-3.5 text-[0.75rem] tracking-[0.1em] text-ink/70 uppercase transition-colors duration-300 hover:text-ink"
                 >
                   {item.label}
                   <span
-                    className={`absolute -bottom-0.5 left-0 h-px bg-ink transition-all duration-400 ${
-                      openMenu === item.label ? "w-full" : "w-0"
+                    aria-hidden="true"
+                    className={`absolute inset-x-4 bottom-2.5 h-px origin-left bg-ink transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                      openMenu === item.label ? "scale-x-100" : "scale-x-0"
                     }`}
                   />
                 </Link>
@@ -91,35 +190,15 @@ export function Header() {
             ))}
           </nav>
 
-          <div className="flex items-center gap-5">
-            <Link
-              href="/learn/quiz"
-              className="hidden text-[0.8125rem] tracking-[0.06em] text-ink uppercase underline decoration-ink/40 underline-offset-4 transition-opacity hover:opacity-70 xl:block"
-            >
-              Find your unit
-            </Link>
-            <Link
-              href="/cart"
-              className="flex items-center gap-2 text-[0.8125rem] tracking-[0.06em] text-ink/80 uppercase transition-colors hover:text-ink"
-            >
-              Cart
-              <span
-                className="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-ink/50 px-1 text-[0.6875rem] text-ink tabular-nums"
-                suppressHydrationWarning
-              >
-                {hydrated ? count : 0}
-              </span>
-            </Link>
-            <button
-              className="lg:hidden"
-              onClick={() => setMobileOpen((v) => !v)}
-              aria-label={mobileOpen ? "Close menu" : "Open menu"}
-              aria-expanded={mobileOpen}
-            >
-              <span className="bg-ink block h-px w-6" />
-              <span className="bg-ink mt-1.5 block h-px w-6" />
-            </button>
-          </div>
+          {/* Mobile: row 3 becomes a single labelled trigger */}
+          <button
+            onClick={() => setMobileOpen((v) => !v)}
+            className="flex w-full items-center justify-center gap-2 py-3 text-[0.75rem] tracking-[0.14em] text-ink uppercase lg:hidden"
+            aria-expanded={mobileOpen}
+          >
+            <Menu size={14} strokeWidth={1.75} />
+            Browse the collection
+          </button>
         </div>
       </div>
 
@@ -134,7 +213,7 @@ export function Header() {
 
       {/* Mobile drawer */}
       {mobileOpen && (
-        <div className="border-t border-white/[0.07] bg-ink lg:hidden">
+        <div className="border-t border-gold/20 bg-ink lg:hidden">
           <nav aria-label="Mobile" className="max-h-[70vh] overflow-y-auto px-[6vw] py-8">
             {primaryNav.map((item) => (
               <div key={item.label} className="border-b border-white/[0.07] py-4">
@@ -163,18 +242,6 @@ export function Header() {
                 )}
               </div>
             ))}
-            <div className="mt-6 flex flex-wrap gap-6">
-              {utilityNav.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  className="eyebrow"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  {l.label}
-                </Link>
-              ))}
-            </div>
             <div className="mt-6 flex flex-wrap items-center gap-6 border-t border-white/[0.07] pt-6">
               <ThemeToggle />
               <CurrencySelector />

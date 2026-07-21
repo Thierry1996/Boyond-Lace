@@ -29,7 +29,7 @@ export default function CartPage() {
           <div className="mt-10 flex flex-wrap justify-center gap-6">
             <Link
               href="/shop"
-              className="border border-gold px-8 py-4 text-[0.8125rem] tracking-[0.14em] text-gold uppercase transition-all duration-500 hover:bg-gold hover:text-ink"
+              className="cta-secondary px-8 py-4 text-[0.8125rem] tracking-[0.14em] uppercase"
             >
               View the collection
             </Link>
@@ -160,7 +160,7 @@ export default function CartPage() {
             </div>
 
             <button
-              className="mt-8 w-full border border-gold bg-gold px-8 py-4 text-[0.8125rem] tracking-[0.14em] text-ink uppercase transition-all duration-500 hover:bg-transparent hover:text-gold"
+              className="cta-primary mt-8 w-full px-8 py-4 text-[0.8125rem] tracking-[0.14em] uppercase"
               onClick={() => router.push("/checkout")}
             >
               Proceed to checkout

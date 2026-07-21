@@ -6,6 +6,8 @@ import { ProductImage } from "@/components/ui/ProductImage";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { ProductPurchase } from "@/components/product/ProductPurchase";
 import { Section, SectionHeading } from "@/components/ui/Section";
+import { Reveal, Stagger, StaggerItem, SplitText, DrawRule } from "@/components/motion/primitives";
+import { Tilt } from "@/components/motion/interactions";
 
 export async function generateStaticParams() {
   const products = await commerce.getProducts();
@@ -77,56 +79,88 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         </div>
 
         <div className="mt-10 grid gap-16 lg:grid-cols-[1.1fr_1fr]">
-          {/* Gallery */}
+          {/* Gallery — hero frame rises first, supporting shots follow staggered */}
           <div className="space-y-5">
-            <ProductImage src={product.images[0].src} alt={product.images[0].alt} ratio="4 / 5" />
-            {product.images.length > 1 && (
-              <div className="grid grid-cols-2 gap-5">
-                {product.images.slice(1).map((img, i) => (
-                  <ProductImage key={i} src={img.src} alt={img.alt} />
-                ))}
+            <Reveal direction="up" duration={1.05}>
+              <div className="overflow-hidden rounded-lg">
+                <Tilt max={4}>
+                  <ProductImage
+                    src={product.images[0].src}
+                    alt={product.images[0].alt}
+                    ratio="4 / 5"
+                  />
+                </Tilt>
               </div>
+            </Reveal>
+            {product.images.length > 1 && (
+              <Stagger className="grid grid-cols-2 gap-5" gap={0.09} delay={0.15}>
+                {product.images.slice(1).map((img, i) => (
+                  <StaggerItem key={i}>
+                    <div className="group overflow-hidden rounded-lg">
+                      <ProductImage
+                        src={img.src}
+                        alt={img.alt}
+                        className="transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
+                      />
+                    </div>
+                  </StaggerItem>
+                ))}
+              </Stagger>
             )}
           </div>
 
-          {/* Buy column */}
+          {/* Buy column — the sequence that carries a $600 decision */}
           <div className="lg:sticky lg:top-32 lg:self-start">
             {product.badges.length > 0 && (
-              <div className="mb-5 flex flex-wrap gap-2">
-                {product.badges.map((badge) => (
-                  <span
-                    key={badge}
-                    className="border border-gold/40 px-2.5 py-1 text-[0.625rem] tracking-[0.14em] text-gold uppercase"
-                  >
-                    {badge}
-                  </span>
-                ))}
-              </div>
+              <Reveal duration={0.7}>
+                <div className="mb-5 flex flex-wrap gap-2">
+                  {product.badges.map((badge) => (
+                    <span
+                      key={badge}
+                      className="border border-gold/40 px-2.5 py-1 text-[0.625rem] tracking-[0.14em] text-gold uppercase"
+                    >
+                      {badge}
+                    </span>
+                  ))}
+                </div>
+              </Reveal>
             )}
 
-            <h1 className="text-[clamp(2.25rem,5vw,3.5rem)] leading-[1.02] text-paper">
-              {product.title}
-            </h1>
-            <p className="mt-3 font-[family-name:var(--font-display)] text-xl text-blush-300 italic">
-              {product.tagline}
-            </p>
+            <SplitText
+              as="h1"
+              text={product.title}
+              delay={0.06}
+              className="text-[clamp(2.25rem,5vw,3.5rem)] leading-[1.02] text-paper"
+            />
 
-            <div className="mt-5 flex items-center gap-2 text-[0.8125rem] text-neutral-400">
-              <span className="text-gold" aria-hidden="true">
-                {"★".repeat(Math.round(product.rating))}
-              </span>
-              <span className="tabular-nums">
-                {product.rating.toFixed(1)} · {product.reviewCount.toLocaleString()} reviews
-              </span>
-            </div>
+            <Reveal delay={0.22} duration={0.8}>
+              <p className="mt-3 font-[family-name:var(--font-display)] text-xl text-blush-300 italic">
+                {product.tagline}
+              </p>
+            </Reveal>
 
-            <p className="mt-7 text-[1.0625rem] leading-relaxed text-neutral-400">
-              {product.description}
-            </p>
+            <Reveal delay={0.3} duration={0.8}>
+              <div className="mt-5 flex items-center gap-2 text-[0.8125rem] text-neutral-400">
+                <span className="text-gold" aria-hidden="true">
+                  {"★".repeat(Math.round(product.rating))}
+                </span>
+                <span className="tabular-nums">
+                  {product.rating.toFixed(1)} · {product.reviewCount.toLocaleString()} reviews
+                </span>
+              </div>
+            </Reveal>
 
-            <div className="rule-gilded my-9" />
+            <Reveal delay={0.38} duration={0.85}>
+              <p className="mt-7 text-[1.0625rem] leading-relaxed text-neutral-400">
+                {product.description}
+              </p>
+            </Reveal>
 
-            <ProductPurchase product={product} />
+            <DrawRule className="my-9" delay={0.45} />
+
+            <Reveal delay={0.5} duration={0.85}>
+              <ProductPurchase product={product} />
+            </Reveal>
           </div>
         </div>
       </div>
@@ -143,20 +177,29 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             title="What it's actually made of."
             body="Competitors argue over grade labels. We publish the construction, because the grade was never the thing that failed you."
           />
+          {/* Specs arrive row by row — a construction record being read out,
+              rather than a table that was simply already there. Reveal wraps
+              each row individually so the <dl>/<dt>/<dd> semantics survive. */}
           <dl className="divide-y divide-white/[0.07] border-t border-white/[0.07]">
-            {product.specs.map((spec) => (
-              <div key={spec.label} className="grid grid-cols-[140px_1fr] gap-6 py-5">
-                <dt className="eyebrow pt-0.5">{spec.label}</dt>
-                <dd className="text-[0.9375rem] leading-relaxed text-neutral-200">{spec.value}</dd>
-              </div>
+            {product.specs.map((spec, i) => (
+              <Reveal key={spec.label} direction="left" delay={i * 0.06} duration={0.8}>
+                <div className="grid grid-cols-[140px_1fr] gap-6 py-5">
+                  <dt className="eyebrow pt-0.5">{spec.label}</dt>
+                  <dd className="text-[0.9375rem] leading-relaxed text-neutral-200">
+                    {spec.value}
+                  </dd>
+                </div>
+              </Reveal>
             ))}
             {product.origin && (
-              <div className="grid grid-cols-[140px_1fr] gap-6 py-5">
-                <dt className="eyebrow pt-0.5">Origin</dt>
-                <dd className="text-[0.9375rem] leading-relaxed text-neutral-200">
-                  {product.origin}
-                </dd>
-              </div>
+              <Reveal direction="left" delay={product.specs.length * 0.06} duration={0.8}>
+                <div className="grid grid-cols-[140px_1fr] gap-6 py-5">
+                  <dt className="eyebrow pt-0.5">Origin</dt>
+                  <dd className="text-[0.9375rem] leading-relaxed text-neutral-200">
+                    {product.origin}
+                  </dd>
+                </div>
+              </Reveal>
             )}
           </dl>
         </div>

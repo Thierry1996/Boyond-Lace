@@ -124,7 +124,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ slug:
           <div className="mt-10 flex flex-wrap items-center gap-7">
             <Link
               href={c.cta.href}
-              className="border border-gold bg-gold px-9 py-4 text-[0.8125rem] tracking-[0.14em] text-ink uppercase transition-all duration-500 hover:bg-transparent hover:text-gold"
+              className="cta-primary px-9 py-4 text-[0.8125rem] tracking-[0.14em] uppercase"
             >
               {c.cta.label}
             </Link>

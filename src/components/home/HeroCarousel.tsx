@@ -86,13 +86,27 @@ export function HeroCarousel() {
           <div
             key={slide.eyebrow}
             aria-hidden={i !== index}
-            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-[1200ms] ease-[var(--ease-editorial)] ${
+            className={`dark-island absolute inset-0 flex items-center justify-center transition-opacity duration-[1200ms] ease-[var(--ease-editorial)] ${
               i === index ? "opacity-100" : "pointer-events-none opacity-0"
             }`}
             style={{ background: slide.bg }}
           >
+            {/* Scrim. Several slide gradients resolve to blush and champagne at
+                their far end (#DCA8B7 → #C9A66B), and the gilded headline, the
+                pale body copy and the outlined CTA all vanish into that corner —
+                gold type on a gold ground. A centred radial pool of ink keeps a
+                dark ground under the text on every slide without flattening the
+                gradient at the edges, where it is doing the decorative work. */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(70% 60% at 50% 50%, rgb(9 9 9 / 0.72) 0%, rgb(9 9 9 / 0.55) 45%, rgb(9 9 9 / 0.12) 100%)",
+              }}
+            />
             {/* Centred, gilded — per the official wordmark reference. */}
-            <div className="mx-auto max-w-4xl px-[6vw] pt-10 pb-24 text-center">
+            <div className="relative mx-auto max-w-4xl px-[6vw] pt-10 pb-24 text-center">
               <p className="eyebrow mb-7 !text-gold-300">{slide.eyebrow}</p>
               <h2
                 className="font-[family-name:var(--font-display)] text-[clamp(2.75rem,7vw,6rem)] leading-[1.02]"
@@ -110,7 +124,7 @@ export function HeroCarousel() {
               </p>
               <Link
                 href={slide.cta.href}
-                className="mt-10 inline-block border border-gold px-9 py-4 text-[0.8125rem] tracking-[0.14em] text-gold uppercase transition-all duration-500 hover:bg-gold hover:text-ink"
+                className="cta-secondary mt-10 inline-block px-9 py-4 text-[0.8125rem] tracking-[0.14em] uppercase"
               >
                 {slide.cta.label}
               </Link>

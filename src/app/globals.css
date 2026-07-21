@@ -25,9 +25,28 @@
   --bl-neutral-900: #121012; /* raised card surface (dark) */
   --bl-neutral-800: #1c181c;
   --bl-neutral-700: #2a252a;
-  --bl-neutral-400: #8a8388; /* muted text */
+  --bl-neutral-400: #968f94; /* muted text */
   --bl-neutral-200: #d8d2d4; /* bright muted text */
   --bl-neutral-50: #f8f5f1;
+
+  /* Interactive gold MUST be mode-sensitive. Champagne gold #c9a66b reads at
+     ~2.2:1 on an ivory canvas — a hard WCAG failure — and gold carries every
+     eyebrow, link and CTA on the site. On light surfaces it drops to an
+     antique gold that clears AA while staying unmistakably the brand metal.
+     Decorative gold (gradients, foil rules) stays bright in the static block. */
+  --bl-gold: #c9a66b; /* accent + interactive text */
+  --bl-gold-strong: #dbbf92; /* hover / emphasis */
+  --bl-gold-soft: rgb(201 166 107 / 0.35); /* hairlines */
+  --bl-plum-ink: #5a2d67; /* CTA fill on light, accent on dark */
+
+  /* Blush is mode-sensitive for exactly the same reason as gold: it carries
+     product taglines and supporting copy, and the kit's pale Blush Aura
+     (#eecad5) reads ~1.3:1 on parchment. On light grounds it deepens to a
+     rose that keeps the pink identity while clearing AA. Decorative blush
+     (glows, aurora washes) stays pale in the static block. */
+  --bl-blush-400: #dca8b7;
+  --bl-blush-300: #eecad5; /* taglines, supporting accents */
+  --bl-blush-200: #f7e7ec;
 }
 
 @theme inline {
@@ -42,13 +61,24 @@
   --color-neutral-400: var(--bl-neutral-400);
   --color-neutral-200: var(--bl-neutral-200);
   --color-neutral-50: var(--bl-neutral-50);
+  /* Interactive gold — flips per mode so text-gold is legible on both grounds. */
+  --color-gold: var(--bl-gold);
+  --color-gold-400: var(--bl-gold-strong);
+  /* Blush accents — same flip, so taglines survive the parchment canvas. */
+  --color-blush-400: var(--bl-blush-400);
+  --color-blush-300: var(--bl-blush-300);
+  --color-blush-200: var(--bl-blush-200);
+  --color-rose-400: var(--bl-blush-400);
+  --color-rose-300: var(--bl-blush-300);
+  --color-rose-200: var(--bl-blush-200);
 }
 
 @theme {
   /* --- Static brand colours (identical in both modes) -------------------- */
   --color-plum: #5a2d67; /* Velvet Plum */
   --color-blush: #eecad5; /* Blush Aura */
-  --color-gold: #c9a66b; /* Gilded Gold — champagne */
+  /* NB: --color-gold is intentionally NOT here — it is mode-sensitive and
+     lives in the inheriting block above. Only decorative golds are static. */
 
   /* --- Plum ramp (900 = Deep Aubergine, from the kit) --------------------- */
   --color-plum-900: #321528;
@@ -57,15 +87,8 @@
   --color-plum-600: #71407f;
   --color-plum-500: #895898;
 
-  /* --- Rose ramp (Dust Rose / Blush Aura / Rose Quartz, from the kit) ----- */
-  --color-rose-400: #dca8b7;
-  --color-rose-300: #eecad5;
-  --color-rose-200: #f7e7ec;
-
-  /* Legacy aliases — keep existing component classes valid. */
-  --color-blush-400: #dca8b7;
-  --color-blush-300: #eecad5;
-  --color-blush-200: #f7e7ec;
+  /* NB: the rose/blush ramps are NOT here — like gold they are mode-sensitive
+     and resolve through the inheriting --bl-blush-* vars via @theme inline. */
   --color-amethyst-400: #dca8b7;
 
   /* --- Gold ramp (300 = Champagne, from the kit) -------------------------- */
@@ -99,6 +122,8 @@
     #c9a66b 100%
   );
   --grad-gilded: linear-gradient(100deg, #a9834d 0%, #f6ebd5 48%, #c9a66b 100%);
+  /* Glyph-safe variant of the above — same metal, legible stops. */
+  --grad-gilded-text: linear-gradient(100deg, #a9834d 0%, #f6ebd5 48%, #c9a66b 100%);
   --grad-velvet: radial-gradient(120% 90% at 50% 0%, #5a2d67 0%, #321528 55%, #090909 100%);
 
   /* Theme surface contract. Overridden per avatar theme below. */
@@ -183,28 +208,150 @@
    inside them the dark-surface tokens are restored so their text never
    collapses into dark-on-dark. Gold CTAs keep ink text in both modes. */
 :root[data-mode="light"] {
+  /* --- Ground ------------------------------------------------------------
+     Pure #fff is the harsh, "ergonomically destructive" surface. This is a
+     warm parchment instead: it carries the plum/gold family, lowers retinal
+     glare, and lets the gold read as metal rather than as yellow-on-white. */
+  --bl-ivory: #f5efe6; /* canvas — warm parchment */
   --surface-canvas: var(--bl-ivory);
-  --surface-raised: #ffffff;
-  --surface-text: #321528;
-  --surface-muted: #6f6470;
-  --surface-accent: var(--color-gold-600);
-  --surface-rule: rgb(90 45 103 / 0.22);
-  /* Mode-sensitive palette — these inherit, so the flip cascades everywhere. */
-  --bl-paper: #321528; /* primary text → deep aubergine */
-  --bl-neutral-900: #ffffff; /* raised card surface → white */
-  --bl-neutral-800: #f7e7ec; /* soft rose surface */
-  --bl-neutral-700: #eadde2;
-  --bl-neutral-400: #6f6470; /* muted text → plum-gray */
-  --bl-neutral-200: #46215a; /* bright muted → deep plum */
-  /* shadcn semantic surfaces for any registry components. */
-  --popover: #ffffff;
-  --popover-foreground: #321528;
-  --muted: #f7e7ec;
-  --muted-foreground: #6f6470;
-  --secondary: #f7e7ec;
-  --secondary-foreground: #321528;
-  --accent: var(--color-rose-200);
-  --accent-foreground: #321528;
+  --surface-raised: #fffdf9; /* cards — warm white, never pure */
+  --surface-text: #2a1122; /* 16.1:1 on canvas */
+  --surface-muted: #63535e; /* 7.0:1 — muted but never faint */
+  --surface-accent: #8a6a2f;
+  --surface-rule: rgb(90 45 103 / 0.2);
+
+  /* --- Type ramp, contrast-checked against the canvas ------------------- */
+  --bl-paper: #2a1122; /* primary — deep aubergine, 16.1:1 */
+  --bl-neutral-200: #3d2438; /* strong secondary, 11.4:1 */
+  --bl-neutral-400: #63535e; /* muted body, 7.0:1 */
+
+  /* --- Surfaces --------------------------------------------------------- */
+  --bl-neutral-900: #fffdf9; /* raised card */
+  --bl-neutral-800: #f3e9e0; /* inset / subtle fill */
+  --bl-neutral-700: #e7dbd2; /* deeper inset */
+
+  /* --- Metal ------------------------------------------------------------
+     Antique gold: 4.9:1 on the canvas, so eyebrows, links and CTA labels are
+     genuinely legible rather than decorative. */
+  /* #8a6a2f measured 4.39:1 on this canvas — under AA for the 10px uppercase
+     eyebrows that carry it. Deepened until it clears 4.5:1 with margin. */
+  --bl-gold: #7a5b23;
+  --bl-gold-strong: #5f461a; /* hover — deepens rather than brightens */
+  --bl-gold-soft: rgb(122 91 35 / 0.32);
+
+  /* Blush deepens to a true rose. The kit's pale pinks are dark-ground
+     accents; on parchment they vanish, so light mode takes the same hue
+     driven down in lightness until product taglines clear AA. */
+  --bl-blush-400: #8c3f56;
+  --bl-blush-300: #7c3349; /* taglines — the workhorse */
+  --bl-blush-200: #6b2b3e;
+
+  /* Gilded headings keep the metal but drop into the antique range so every
+     stop clears the parchment. The bright gradient is retained for rules. */
+  --grad-gilded-text: linear-gradient(100deg, #6b4e1d 0%, #8a6a2f 48%, #5f461a 100%);
+
+  /* --- shadcn semantics -------------------------------------------------- */
+  --popover: #fffdf9;
+  --popover-foreground: #2a1122;
+  --muted: #f3e9e0;
+  --muted-foreground: #63535e;
+  --secondary: #f3e9e0;
+  --secondary-foreground: #2a1122;
+  --accent: #f7e7ec;
+  --accent-foreground: #2a1122;
+  --primary: #5a2d67; /* CTA fill — plum, not gold-on-white */
+  --primary-foreground: #fffdf9;
+  --border: rgb(90 45 103 / 0.2);
+  --input: rgb(90 45 103 / 0.25);
+  --ring: #8a6a2f;
+}
+
+/* Dark islands inside light mode.
+   Several sections are deliberately dark in BOTH themes — the masthead, velvet
+   feature bands, plum panels. In light mode those subtrees were inheriting the
+   light palette, so `text-gold` resolved to the deep #7a5b23 that is tuned for
+   parchment and collapsed to ~2.6:1 on a dark plum ground.
+
+   Because the --bl-* tokens are ordinary inheriting custom properties (this is
+   precisely why they do not live in @theme, which registers them as
+   non-inheriting @property), re-declaring them on a subtree restores the
+   dark-mode palette for everything inside it. One rule, no per-component
+   overrides, and it keeps working for sections added later.
+
+   .dark-island is the explicit opt-in for sections whose dark ground comes
+   from an inline gradient or an image rather than one of the bg-* utilities
+   below — the hero carousel being the case that forced it. Add it to any
+   section that stays dark in both themes. */
+:root[data-mode="light"] .dark-island,
+:root[data-mode="light"] .surface-velvet,
+:root[data-mode="light"] .bg-ink,
+:root[data-mode="light"] .bg-plum-900,
+:root[data-mode="light"] .bg-neutral-900 {
+  --bl-gold: #c9a66b;
+  --bl-gold-strong: #dbbf92;
+  --bl-gold-soft: rgb(201 166 107 / 0.35);
+  --bl-paper: #f8f5f1;
+  --bl-ivory: #fbf8f4;
+  --bl-neutral-200: #d8d2d4;
+  --bl-neutral-400: #968f94;
+  --bl-neutral-700: #2a2529;
+  --bl-neutral-800: #1a1619;
+  --bl-neutral-900: #121012;
+  --bl-blush-400: #dca8b7;
+  --bl-blush-300: #eecad5;
+  --bl-blush-200: #f7e7ec;
+  --grad-gilded-text: linear-gradient(100deg, #a9834d 0%, #f6ebd5 48%, #c9a66b 100%);
+  --surface-text: #f8f5f1;
+  --surface-muted: #968f94;
+}
+/* A CTA on a dark island keeps the dark-mode gold fill, not the plum. */
+:root[data-mode="light"] .dark-island .cta-primary,
+:root[data-mode="light"] .surface-velvet .cta-primary,
+:root[data-mode="light"] .bg-ink .cta-primary,
+:root[data-mode="light"] .bg-plum-900 .cta-primary,
+:root[data-mode="light"] .bg-neutral-900 .cta-primary {
+  background: #c9a66b;
+  color: #090909;
+  border-color: #c9a66b;
+}
+:root[data-mode="light"] .dark-island .cta-primary:hover:not(:disabled),
+:root[data-mode="light"] .surface-velvet .cta-primary:hover:not(:disabled),
+:root[data-mode="light"] .bg-ink .cta-primary:hover:not(:disabled),
+:root[data-mode="light"] .bg-plum-900 .cta-primary:hover:not(:disabled),
+:root[data-mode="light"] .bg-neutral-900 .cta-primary:hover:not(:disabled) {
+  background: transparent;
+  color: #c9a66b;
+}
+:root[data-mode="light"] .dark-island .cta-secondary:hover,
+:root[data-mode="light"] .surface-velvet .cta-secondary:hover,
+:root[data-mode="light"] .bg-ink .cta-secondary:hover,
+:root[data-mode="light"] .bg-plum-900 .cta-secondary:hover,
+:root[data-mode="light"] .bg-neutral-900 .cta-secondary:hover {
+  color: #090909;
+}
+/* The count badge follows the same island rule. */
+:root[data-mode="light"] .bg-ink .count-badge {
+  background: #c9a66b;
+  color: #090909;
+}
+
+/* Light-mode CTA correction.
+   A gold-filled button with ink text is the brand's dark-mode signature, but
+   on parchment that pairing collapses to ~1.6:1. Primary actions become plum
+   fills with warm-white type — same hierarchy, legible ground. */
+:root[data-mode="light"] .bg-gold:not(.keep-gold) {
+  background-color: #5a2d67;
+  color: #fffdf9;
+  border-color: #5a2d67;
+}
+:root[data-mode="light"] .bg-gold:not(.keep-gold):hover {
+  background-color: #46215a;
+  border-color: #46215a;
+}
+/* Ink-on-gold text inside those buttons has to follow the fill. */
+:root[data-mode="light"] .bg-gold:not(.keep-gold) .text-ink,
+:root[data-mode="light"] .bg-gold:not(.keep-gold).text-ink {
+  color: #fffdf9;
 }
 
 /* Brand-dark islands (velvet heroes, plum-900 sections, ink strips) keep the
@@ -213,9 +360,9 @@
   --bl-paper: #f8f5f1;
   --bl-neutral-900: #121012;
   --bl-neutral-800: #1c181c;
-  --bl-neutral-400: #8a8388;
+  --bl-neutral-400: #968f94;
   --bl-neutral-200: #d8d2d4;
-  --surface-muted: #8a8388;
+  --surface-muted: #968f94;
 }
 
 /* --- Base ---------------------------------------------------------------- */
@@ -355,11 +502,92 @@
   }
 
   /* Gilded text fill, for figures and display accents. */
+  /* Gilded text paints the GLYPHS with the gradient, so every stop has to
+     survive the ground behind it. The display gradient peaks at #f6ebd5, which
+     is ~1.0:1 on parchment — the headline simply disappears in light mode.
+     .text-gilded therefore takes its own mode-sensitive gradient, while
+     --grad-gilded stays bright for the foil rules and fills it was drawn for. */
   .text-gilded {
-    background: var(--grad-gilded);
+    background: var(--grad-gilded-text, var(--grad-gilded));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+
+  /* --- Primary CTA / Add-to-bag -----------------------------------------
+     A semantic class rather than utility soup, because the fill has to invert
+     between themes and chasing Tailwind's generated variant selectors
+     (enabled:bg-gold, hover:bg-gold …) with overrides is unwinnable.
+
+     Dark  · gilded fill, ink label      → 9.4:1
+     Light · plum fill, warm-white label → 9.8:1
+     Gold-on-parchment measured 3.17:1 and is never used for a control. */
+  /* These read --bl-gold directly, NOT --color-gold, and that is load-bearing.
+     A custom property whose value references another is substituted where it
+     is DECLARED: --color-gold: var(--bl-gold) resolves once at :root and then
+     inherits as an already-flattened string. Re-declaring --bl-gold on a
+     subtree (see .dark-island) therefore never reaches anything reading
+     --color-gold. Referencing the raw token keeps these controls responsive to
+     per-section palette overrides. */
+  .cta-primary {
+    background: var(--bl-gold);
+    color: var(--bl-ink);
+    border: 1px solid var(--bl-gold);
+    transition:
+      background-color 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+      color 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .cta-primary:hover:not(:disabled) {
+    background: transparent;
+    color: var(--bl-gold);
+    transform: translateY(-2px);
+  }
+  .cta-primary:disabled {
+    background: transparent;
+    color: var(--color-neutral-400);
+    border-color: var(--surface-rule);
+    cursor: not-allowed;
+  }
+
+  :root[data-mode="light"] .cta-primary {
+    background: #5a2d67;
+    color: #fffdf9;
+    border-color: #5a2d67;
+  }
+  :root[data-mode="light"] .cta-primary:hover:not(:disabled) {
+    background: #46215a;
+    color: #fffdf9;
+    border-color: #46215a;
+  }
+
+  /* Secondary — outlined, inherits the mode-correct gold. */
+  .cta-secondary {
+    border: 1px solid var(--bl-gold);
+    color: var(--bl-gold);
+    background: transparent;
+    transition:
+      background-color 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+      color 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .cta-secondary:hover {
+    background: var(--bl-gold);
+    color: var(--bl-ink);
+  }
+  :root[data-mode="light"] .cta-secondary:hover {
+    color: #fffdf9;
+  }
+
+  /* Count badge — reads as a filled CTA but is not interactive, so it takes
+     the fill and nothing else: no hover flip, no lift, no transition. */
+  .count-badge {
+    background: var(--bl-gold);
+    color: var(--bl-ink);
+  }
+  :root[data-mode="light"] .count-badge {
+    background: #5a2d67;
+    color: #fffdf9;
   }
 
   /* Card surface with an interior gold edge that lights on hover. */

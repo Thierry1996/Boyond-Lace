@@ -38,7 +38,7 @@ export function SubmitButton({
     <button
       type="submit"
       disabled={pending}
-      className="border border-gold bg-gold px-9 py-4 text-[0.8125rem] tracking-[0.14em] text-ink uppercase transition-all duration-500 hover:bg-transparent hover:text-gold disabled:cursor-wait disabled:opacity-60"
+      className="cta-primary px-9 py-4 text-[0.8125rem] tracking-[0.14em] uppercase disabled:cursor-wait disabled:opacity-60"
     >
       {pending ? "Sending…" : children}
     </button>

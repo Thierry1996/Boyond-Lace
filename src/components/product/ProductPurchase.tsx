@@ -162,7 +162,7 @@ export function ProductPurchase({ product }: { product: Product }) {
           type="button"
           onClick={handleAdd}
           disabled={!product.inStock}
-          className="flex-1 border border-gold px-8 py-4 text-[0.8125rem] tracking-[0.14em] uppercase transition-all duration-500 disabled:cursor-not-allowed disabled:border-white/15 disabled:text-neutral-400 enabled:bg-gold enabled:text-ink enabled:hover:bg-transparent enabled:hover:text-gold"
+          className="cta-primary flex-1 px-8 py-4 text-[0.8125rem] tracking-[0.14em] uppercase"
         >
           {!product.inStock ? "Join the waitlist" : added ? "Added ✓" : "Add to bag"}
         </button>

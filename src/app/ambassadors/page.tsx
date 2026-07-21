@@ -161,7 +161,7 @@ export default function AmbassadorsPage() {
             <div className="mt-7 flex flex-wrap gap-5">
               <Link
                 href="/ambassadors/apply"
-                className="border border-gold bg-gold px-8 py-3.5 text-[0.8125rem] tracking-[0.14em] text-ink uppercase transition-all duration-500 hover:bg-transparent hover:text-gold"
+                className="cta-primary px-8 py-3.5 text-[0.8125rem] tracking-[0.14em] uppercase"
               >
                 Apply now
               </Link>

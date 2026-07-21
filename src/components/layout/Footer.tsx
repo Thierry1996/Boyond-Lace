@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { footerColumns } from "@/lib/navigation";
-import { OfficialWordmark, CrownWave } from "@/components/brand/Logo";
+import { CrownWave } from "@/components/brand/Logo";
+import { LogoMark } from "@/components/brand/LogoMark";
 import { SocialRow } from "@/components/brand/SocialIcons";
 
 export function Footer() {
@@ -9,7 +10,7 @@ export function Footer() {
       <div className="mx-auto max-w-[1440px] px-[4vw] py-20">
         {/* Official gold wordmark — the brand closes the way it opens. */}
         <div className="mb-16 flex flex-col items-start gap-8 lg:flex-row lg:items-end lg:justify-between">
-          <OfficialWordmark size="2.5rem" />
+          <LogoMark width={300} className="w-[15rem] sm:w-[18rem]" />
           <div className="max-w-md">
             <p className="text-lg leading-relaxed text-neutral-400">
               We don&apos;t sell hair. We sell the version of you that exists beyond the wig.

@@ -152,14 +152,14 @@ function ProductTile({
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-ink/70 opacity-0 backdrop-blur-[2px] transition-opacity duration-400 group-hover:opacity-100">
           <button
             onClick={onQuickView}
-            className="flex items-center gap-1.5 rounded-full border border-gold bg-gold px-4 py-2 text-[0.6875rem] tracking-[0.1em] text-ink uppercase transition-transform duration-300 hover:scale-105"
+            className="cta-primary flex items-center gap-1.5 rounded-full px-4 py-2 text-[0.6875rem] tracking-[0.1em] uppercase transition-transform duration-300 hover:scale-105"
           >
             <Eye size={12} strokeWidth={1.75} />
             Quick view
           </button>
           <Link
             href={`/product/${product.slug}`}
-            className="flex items-center gap-1.5 rounded-full border border-gold/60 px-4 py-2 text-[0.6875rem] tracking-[0.1em] text-gold uppercase transition-colors duration-300 hover:bg-gold hover:text-ink"
+            className="cta-secondary flex items-center gap-1.5 rounded-full px-4 py-2 text-[0.6875rem] tracking-[0.1em] uppercase"
           >
             <Plus size={12} strokeWidth={1.75} />
             Promote
@@ -270,7 +270,7 @@ function QuickView({
               href={`/product/${product.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="border border-gold bg-gold px-6 py-3 text-[0.75rem] tracking-[0.12em] text-ink uppercase transition-all duration-500 hover:bg-transparent hover:text-gold"
+              className="cta-primary px-6 py-3 text-[0.75rem] tracking-[0.12em] uppercase"
             >
               Open product page
             </Link>

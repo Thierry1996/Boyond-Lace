@@ -30,6 +30,12 @@ const DIRECTION_OFFSET = {
 
 export type RevealDirection = keyof typeof DIRECTION_OFFSET;
 
+/** Masked word rise, driven by the SplitText wrapper's variant state. */
+const WORD_MASK: Variants = {
+  hidden: { y: "110%" },
+  shown: { y: 0 },
+};
+
 /**
  * Scroll-triggered entrance. Fires once, slightly before the element is fully
  * in view so content is already settling by the time the eye lands on it.
@@ -163,8 +169,23 @@ export function SplitText({
     return <Tag className={className}>{text}</Tag>;
   }
 
+  // One viewport trigger on the wrapper, with the words as variant children,
+  // rather than a whileInView per word. Per-word observers each fire when that
+  // word enters view, so a heading that wraps has its second line start a fresh
+  // stagger from zero — the line breaks become visible seams. Observing the
+  // whole heading keeps the stagger reading as a single gesture, and avoids
+  // pointing IntersectionObserver at elements that begin fully clipped by their
+  // own overflow-hidden mask. Variants reach the words through MotionContext,
+  // so the plain <span> masks in between do not interrupt propagation.
+  const MotionTag = motion[Tag];
+
   return (
-    <Tag className={className}>
+    <MotionTag
+      className={className}
+      initial="hidden"
+      whileInView="shown"
+      viewport={{ once: true, margin: "0px 0px -8% 0px" }}
+    >
       {words.map((word, i) => (
         <span
           key={`${word}-${i}`}
@@ -173,9 +194,7 @@ export function SplitText({
         >
           <motion.span
             className={`inline-block ${italicFrom !== undefined && i >= italicFrom ? "italic" : ""}`}
-            initial={{ y: "110%" }}
-            whileInView={{ y: 0 }}
-            viewport={{ once: true, margin: "0px 0px -8% 0px" }}
+            variants={WORD_MASK}
             transition={{ duration: 1.05, ease: EASE, delay: delay + i * 0.055 }}
           >
             {word}
@@ -183,7 +202,7 @@ export function SplitText({
           </motion.span>
         </span>
       ))}
-    </Tag>
+    </MotionTag>
   );
 }
 

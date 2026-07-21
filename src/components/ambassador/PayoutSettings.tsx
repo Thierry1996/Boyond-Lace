@@ -81,7 +81,7 @@ export function PayoutSettings() {
         <button
           onClick={() => setRequested(true)}
           disabled={requested || !saved}
-          className="flex items-center gap-2 border border-gold bg-gold px-8 py-3.5 text-[0.75rem] tracking-[0.12em] text-ink uppercase transition-all duration-500 hover:bg-transparent hover:text-gold disabled:cursor-not-allowed disabled:opacity-40"
+          className="cta-primary flex items-center gap-2 px-8 py-3.5 text-[0.75rem] tracking-[0.12em] uppercase disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Wallet size={14} strokeWidth={1.75} />
           {requested ? "Payout requested" : "Request payout"}

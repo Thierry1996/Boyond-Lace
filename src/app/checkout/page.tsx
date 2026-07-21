@@ -56,7 +56,7 @@ export default function CheckoutPage() {
         <h1 className="text-3xl text-paper">Nothing to check out.</h1>
         <Link
           href="/shop"
-          className="mt-8 inline-block border border-gold px-8 py-4 text-[0.8125rem] tracking-[0.14em] text-gold uppercase transition-all duration-500 hover:bg-gold hover:text-ink"
+          className="cta-secondary mt-8 inline-block px-8 py-4 text-[0.8125rem] tracking-[0.14em] uppercase"
         >
           View the collection
         </Link>
@@ -222,7 +222,7 @@ export default function CheckoutPage() {
               <button
                 type="button"
                 onClick={placeDemoOrder}
-                className="border border-gold bg-gold px-9 py-4 text-[0.8125rem] tracking-[0.14em] text-ink uppercase transition-all duration-500 hover:bg-transparent hover:text-gold"
+                className="cta-primary px-9 py-4 text-[0.8125rem] tracking-[0.14em] uppercase"
               >
                 Place demo order
               </button>

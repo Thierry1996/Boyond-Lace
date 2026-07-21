@@ -46,7 +46,7 @@ export function SignedOutPrompt() {
       <div className="mt-9 flex flex-wrap justify-center gap-5">
         <Link
           href="/sign-in"
-          className="border border-gold bg-gold px-8 py-3.5 text-[0.8125rem] tracking-[0.14em] text-ink uppercase transition-all duration-500 hover:bg-transparent hover:text-gold"
+          className="cta-primary px-8 py-3.5 text-[0.8125rem] tracking-[0.14em] uppercase"
         >
           Sign in
         </Link>
