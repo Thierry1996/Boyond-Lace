@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { commerce } from "@/lib/commerce";
+import { searchSite } from "@/lib/search";
 import { ProductCard } from "@/components/ui/ProductCard";
 
 export const metadata: Metadata = {
@@ -8,117 +9,20 @@ export const metadata: Metadata = {
   description: "Search Beyond Lace units, guides, brand pages, and wholesale resources.",
 };
 
-/** Static page index — grows with the CMS phase; covers every live route today. */
-const PAGE_INDEX = [
-  {
-    title: "The Beyond Lace Manifesto",
-    href: "/brand",
-    blurb: "Why this brand exists — transformation over hair sales.",
-  },
-  {
-    title: "The 6 Empire Pillars",
-    href: "/brand#pillars",
-    blurb: "The six load-bearing systems behind the brand.",
-  },
-  {
-    title: "Wholesale Salon Programme",
-    href: "/wholesale",
-    blurb: "Bronze / Silver / Gold tiers, MOQ 50, MAP-protected.",
-  },
-  {
-    title: "Private Label — Beyond Lace Pro",
-    href: "/wholesale#private-label",
-    blurb: "Your branding, our construction and batch guarantee.",
-  },
-  {
-    title: "Sourcing & Batch Consistency",
-    href: "/wholesale#sourcing",
-    blurb: "Virgin Remy standards and the measured batch guarantee.",
-  },
-  {
-    title: "Lace Colour Matching Guide",
-    href: "/learn#shade",
-    blurb: "The $5 answer to the industry's biggest friction point.",
-  },
-  {
-    title: "Size & Cap Guide",
-    href: "/learn#sizing",
-    blurb: "Petite, average, large — and how to measure honestly.",
-  },
-  {
-    title: "Hair Grades, Explained",
-    href: "/learn#grades",
-    blurb: "What 10A/12A actually means, and what to check instead.",
-  },
-  {
-    title: "Lace Melting Tutorial",
-    href: "/learn#melting",
-    blurb: "The full melt sequence, including the step tutorials skip.",
-  },
-  {
-    title: "Find Your Unit — Quiz",
-    href: "/learn/quiz",
-    blurb: "Five questions, three ranked matches, ninety seconds.",
-  },
-  {
-    title: "The Beyond Circle",
-    href: "/circle",
-    blurb: "Community, transformation stories, loyalty, masterclasses.",
-  },
-  {
-    title: "Ambassador Programme",
-    href: "/circle#ambassadors",
-    blurb: "Three tiers, from micro-affiliate to celebrity stylist.",
-  },
-  {
-    title: "Track My Order",
-    href: "/support#track",
-    blurb: "Order status, dispatch emails, and who to ask.",
-  },
-  {
-    title: "Returns & Exchanges",
-    href: "/support#returns",
-    blurb: "Thirty days, lace uncut, Lace Test credit automatic.",
-  },
-  {
-    title: "Warranty",
-    href: "/support#warranty",
-    blurb: "Twelve months on construction, unlimited on batch claims.",
-  },
-  {
-    title: "Virtual Try-On",
-    href: "/try-on",
-    blurb: "On-device AR try-on — your face never leaves the browser.",
-  },
-  { title: "Careers", href: "/careers", blurb: "Open roles at Beyond Lace." },
-  {
-    title: "Privacy Policy",
-    href: "/legal/privacy",
-    blurb: "What we collect, what we never do with it.",
-  },
-  { title: "Terms of Service", href: "/legal/terms", blurb: "The agreement, in legible English." },
-];
-
 export default async function SearchPage({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q } = await searchParams;
-  const query = (q ?? "").trim().toLowerCase();
+  const query = (q ?? "").trim();
 
+  // Same ranking the header dropdown uses — one implementation, so a result
+  // never appears in the live panel and then vanishes on the full page.
   const allProducts = await commerce.getProducts();
-  const productHits = query
-    ? allProducts.filter((p) =>
-        [p.title, p.tagline, p.description, p.texture, p.laceType, ...p.badges]
-          .join(" ")
-          .toLowerCase()
-          .includes(query),
-      )
-    : [];
-  const pageHits = query
-    ? PAGE_INDEX.filter((pg) => `${pg.title} ${pg.blurb}`.toLowerCase().includes(query))
-    : [];
+  const results = searchSite(query, allProducts, { products: 60, docs: 40 });
+  const productHits = allProducts.filter((p) => results.products.some((r) => r.id === p.id));
+  const pageHits = results.docs;
 
   return (
     <div className="mx-auto max-w-[1440px] px-[4vw] py-20">

@@ -579,6 +579,33 @@
     color: #fffdf9;
   }
 
+  /* --- Primary navigation band -------------------------------------------
+     This is the main menu and has to read as such at a glance, not as a rule
+     between two dark rows. The band is the gilded metal with a soft vertical
+     sheen over it so it catches light like foil rather than sitting flat, and
+     each item gets a real hover plate instead of a colour shift — a gold bar
+     with defined targets reads as navigation from across the page. */
+  .nav-band {
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / 0.22) 0%, rgb(255 255 255 / 0) 45%),
+      linear-gradient(180deg, rgb(0 0 0 / 0) 62%, rgb(0 0 0 / 0.14) 100%), var(--grad-gilded);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.28);
+  }
+
+  .nav-link {
+    transition:
+      background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      letter-spacing 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .nav-link:hover,
+  .nav-link[data-open="true"] {
+    background: rgb(9 9 9 / 0.09);
+  }
+  .nav-link:focus-visible {
+    outline: 2px solid var(--bl-ink);
+    outline-offset: -3px;
+  }
+
   /* Count badge — reads as a filled CTA but is not interactive, so it takes
      the fill and nothing else: no hover flip, no lift, no transition. */
   .count-badge {

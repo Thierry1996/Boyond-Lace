@@ -11,6 +11,7 @@ import { CurrencySelector } from "@/components/ui/CurrencySelector";
 import { LanguageSelector } from "@/components/ui/LanguageSelector";
 import { LogoMark } from "@/components/brand/LogoMark";
 import { AnnouncementBar } from "./AnnouncementBar";
+import { HeaderSearch } from "./HeaderSearch";
 import { MegaMenu } from "./MegaMenu";
 import { WhatsAppGlyph } from "@/components/brand/SocialIcons";
 import { URLS } from "@/lib/contact";
@@ -70,22 +71,18 @@ export function Header() {
         className="overflow-hidden bg-ink transition-[max-height,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
         style={{ maxHeight: condensed ? 0 : 160, opacity: condensed ? 0 : 1 }}
       >
-        <div className="mx-auto grid max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center gap-6 px-[4vw] py-4">
-          {/* Left — locale + contact */}
-          <nav aria-label="Preferences" className="hidden items-center gap-5 lg:flex">
-            <CurrencySelector />
-            <LanguageSelector />
-            <ThemeToggle />
-            <a
-              href={URLS.whatsappPrefilled}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="WhatsApp"
-              className="text-neutral-400 transition-colors duration-300 hover:text-gold"
-            >
-              <WhatsAppGlyph size={17} />
-            </a>
-          </nav>
+        <div className="mx-auto grid max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center gap-6 px-[4vw] py-2">
+          {/* Left — currency/language, then the search field beside the wordmark.
+              The theme toggle and WhatsApp moved to the right cluster: with all
+              four preference controls here the search column collapsed to ~56px
+              at 1100px wide, which is a field nobody can type into. */}
+          <div className="hidden items-center gap-4 lg:flex">
+            <nav aria-label="Preferences" className="flex shrink-0 items-center gap-4">
+              <CurrencySelector />
+              <LanguageSelector />
+            </nav>
+            <HeaderSearch className="min-w-0 flex-1" />
+          </div>
 
           {/* Mobile menu trigger sits where the locale nav would be */}
           <button
@@ -107,18 +104,31 @@ export function Header() {
             aria-label="Beyond Lace — home"
             className="justify-self-center transition-opacity duration-300 hover:opacity-85"
           >
-            <LogoMark width={230} priority className="w-[10.5rem] sm:w-[13rem] lg:w-[14.5rem]" />
+            <LogoMark width={230} priority className="w-[9.5rem] sm:w-[11.5rem] lg:w-[13rem]" />
           </Link>
 
           {/* Right — commerce */}
           <nav aria-label="Account and cart" className="flex items-center justify-end gap-5">
+            {/* Below lg the inline field is hidden, so keep a route to search. */}
             <Link
               href="/search"
               aria-label="Search"
-              className="text-neutral-400 transition-colors duration-300 hover:text-gold"
+              className="text-neutral-400 transition-colors duration-300 hover:text-gold lg:hidden"
             >
               <Search size={18} strokeWidth={1.5} />
             </Link>
+            <span className="hidden lg:block">
+              <ThemeToggle />
+            </span>
+            <a
+              href={URLS.whatsappPrefilled}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp"
+              className="hidden text-neutral-400 transition-colors duration-300 hover:text-gold lg:block"
+            >
+              <WhatsAppGlyph size={17} />
+            </a>
             <Link
               href="/wishlist"
               aria-label="Wishlist"
@@ -148,40 +158,42 @@ export function Header() {
 
       {/* ── Row 3 · Primary navigation ───────────────────────────────────── */}
       <div
-        className={`border-y border-gold/20 transition-shadow duration-500 ${
-          condensed ? "shadow-[0_10px_40px_-18px_rgb(0_0_0/0.7)]" : ""
+        className={`nav-band relative border-y border-ink/25 transition-shadow duration-500 ${
+          condensed ? "shadow-[0_14px_44px_-16px_rgb(0_0_0/0.75)]" : ""
         }`}
-        style={{ background: "var(--grad-gilded)" }}
       >
         <div className="mx-auto flex max-w-[1440px] items-center justify-center gap-1 px-[4vw]">
-          {/* Condensed state reintroduces a small mark so the brand never vanishes */}
+          {/* Condensed state reintroduces the mark so the brand never vanishes.
+              Width has to clear the full wordmark — 7rem clipped it to "Beyo". */}
           <Link
             href="/"
             aria-label="Beyond Lace — home"
-            className={`mr-4 shrink-0 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-              condensed ? "max-w-[7rem] opacity-100" : "max-w-0 opacity-0"
+            className={`shrink-0 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              condensed ? "mr-5 max-w-[11rem] opacity-100" : "mr-0 max-w-0 opacity-0"
             }`}
           >
-            <span className="font-[family-name:var(--font-display)] text-[1.0625rem] whitespace-nowrap text-ink">
-              Beyond Lace
+            <span className="font-[family-name:var(--font-display)] text-[1.125rem] whitespace-nowrap text-ink">
+              Beyond&nbsp;Lace
             </span>
           </Link>
 
-          <nav aria-label="Primary" className="hidden items-center lg:flex">
+          <nav aria-label="Primary" className="hidden items-stretch lg:flex">
             {primaryNav.map((item) => (
               <div
                 key={item.label}
+                className="flex"
                 onMouseEnter={() => setOpenMenu(item.groups ? item.label : null)}
               >
                 <Link
                   href={item.href}
                   aria-expanded={item.groups ? openMenu === item.label : undefined}
-                  className="relative block px-4 py-3.5 text-[0.75rem] tracking-[0.1em] text-ink/70 uppercase transition-colors duration-300 hover:text-ink"
+                  data-open={openMenu === item.label ? "true" : undefined}
+                  className="nav-link relative flex items-center px-5 py-4 text-[0.8125rem] font-medium tracking-[0.13em] text-ink uppercase"
                 >
-                  {item.label}
+                  <span className="relative z-[1]">{item.label}</span>
                   <span
                     aria-hidden="true"
-                    className={`absolute inset-x-4 bottom-2.5 h-px origin-left bg-ink transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                    className={`absolute inset-x-3 bottom-2.5 h-[2px] origin-left bg-ink transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                       openMenu === item.label ? "scale-x-100" : "scale-x-0"
                     }`}
                   />
@@ -193,7 +205,7 @@ export function Header() {
           {/* Mobile: row 3 becomes a single labelled trigger */}
           <button
             onClick={() => setMobileOpen((v) => !v)}
-            className="flex w-full items-center justify-center gap-2 py-3 text-[0.75rem] tracking-[0.14em] text-ink uppercase lg:hidden"
+            className="flex w-full items-center justify-center gap-2 py-3.5 text-[0.8125rem] font-medium tracking-[0.14em] text-ink uppercase lg:hidden"
             aria-expanded={mobileOpen}
           >
             <Menu size={14} strokeWidth={1.75} />
@@ -215,6 +227,10 @@ export function Header() {
       {mobileOpen && (
         <div className="border-t border-gold/20 bg-ink lg:hidden">
           <nav aria-label="Mobile" className="max-h-[70vh] overflow-y-auto px-[6vw] py-8">
+            {/* The inline field is lg-only, so the drawer carries its own. */}
+            <div className="mb-6">
+              <HeaderSearch />
+            </div>
             {primaryNav.map((item) => (
               <div key={item.label} className="border-b border-white/[0.07] py-4">
                 <Link
