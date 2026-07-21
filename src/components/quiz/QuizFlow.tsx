@@ -7,7 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { formatPrice, type Product } from "@/lib/commerce";
+import { type Product } from "@/lib/commerce";
+import { Money } from "@/components/ui/Money";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { Field, SubmitButton, inputClass } from "@/components/forms/fields";
 
@@ -170,9 +171,10 @@ export function QuizFlow() {
               </div>
               <h3 className="mt-4 text-lg text-paper group-hover:text-blush-300">{p.title}</h3>
               <p className="mt-1 text-[0.8125rem] text-neutral-400">{p.tagline}</p>
-              <p className="mt-2 text-[0.9375rem] text-paper tabular-nums">
-                {formatPrice(p.price, p.currency)}
-              </p>
+              <Money
+                usd={p.price}
+                className="mt-2 block text-[0.9375rem] text-paper tabular-nums"
+              />
             </Link>
           ))}
           {matches.length === 0 && (

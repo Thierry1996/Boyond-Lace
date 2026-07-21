@@ -9,6 +9,7 @@ interface WishlistState {
   toggle: (slug: string) => void;
   has: (slug: string) => boolean;
   clear: () => void;
+  setHydrated: () => void;
 }
 
 export const useWishlist = create<WishlistState>()(
@@ -22,13 +23,15 @@ export const useWishlist = create<WishlistState>()(
         })),
       has: (slug) => get().slugs.includes(slug),
       clear: () => set({ slugs: [] }),
+      setHydrated: () => set({ hydrated: true }),
     }),
     {
       name: "bl.wishlist.v1",
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({ slugs: s.slugs }),
-      onRehydrateStorage: () => () => {
-        useWishlist.setState({ hydrated: true });
+      // Action on the rehydrated state — the store binding is still in TDZ here.
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated();
       },
     },
   ),

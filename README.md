@@ -17,16 +17,16 @@ npm run typecheck
 
 Full navigation ecosystem — **every link in the header, utility bar, and footer resolves**; verified by route sweep (35 routes, all 200).
 
-| Area | Routes |
-| --- | --- |
-| Storefront | `/` · `/shop` (+filters/sorts) · `/shop/bestsellers` · `/shop/new-arrivals` · `/shop/sale` · `/drops` · `/product/[slug]` (15 SKUs) |
-| Purchase | `/cart` · `/checkout` (shipping → payment [demo mode] → confirmation) · `/wishlist` · `/account` |
-| Brand & community | `/brand` (manifesto, mission, pillars, identity kit, gallery, press, founder) · `/circle` (stories, loyalty, events, 3-tier ambassadors) |
-| Education | `/learn` (tutorials, shade, sizing, grades, FAQ) · `/learn/quiz` (working recommender + consented lead capture) · `/try-on` |
-| B2B | `/wholesale` (tiers, MAP, sourcing, private label, live application form) |
-| Support & legal | `/support` (track, returns, shipping, warranty, contact form) · `/careers` · `/legal/*` (6 docs) |
-| Campaign (hidden, noindex) | `/lp/influencer-affiliates` · `/lp/salon-onboarding` · `/lp/quiz` · `/lp/comeback` · `/lp/drop-vip` |
-| System | `/search` (products + page index) · branded `404` · `/api/products` · `/api/wholesale` · `/api/contact` · `/api/quiz-lead` (all Zod-validated) |
+| Area                       | Routes                                                                                                                                         |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Storefront                 | `/` · `/shop` (+filters/sorts) · `/shop/bestsellers` · `/shop/new-arrivals` · `/shop/sale` · `/drops` · `/product/[slug]` (15 SKUs)            |
+| Purchase                   | `/cart` · `/checkout` (shipping → payment [demo mode] → confirmation) · `/wishlist` · `/account`                                               |
+| Brand & community          | `/brand` (manifesto, mission, pillars, identity kit, gallery, press, founder) · `/circle` (stories, loyalty, events, 3-tier ambassadors)       |
+| Education                  | `/learn` (tutorials, shade, sizing, grades, FAQ) · `/learn/quiz` (working recommender + consented lead capture) · `/try-on`                    |
+| B2B                        | `/wholesale` (tiers, MAP, sourcing, private label, live application form)                                                                      |
+| Support & legal            | `/support` (track, returns, shipping, warranty, contact form) · `/careers` · `/legal/*` (6 docs)                                               |
+| Campaign (hidden, noindex) | `/lp/influencer-affiliates` · `/lp/salon-onboarding` · `/lp/quiz` · `/lp/comeback` · `/lp/drop-vip`                                            |
+| System                     | `/search` (products + page index) · branded `404` · `/api/products` · `/api/wholesale` · `/api/contact` · `/api/quiz-lead` (all Zod-validated) |
 
 **Quality gates:** `npm test` (Vitest, 26 tests) · `npm run typecheck` · `npm run lint` (Prettier) · GitHub Actions CI on every PR.
 

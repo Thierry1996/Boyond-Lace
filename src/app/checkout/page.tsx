@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCart } from "@/lib/stores/cart";
-import { formatPrice } from "@/lib/commerce";
+import { Money } from "@/components/ui/Money";
 import { shippingSchema, type ShippingDetails } from "@/lib/schemas";
 import { Field, SubmitButton, inputClass } from "@/components/forms/fields";
 
@@ -99,7 +99,7 @@ export default function CheckoutPage() {
             </span>
           ))}
         </span>
-        <span className="eyebrow tabular-nums">{formatPrice(subtotal)}</span>
+        <Money usd={subtotal} className="eyebrow tabular-nums" />
       </div>
 
       {step === "shipping" && (
@@ -281,16 +281,17 @@ function OrderSummary() {
             <span className="text-neutral-200">
               {l.title} <span className="text-neutral-400">× {l.quantity}</span>
             </span>
-            <span className="text-paper tabular-nums">{formatPrice(l.unitPrice * l.quantity)}</span>
+            <Money usd={l.unitPrice * l.quantity} className="text-paper tabular-nums" />
           </div>
         ))}
       </div>
       <div className="rule-gilded my-6" />
       <div className="flex justify-between">
         <span className="text-[0.9375rem] text-neutral-400">Total</span>
-        <span className="font-[family-name:var(--font-display)] text-xl text-paper tabular-nums">
-          {formatPrice(subtotal)}
-        </span>
+        <Money
+          usd={subtotal}
+          className="font-[family-name:var(--font-display)] text-xl text-paper tabular-nums"
+        />
       </div>
     </aside>
   );

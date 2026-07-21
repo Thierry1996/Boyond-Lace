@@ -4,6 +4,7 @@ import { Section, SectionHeading } from "@/components/ui/Section";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { MonogramAurora, CrownWave } from "@/components/brand/Logo";
+import { HeroCarousel } from "@/components/home/HeroCarousel";
 
 const PILLARS = [
   {
@@ -51,49 +52,14 @@ export default async function HomePage() {
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────────────────────
-          One enormous serif statement, one sans line, nothing else. The aurora
-          gradient appears here and nowhere else on the page. */}
-      <section className="surface-velvet relative flex min-h-[92vh] items-center overflow-hidden">
-        <div
-          className="pointer-events-none absolute top-1/4 -right-[10%] h-[60vh] w-[60vh] rounded-full opacity-[0.13] blur-[120px]"
-          style={{ background: "var(--grad-aurora)" }}
-        />
-
-        <div className="relative mx-auto w-full max-w-[1440px] px-[4vw] py-32">
-          <div className="flex items-center justify-between border-t border-white/[0.07] pt-4">
-            <span className="eyebrow">Est. 2026</span>
-            <span className="eyebrow hidden md:block">Luxury Human Hair</span>
-            <span className="eyebrow">Worldwide</span>
-          </div>
-
-          <div className="mt-24 max-w-4xl">
-            <p className="eyebrow mb-8 text-gold">Beyond Lace. Beyond Beautiful.</p>
-            <h1 className="text-[clamp(3rem,9vw,8rem)] leading-[0.92] text-paper">
-              We don&apos;t sell hair.
-              <span className="text-aurora block italic">We sell what&apos;s beyond it.</span>
-            </h1>
-            <p className="mt-10 max-w-xl text-lg leading-relaxed text-neutral-400">
-              Hand-tied HD Swiss lace units for the woman who has stopped negotiating with her
-              reflection. Engineered so completely that nobody thinks to ask.
-            </p>
-
-            <div className="mt-12 flex flex-wrap items-center gap-8">
-              <Link
-                href="/shop"
-                className="border border-gold px-9 py-4 text-[0.8125rem] tracking-[0.14em] text-gold uppercase transition-all duration-500 hover:bg-gold hover:text-ink"
-              >
-                View the collection
-              </Link>
-              <Link
-                href="/learn/quiz"
-                className="border-b border-white/25 pb-1 text-[0.8125rem] tracking-[0.1em] text-neutral-200 uppercase transition-colors hover:border-gold hover:text-gold"
-              >
-                Find your unit — 90 seconds
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+          Six-slide pillar carousel with gilded centred type, per the reference
+          direction. The h1 is visually part of slide 1's composition but kept
+          for document semantics and SEO. */}
+      <h1 className="sr-only">
+        Beyond Lace — luxury HD Swiss lace human hair wigs. We don&apos;t sell hair; we sell
+        what&apos;s beyond it.
+      </h1>
+      <HeroCarousel />
 
       {/* ── The Lace Test ─────────────────────────────────────────────────── */}
       <Section

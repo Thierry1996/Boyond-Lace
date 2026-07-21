@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { User, Package, Heart, Crown, RefreshCcw, CreditCard, Camera } from "lucide-react";
 import { useWishlist } from "@/lib/stores/wishlist";
-import { formatPrice } from "@/lib/commerce";
+import { Money } from "@/components/ui/Money";
 
 interface DemoOrder {
   ref: string;
@@ -71,9 +71,7 @@ export default function AccountPage() {
                     <span className="eyebrow">
                       {new Date(o.placedAt).toLocaleDateString()} · Demo
                     </span>
-                    <span className="text-[0.9375rem] text-paper tabular-nums">
-                      {formatPrice(o.total)}
-                    </span>
+                    <Money usd={o.total} className="text-[0.9375rem] text-paper tabular-nums" />
                   </div>
                   <p className="mt-2 text-[0.8125rem] text-neutral-400">
                     {o.lines.map((l) => `${l.title} × ${l.quantity}`).join(" · ")}

@@ -5,6 +5,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Providers } from "@/components/Providers";
+import { SupportWidget } from "@/components/support/SupportWidget";
 
 /**
  * Brand Kit v2 typography — kit fonts only, no substitutes
@@ -58,8 +59,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={cormorant.variable}>
+    <html lang="en" className={cormorant.variable} suppressHydrationWarning>
       <body className="min-h-screen antialiased">
+        {/* Applies the saved light/dark choice before first paint — no flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem("bl.mode")==="light")document.documentElement.dataset.mode="light"}catch(e){}`,
+          }}
+        />
         <ClerkProvider>
           <Providers>
             <a
@@ -71,6 +78,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Header />
             <main id="main">{children}</main>
             <Footer />
+            <SupportWidget />
           </Providers>
         </ClerkProvider>
       </body>

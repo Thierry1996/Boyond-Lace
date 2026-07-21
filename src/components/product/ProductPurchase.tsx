@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { formatPrice, type Product } from "@/lib/commerce";
+import { type Product } from "@/lib/commerce";
 import { useCart } from "@/lib/stores/cart";
 import { useWishlist } from "@/lib/stores/wishlist";
+import { Money } from "@/components/ui/Money";
 import { Heart } from "lucide-react";
 
 export function ProductPurchase({ product }: { product: Product }) {
@@ -77,13 +78,15 @@ export function ProductPurchase({ product }: { product: Product }) {
   return (
     <div>
       <div className="flex items-baseline gap-4">
-        <span className="font-[family-name:var(--font-display)] text-3xl text-paper tabular-nums">
-          {formatPrice(unitPrice, product.currency)}
-        </span>
+        <Money
+          usd={unitPrice}
+          className="font-[family-name:var(--font-display)] text-3xl text-paper tabular-nums"
+        />
         {product.compareAtPrice && (
-          <span className="text-[0.9375rem] text-neutral-400 line-through tabular-nums">
-            {formatPrice(product.compareAtPrice, product.currency)}
-          </span>
+          <Money
+            usd={product.compareAtPrice}
+            className="text-[0.9375rem] text-neutral-400 line-through tabular-nums"
+          />
         )}
       </div>
 

@@ -6,6 +6,70 @@
  * assets/brand/ — the API here will not need to change.
  */
 
+/**
+ * Official wordmark — the gold "Beyond Lace" lockup with the leaf flourish off
+ * the B and the tracked-out tagline beneath (per the supplied logo reference).
+ * Faithful code recreation in gilded gradient; drop the real vector into
+ * public/brand/wordmark.svg and swap here when the asset file is available.
+ * Renders gold on any background, as specified.
+ */
+export function OfficialWordmark({
+  size = "2rem",
+  tagline = true,
+  className = "",
+}: {
+  size?: string;
+  tagline?: boolean;
+  className?: string;
+}) {
+  return (
+    <span className={`inline-flex flex-col items-center leading-none ${className}`}>
+      <span className="relative inline-flex items-baseline">
+        {/* Leaf flourish off the B's foot */}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 40 20"
+          className="absolute -bottom-[0.12em] -left-[0.55em]"
+          style={{ width: "0.9em", height: "0.45em", fontSize: size }}
+        >
+          <path d="M39 3 C24 16 10 19 1 17 C12 12 24 7 39 3 Z" fill="url(#bl-flourish)" />
+          <defs>
+            <linearGradient id="bl-flourish" x1="0" y1="1" x2="1" y2="0">
+              <stop offset="0" stopColor="#A9834D" />
+              <stop offset="1" stopColor="#C9A66B" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <span
+          className="font-[family-name:var(--font-display)]"
+          style={{
+            fontSize: size,
+            letterSpacing: "0.01em",
+            background: "var(--grad-gilded)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent",
+          }}
+        >
+          Beyond Lace
+        </span>
+      </span>
+      {tagline && (
+        <span
+          className="mt-[0.5em] uppercase"
+          style={{
+            fontSize: `calc(${size} * 0.22)`,
+            letterSpacing: "0.28em",
+            color: "#C9A66B",
+          }}
+        >
+          Beyond Lace. Beyond Beautiful.
+        </span>
+      )}
+    </span>
+  );
+}
+
 export function Wordmark({ className = "" }: { className?: string }) {
   return (
     <span

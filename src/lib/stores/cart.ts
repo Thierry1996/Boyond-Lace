@@ -19,6 +19,7 @@ interface CartState {
   setQuantity: (id: string, quantity: number) => void;
   clear: () => void;
   setOpen: (open: boolean) => void;
+  setHydrated: () => void;
 }
 
 /** Stable line identity: same product + same selections collapses into one line. */
@@ -58,15 +59,18 @@ export const useCartStore = create<CartState>()(
         })),
       clear: () => set({ lines: [] }),
       setOpen: (isOpen) => set({ isOpen }),
+      setHydrated: () => set({ hydrated: true }),
     }),
     {
       name: "bl.cart.v1",
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({ lines: s.lines }),
+      // Actions on the rehydrated state — the store binding is still in TDZ
+      // during synchronous localStorage rehydration.
       onRehydrateStorage: () => (state) => {
         // Flag lets components avoid SSR/client markup mismatches.
         state?.setOpen(false);
-        useCartStore.setState({ hydrated: true });
+        state?.setHydrated();
       },
     },
   ),

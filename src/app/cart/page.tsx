@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/stores/cart";
-import { formatPrice } from "@/lib/commerce";
+import { Money } from "@/components/ui/Money";
 import { ProductImage } from "@/components/ui/ProductImage";
 
 const FREE_SHIPPING_THRESHOLD = 40000;
@@ -73,9 +73,10 @@ export default function CartPage() {
                     >
                       {line.title}
                     </Link>
-                    <span className="text-[0.9375rem] text-paper tabular-nums">
-                      {formatPrice(line.unitPrice * line.quantity)}
-                    </span>
+                    <Money
+                      usd={line.unitPrice * line.quantity}
+                      className="text-[0.9375rem] text-paper tabular-nums"
+                    />
                   </div>
                   {Object.keys(line.selections).length > 0 && (
                     <p className="mt-2 text-[0.8125rem] text-neutral-400">
@@ -125,9 +126,7 @@ export default function CartPage() {
 
             <div className="flex justify-between border-b border-white/[0.07] pb-4">
               <span className="text-[0.9375rem] text-neutral-400">Subtotal</span>
-              <span className="text-[0.9375rem] text-paper tabular-nums">
-                {formatPrice(subtotal)}
-              </span>
+              <Money usd={subtotal} className="text-[0.9375rem] text-paper tabular-nums" />
             </div>
             <div className="flex justify-between border-b border-white/[0.07] py-4">
               <span className="text-[0.9375rem] text-neutral-400">Shipping</span>
@@ -139,7 +138,7 @@ export default function CartPage() {
             {remaining > 0 && (
               <div className="mt-5">
                 <p className="text-[0.8125rem] text-neutral-400">
-                  {formatPrice(remaining)} from complimentary worldwide shipping.
+                  <Money usd={remaining} /> from complimentary worldwide shipping.
                 </p>
                 <div className="mt-2.5 h-px w-full bg-white/10">
                   <div
@@ -154,9 +153,10 @@ export default function CartPage() {
 
             <div className="mt-7 flex justify-between">
               <span className="text-[1.0625rem] text-paper">Total</span>
-              <span className="font-[family-name:var(--font-display)] text-2xl text-paper tabular-nums">
-                {formatPrice(subtotal)}
-              </span>
+              <Money
+                usd={subtotal}
+                className="font-[family-name:var(--font-display)] text-2xl text-paper tabular-nums"
+              />
             </div>
 
             <button

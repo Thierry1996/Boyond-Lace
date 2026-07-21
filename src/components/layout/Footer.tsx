@@ -1,17 +1,21 @@
 import Link from "next/link";
 import { footerColumns } from "@/lib/navigation";
-import { Wordmark, CrownWave } from "@/components/brand/Logo";
+import { OfficialWordmark, CrownWave } from "@/components/brand/Logo";
+import { SocialRow } from "@/components/brand/SocialIcons";
 
 export function Footer() {
   return (
     <footer className="border-t border-white/[0.07] bg-ink">
       <div className="mx-auto max-w-[1440px] px-[4vw] py-20">
-        {/* Manifesto restatement — the brand closes the way it opens. */}
-        <div className="mb-16 max-w-2xl">
-          <Wordmark className="mb-4 block text-4xl text-paper" />
-          <p className="text-lg leading-relaxed text-neutral-400">
-            We don&apos;t sell hair. We sell the version of you that exists beyond the wig.
-          </p>
+        {/* Official gold wordmark — the brand closes the way it opens. */}
+        <div className="mb-16 flex flex-col items-start gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <OfficialWordmark size="2.5rem" />
+          <div className="max-w-md">
+            <p className="text-lg leading-relaxed text-neutral-400">
+              We don&apos;t sell hair. We sell the version of you that exists beyond the wig.
+            </p>
+            <SocialRow className="mt-6" />
+          </div>
         </div>
 
         <div className="rule-gilded mb-14" />
@@ -38,7 +42,7 @@ export function Footer() {
 
         <div className="rule-gilded my-14" />
 
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-6 pb-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3 text-neutral-400">
             <CrownWave size={24} className="text-gold" />
             <p className="text-[0.8125rem]">
@@ -46,16 +50,24 @@ export function Footer() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-6">
-            <p className="eyebrow">Beyond Lace. Beyond Beautiful.</p>
-            <span className="hidden h-3 w-px bg-white/15 md:block" />
             <Link href="/legal/accessibility" className="eyebrow hover:text-blush-300">
               Accessibility
             </Link>
             <Link href="/legal/privacy" className="eyebrow hover:text-blush-300">
               Privacy
             </Link>
+            <Link href="/legal/terms" className="eyebrow hover:text-blush-300">
+              Terms
+            </Link>
           </div>
         </div>
+      </div>
+
+      {/* Gilded closing strip — per the reference footer band. */}
+      <div style={{ background: "var(--grad-gilded)" }}>
+        <p className="mx-auto max-w-[1440px] px-[4vw] py-2.5 text-center text-[0.625rem] font-medium tracking-[0.22em] text-ink uppercase">
+          Beyond Lace™&ensp;|&ensp;Luxury Human Hair&ensp;|&ensp;Est. 2026
+        </p>
       </div>
     </footer>
   );

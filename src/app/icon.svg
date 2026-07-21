@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Beyond Lace favicon — aurora BL monogram with orbital swoosh, per the
+       supplied reference. Replace with the official asset when available. -->
+  <defs>
+    <linearGradient id="a" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#8C6B8A"/>
+      <stop offset="0.45" stop-color="#DCA8B7"/>
+      <stop offset="0.75" stop-color="#EECAD5"/>
+      <stop offset="1" stop-color="#C9A66B"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#090909"/>
+  <path d="M14 46 C20 28 40 12 52 14" fill="none" stroke="url(#a)" stroke-width="1.6" stroke-linecap="round" opacity="0.85"/>
+  <g fill="#EECAD5">
+    <circle cx="15" cy="49" r="0.9"/><circle cx="18.5" cy="51.5" r="0.8"/><circle cx="22.5" cy="53.2" r="0.7"/><circle cx="27" cy="54.2" r="0.6"/>
+    <circle cx="49" cy="11.5" r="0.9"/><circle cx="45" cy="10" r="0.8"/><circle cx="41" cy="9.4" r="0.7"/>
+  </g>
+  <text x="31" y="43" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="30" letter-spacing="-2" fill="url(#a)">BL</text>
+</svg>

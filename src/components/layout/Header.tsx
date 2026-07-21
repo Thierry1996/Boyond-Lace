@@ -3,9 +3,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { primaryNav, utilityNav } from "@/lib/navigation";
-import { Wordmark, MonogramFlat } from "@/components/brand/Logo";
+import { Wordmark } from "@/components/brand/Logo";
 import { useCart } from "@/lib/stores/cart";
 import { AuthControls } from "@/components/auth/AuthControls";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { CurrencySelector } from "@/components/ui/CurrencySelector";
+import { LanguageSelector } from "@/components/ui/LanguageSelector";
 
 export function Header() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -32,14 +35,9 @@ export function Header() {
   }, []);
 
   return (
-    <header
-      className={`sticky top-0 z-50 transition-colors duration-500 ${
-        scrolled || openMenu ? "bg-ink/95 backdrop-blur-xl" : "bg-transparent"
-      }`}
-      onMouseLeave={() => setOpenMenu(null)}
-    >
-      {/* Utility bar — secondary nav per the sitemap. */}
-      <div className="hidden border-b border-white/[0.07] md:block">
+    <header className="sticky top-0 z-50" onMouseLeave={() => setOpenMenu(null)}>
+      {/* Utility bar — secondary nav per the sitemap. Stays ink in both modes. */}
+      <div className="hidden bg-ink md:block">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between px-[4vw] py-2.5">
           <p className="eyebrow">Complimentary worldwide shipping over $400</p>
           <nav aria-label="Utility" className="flex items-center gap-6">
@@ -56,66 +54,71 @@ export function Header() {
               ))}
             <AuthControls />
             <span className="h-3 w-px bg-white/15" />
-            <button className="eyebrow transition-colors hover:text-blush-300">USD $</button>
-            <button className="eyebrow transition-colors hover:text-blush-300">EN</button>
+            <ThemeToggle />
+            <CurrencySelector />
+            <LanguageSelector />
           </nav>
         </div>
       </div>
 
-      {/* Primary bar */}
-      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-8 px-[4vw] py-5">
-        <Link href="/" className="flex items-center gap-3" aria-label="Beyond Lace — home">
-          <MonogramFlat size={34} />
-          <Wordmark className="text-[1.375rem] text-paper" />
-        </Link>
+      {/* Primary bar — gilded band per the reference navbar, ink type on gold. */}
+      <div style={{ background: "var(--grad-gilded)" }}>
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-8 px-[4vw] py-4">
+          <Link href="/" aria-label="Beyond Lace — home">
+            <Wordmark className="text-[1.5rem] text-ink" />
+          </Link>
 
-        <nav aria-label="Primary" className="hidden items-center gap-9 lg:flex">
-          {primaryNav.map((item) => (
-            <div key={item.label} onMouseEnter={() => setOpenMenu(item.groups ? item.label : null)}>
-              <Link
-                href={item.href}
-                className="relative py-2 text-[0.8125rem] tracking-[0.06em] text-neutral-200 uppercase transition-colors hover:text-paper"
-                aria-expanded={item.groups ? openMenu === item.label : undefined}
+          <nav aria-label="Primary" className="hidden items-center gap-8 lg:flex">
+            {primaryNav.map((item) => (
+              <div
+                key={item.label}
+                onMouseEnter={() => setOpenMenu(item.groups ? item.label : null)}
               >
-                {item.label}
-                <span
-                  className={`absolute -bottom-0.5 left-0 h-px bg-gold transition-all duration-400 ${
-                    openMenu === item.label ? "w-full" : "w-0"
-                  }`}
-                />
-              </Link>
-            </div>
-          ))}
-        </nav>
+                <Link
+                  href={item.href}
+                  className="relative py-2 text-[0.8125rem] tracking-[0.06em] text-ink/75 uppercase transition-colors hover:text-ink"
+                  aria-expanded={item.groups ? openMenu === item.label : undefined}
+                >
+                  {item.label}
+                  <span
+                    className={`absolute -bottom-0.5 left-0 h-px bg-ink transition-all duration-400 ${
+                      openMenu === item.label ? "w-full" : "w-0"
+                    }`}
+                  />
+                </Link>
+              </div>
+            ))}
+          </nav>
 
-        <div className="flex items-center gap-5">
-          <Link
-            href="/learn/quiz"
-            className="hidden text-[0.8125rem] tracking-[0.06em] text-gold uppercase transition-opacity hover:opacity-70 xl:block"
-          >
-            Find your unit
-          </Link>
-          <Link
-            href="/cart"
-            className="flex items-center gap-2 text-[0.8125rem] tracking-[0.06em] text-neutral-200 uppercase transition-colors hover:text-paper"
-          >
-            Cart
-            <span
-              className="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-gold/50 px-1 text-[0.6875rem] text-gold tabular-nums"
-              suppressHydrationWarning
+          <div className="flex items-center gap-5">
+            <Link
+              href="/learn/quiz"
+              className="hidden text-[0.8125rem] tracking-[0.06em] text-ink uppercase underline decoration-ink/40 underline-offset-4 transition-opacity hover:opacity-70 xl:block"
             >
-              {hydrated ? count : 0}
-            </span>
-          </Link>
-          <button
-            className="lg:hidden"
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileOpen}
-          >
-            <span className="block h-px w-6 bg-paper" />
-            <span className="mt-1.5 block h-px w-6 bg-paper" />
-          </button>
+              Find your unit
+            </Link>
+            <Link
+              href="/cart"
+              className="flex items-center gap-2 text-[0.8125rem] tracking-[0.06em] text-ink/80 uppercase transition-colors hover:text-ink"
+            >
+              Cart
+              <span
+                className="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-ink/50 px-1 text-[0.6875rem] text-ink tabular-nums"
+                suppressHydrationWarning
+              >
+                {hydrated ? count : 0}
+              </span>
+            </Link>
+            <button
+              className="lg:hidden"
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileOpen}
+            >
+              <span className="bg-ink block h-px w-6" />
+              <span className="bg-ink mt-1.5 block h-px w-6" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -210,7 +213,7 @@ export function Header() {
                 )}
               </div>
             ))}
-            <div className="mt-6 flex gap-6">
+            <div className="mt-6 flex flex-wrap gap-6">
               {utilityNav.map((l) => (
                 <Link
                   key={l.href}
@@ -221,6 +224,11 @@ export function Header() {
                   {l.label}
                 </Link>
               ))}
+            </div>
+            <div className="mt-6 flex flex-wrap items-center gap-6 border-t border-white/[0.07] pt-6">
+              <ThemeToggle />
+              <CurrencySelector />
+              <LanguageSelector />
             </div>
           </nav>
         </div>

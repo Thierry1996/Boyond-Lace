@@ -10,14 +10,45 @@
    truth; do not introduce raw hex values in components.
    ========================================================================== */
 
+/* --- Palette as INHERITING :root vars ------------------------------------
+   Tailwind v4's @theme registers colours as @property with inherits:false,
+   so overriding them per-mode does NOT cascade to descendants. To make dark/
+   light mode work, the mode-sensitive palette lives here as ordinary (thus
+   inheriting) custom properties, mapped to the Tailwind utility names via
+   @theme inline below. Overriding these under [data-mode="light"] then
+   correctly flows to every element. */
+:root {
+  --bl-ink: #090909; /* Infinite Black */
+  --bl-paper: #f8f5f1; /* Luminous White — warm; primary text */
+  --bl-ivory: #fbf8f4; /* Warm Ivory */
+  --bl-neutral-950: #090909;
+  --bl-neutral-900: #121012; /* raised card surface (dark) */
+  --bl-neutral-800: #1c181c;
+  --bl-neutral-700: #2a252a;
+  --bl-neutral-400: #8a8388; /* muted text */
+  --bl-neutral-200: #d8d2d4; /* bright muted text */
+  --bl-neutral-50: #f8f5f1;
+}
+
+@theme inline {
+  /* Mode-sensitive core — resolve through the inheriting :root vars above. */
+  --color-ink: var(--bl-ink);
+  --color-paper: var(--bl-paper);
+  --color-ivory: var(--bl-ivory);
+  --color-neutral-950: var(--bl-neutral-950);
+  --color-neutral-900: var(--bl-neutral-900);
+  --color-neutral-800: var(--bl-neutral-800);
+  --color-neutral-700: var(--bl-neutral-700);
+  --color-neutral-400: var(--bl-neutral-400);
+  --color-neutral-200: var(--bl-neutral-200);
+  --color-neutral-50: var(--bl-neutral-50);
+}
+
 @theme {
-  /* --- Core palette (locked, kit v2) ------------------------------------- */
-  --color-ink: #090909; /* Infinite Black */
-  --color-paper: #f8f5f1; /* Luminous White — warm */
+  /* --- Static brand colours (identical in both modes) -------------------- */
   --color-plum: #5a2d67; /* Velvet Plum */
   --color-blush: #eecad5; /* Blush Aura */
   --color-gold: #c9a66b; /* Gilded Gold — champagne */
-  --color-ivory: #fbf8f4; /* Warm Ivory */
 
   /* --- Plum ramp (900 = Deep Aubergine, from the kit) --------------------- */
   --color-plum-900: #321528;
@@ -42,15 +73,6 @@
   --color-gold-500: #c9a66b;
   --color-gold-400: #dbbf92;
   --color-gold-300: #f6ebd5;
-
-  /* --- Neutrals ----------------------------------------------------------- */
-  --color-neutral-950: #090909;
-  --color-neutral-900: #121012;
-  --color-neutral-800: #1c181c;
-  --color-neutral-700: #2a252a;
-  --color-neutral-400: #8a8388;
-  --color-neutral-200: #d8d2d4;
-  --color-neutral-50: #f8f5f1;
 
   /* --- Type (kit fonts only — no substitutes) ------------------------------
      Canela and Neue Haas Grotesk are commercial: their names lead the stacks
@@ -153,6 +175,47 @@
   --surface-muted: var(--color-neutral-400);
   --surface-accent: rgb(201 166 107 / 0.6);
   --surface-rule: rgb(255 255 255 / 0.12);
+}
+
+/* --- User-facing light mode (header toggle) -------------------------------
+   The canvas, cards, text, and hairlines invert via token remap. Brand bands
+   (velvet heroes, plum-900 sections, ink panels) deliberately stay dark —
+   inside them the dark-surface tokens are restored so their text never
+   collapses into dark-on-dark. Gold CTAs keep ink text in both modes. */
+:root[data-mode="light"] {
+  --surface-canvas: var(--bl-ivory);
+  --surface-raised: #ffffff;
+  --surface-text: #321528;
+  --surface-muted: #6f6470;
+  --surface-accent: var(--color-gold-600);
+  --surface-rule: rgb(90 45 103 / 0.22);
+  /* Mode-sensitive palette — these inherit, so the flip cascades everywhere. */
+  --bl-paper: #321528; /* primary text → deep aubergine */
+  --bl-neutral-900: #ffffff; /* raised card surface → white */
+  --bl-neutral-800: #f7e7ec; /* soft rose surface */
+  --bl-neutral-700: #eadde2;
+  --bl-neutral-400: #6f6470; /* muted text → plum-gray */
+  --bl-neutral-200: #46215a; /* bright muted → deep plum */
+  /* shadcn semantic surfaces for any registry components. */
+  --popover: #ffffff;
+  --popover-foreground: #321528;
+  --muted: #f7e7ec;
+  --muted-foreground: #6f6470;
+  --secondary: #f7e7ec;
+  --secondary-foreground: #321528;
+  --accent: var(--color-rose-200);
+  --accent-foreground: #321528;
+}
+
+/* Brand-dark islands (velvet heroes, plum-900 sections, ink strips) keep the
+   dark reading palette in light mode, so their text never goes dark-on-dark. */
+:root[data-mode="light"] :is(.surface-velvet, [class*="bg-plum-900"], [class*="bg-ink"], .bg-ink) {
+  --bl-paper: #f8f5f1;
+  --bl-neutral-900: #121012;
+  --bl-neutral-800: #1c181c;
+  --bl-neutral-400: #8a8388;
+  --bl-neutral-200: #d8d2d4;
+  --surface-muted: #8a8388;
 }
 
 /* --- Base ---------------------------------------------------------------- */

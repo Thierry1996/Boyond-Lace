@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { commerce, formatPrice } from "@/lib/commerce";
+import { commerce } from "@/lib/commerce";
+import { Money } from "@/components/ui/Money";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { ProductPurchase } from "@/components/product/ProductPurchase";
@@ -182,7 +183,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <div className="max-w-2xl">
               <p className="eyebrow mb-3 text-gold">Before you commit</p>
               <h2 className="text-[clamp(1.5rem,3vw,2.25rem)] text-paper">
-                {formatPrice(product.price, product.currency)} is a lot to guess with.
+                <Money usd={product.price} /> is a lot to guess with.
               </h2>
               <p className="mt-4 text-[0.9375rem] leading-relaxed text-blush-200/70">
                 Order The Lace Test for $5 first. Six swatches, five shade cards, credited back in

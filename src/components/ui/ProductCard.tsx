@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { formatPrice, type Product } from "@/lib/commerce";
+import { type Product } from "@/lib/commerce";
 import { ProductImage } from "./ProductImage";
 import { WishlistButton } from "./WishlistButton";
+import { Money } from "./Money";
 
 export function ProductCard({ product }: { product: Product }) {
   return (
@@ -36,13 +37,12 @@ export function ProductCard({ product }: { product: Product }) {
         <div className="mt-3 flex items-baseline gap-3">
           {product.price > 0 ? (
             <>
-              <span className="text-[0.9375rem] text-paper tabular-nums">
-                {formatPrice(product.price, product.currency)}
-              </span>
+              <Money usd={product.price} className="text-[0.9375rem] text-paper tabular-nums" />
               {product.compareAtPrice && (
-                <span className="text-[0.8125rem] text-neutral-400 line-through tabular-nums">
-                  {formatPrice(product.compareAtPrice, product.currency)}
-                </span>
+                <Money
+                  usd={product.compareAtPrice}
+                  className="text-[0.8125rem] text-neutral-400 line-through tabular-nums"
+                />
               )}
             </>
           ) : (
