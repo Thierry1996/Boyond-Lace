@@ -36,7 +36,7 @@ export function Header() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [condensed, setCondensed] = useState(false);
-  const { count, hydrated } = useCart();
+  const { count, hydrated, setOpen: setCartOpen } = useCart();
 
   useEffect(() => {
     const onScroll = () => setCondensed(window.scrollY > 140);
@@ -141,9 +141,10 @@ export function Header() {
               <div className="hidden sm:block">
                 <AuthControls />
               </div>
-              <Link
-                href="/cart"
-                aria-label="Cart"
+              <button
+                type="button"
+                onClick={() => setCartOpen(true)}
+                aria-label={`Bag, ${hydrated ? count : 0} item${count === 1 ? "" : "s"}`}
                 className="group relative text-neutral-400 transition-colors duration-300 hover:text-gold"
               >
                 <ShoppingBag size={18} strokeWidth={1.5} />
@@ -153,7 +154,7 @@ export function Header() {
                 >
                   {hydrated ? count : 0}
                 </span>
-              </Link>
+              </button>
             </nav>
           </div>
         </div>

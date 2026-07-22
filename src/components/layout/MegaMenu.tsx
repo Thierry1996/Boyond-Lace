@@ -22,7 +22,15 @@ export function MegaMenu({ item, onNavigate }: { item: PrimaryNavItem; onNavigat
   const panelHeading = activeGroup !== null ? item.groups[activeGroup]?.heading : item.label;
 
   return (
-    <div className="absolute inset-x-0 top-full hidden border-t border-gold/20 bg-ink/98 backdrop-blur-xl lg:block">
+    <div
+      // Explicit z-index so the panel reliably sits above page content: the
+      // header owns a z-50 stacking context, and page sections animated by
+      // Framer Motion each get their own `transform` stacking context, so an
+      // implicit `z-index: auto` here was fragile. It also enters with a short
+      // fade-and-drop rather than hard-mounting, which read as a flicker.
+      className="absolute inset-x-0 top-full z-[60] hidden border-t border-gold/20 bg-ink/98 backdrop-blur-xl lg:block"
+      style={{ animation: "blMenuIn 320ms cubic-bezier(0.16,1,0.3,1)" }}
+    >
       <div className="mx-auto grid max-w-[1440px] grid-cols-12 gap-10 px-[4vw] py-11">
         {/* Columns */}
         <div className="col-span-8 grid grid-cols-3 gap-x-8 gap-y-9">
