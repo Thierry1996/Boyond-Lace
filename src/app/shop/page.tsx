@@ -23,7 +23,8 @@ const FILTERS = {
       { value: "body-wave", label: "Body Wave" },
       { value: "deep-wave", label: "Deep Wave" },
       { value: "kinky-straight", label: "Kinky Straight" },
-      { value: "curly", label: "Curly" },
+      { value: "kinky-curly", label: "Kinky Curly (4C)" },
+      { value: "jerry-curl", label: "Jerry Curl" },
     ],
   },
   lace: {
@@ -32,6 +33,9 @@ const FILTERS = {
       { value: "hd-swiss-full", label: "Full Lace" },
       { value: "hd-swiss-13x6", label: "13x6 Frontal" },
       { value: "hd-swiss-13x4", label: "13x4 Frontal" },
+      { value: "hd-swiss-7x5", label: "7x5 Bye-Bye-Knots" },
+      { value: "hd-swiss-5x5", label: "5x5 Closure" },
+      { value: "closure-4x4", label: "4x4 Closure + Bundles" },
       { value: "glueless", label: "Glueless" },
       { value: "silk-top", label: "Silk Top" },
     ],
@@ -42,8 +46,20 @@ const FILTERS = {
       { value: "natural-black", label: "Natural Black" },
       { value: "espresso", label: "Espresso" },
       { value: "brunette", label: "Brunette" },
-      { value: "honey-blonde", label: "Honey Blonde" },
+      { value: "auburn-copper", label: "Auburn Copper" },
+      { value: "burgundy-99j", label: "Burgundy 99J" },
+      { value: "honey-balayage", label: "Honey Balayage" },
+      { value: "blonde-613", label: "613 Blonde" },
       { value: "platinum", label: "Platinum" },
+    ],
+  },
+  fit: {
+    label: "Fit",
+    options: [
+      { value: "reinforced-trans-fit", label: "Trans-fit reinforced cap" },
+      { value: "glueless-wear-go", label: "Wear & go" },
+      { value: "bye-bye-knots", label: "Bye-bye-knots" },
+      { value: "closure", label: "Closure" },
     ],
   },
 } as const;
@@ -81,12 +97,17 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
     texture: one(params.texture) ? [one(params.texture) as Texture] : undefined,
     laceType: one(params.lace) ? [one(params.lace) as LaceType] : undefined,
     shade: one(params.shade) ? [one(params.shade) as Shade] : undefined,
+    capConstruction: one(params.fit)
+      ? [one(params.fit) as NonNullable<ProductQuery["capConstruction"]>[number]]
+      : undefined,
     line: one(params.line) as ProductQuery["line"],
     sort: (one(params.sort) as ProductQuery["sort"]) ?? "featured",
   };
 
   const products = await commerce.getProducts(query);
-  const activeCount = ["texture", "lace", "shade", "line"].filter((k) => one(params[k])).length;
+  const activeCount = ["texture", "lace", "shade", "fit", "line"].filter((k) =>
+    one(params[k]),
+  ).length;
 
   return (
     <>

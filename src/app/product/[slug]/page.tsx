@@ -36,6 +36,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   if (!product) notFound();
 
   const related = await commerce.getRelated(slug, 4);
+  const attachments = await commerce.getAttachments(slug);
 
   // Explicit product typing so search engines never file this under intimates.
   const jsonLd = {
@@ -204,6 +205,34 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           </dl>
         </div>
       </Section>
+
+      {/* Default attachments.
+          The buying directive treats the Install Kit and Care Bundle as default
+          cross-sell rather than an optional add-on: the margin lives here while
+          the units themselves compete on price, and a first install that fails
+          for want of $40 of tape becomes a return. Presented as what the order
+          already includes, with an explicit opt-out, rather than an upsell. */}
+      {attachments.length > 0 && (
+        <Section
+          className="py-20"
+          eyebrowLeft="Included by default"
+          eyebrowRight="Remove at checkout"
+        >
+          <h2 className="mb-4 text-[clamp(1.75rem,3.5vw,2.75rem)] text-paper">
+            Your order ships complete.
+          </h2>
+          <p className="mb-12 max-w-2xl text-[1.0625rem] leading-relaxed text-neutral-400">
+            Most first installs fail for want of something small — the right tape, a stand to keep
+            the unit in shape. These are added to every unit as standard. Remove either at checkout
+            if you already have them.
+          </p>
+          <div className="grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
+            {attachments.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </Section>
+      )}
 
       {/* Related */}
       {related.length > 0 && (

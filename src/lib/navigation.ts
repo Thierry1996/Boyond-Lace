@@ -67,7 +67,10 @@ export const primaryNav: PrimaryNavItem[] = [
           { label: "Straight", href: "/shop?texture=straight" },
           { label: "Body Wave", href: "/shop?texture=body-wave" },
           { label: "Deep Wave", href: "/shop?texture=deep-wave" },
-          { label: "Coily & Curly", href: "/shop?texture=curly" },
+          // The coil range is now typed precisely (kinky-curly / jerry-curl)
+          // rather than lumped under a generic "curly", so this points at the
+          // 4C-adjacent pattern the launch assortment actually stocks.
+          { label: "Coily & Curly", href: "/shop?texture=kinky-curly" },
           { label: "Kinky Straight", href: "/shop?texture=kinky-straight" },
         ],
       },
