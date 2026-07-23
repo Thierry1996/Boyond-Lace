@@ -1,17 +1,42 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { type Product, deriveVariations } from "@/lib/commerce";
 import { useCart } from "@/lib/stores/cart";
 import { useWishlist } from "@/lib/stores/wishlist";
 import { Money } from "@/components/ui/Money";
 import { Heart } from "lucide-react";
+import { ProductImage } from "@/components/ui/ProductImage";
 
 export function ProductPurchase({ product }: { product: Product }) {
   const { add } = useCart();
   const wishlist = useWishlist();
   const saved = wishlist.hydrated && wishlist.slugs.includes(product.slug);
+
+  // The sticky bar appears once the inline buy button scrolls out of view, so
+  // the price and the action stay reachable through the long PDP below.
+  const atcRef = useRef<HTMLButtonElement>(null);
+  const [showSticky, setShowSticky] = useState(false);
+  // Portalled to <body>: the Reveal wrapper around this component keeps a
+  // transform, which would make a `fixed` child resolve against it instead of
+  // the viewport. Mount-gated so SSR and first client paint agree.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const el = atcRef.current;
+    if (!el) return;
+    // Show only once the inline button has scrolled ABOVE the viewport — i.e.
+    // the shopper has moved past the buy area into the content below. A button
+    // still below the fold on load keeps the bar hidden.
+    const io = new IntersectionObserver(
+      ([entry]) => setShowSticky(entry.boundingClientRect.top < 0),
+      { threshold: 0 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   const [selections, setSelections] = useState<Record<string, string>>(() =>
     Object.fromEntries(
@@ -225,6 +250,7 @@ export function ProductPurchase({ product }: { product: Product }) {
         </div>
 
         <button
+          ref={atcRef}
           type="button"
           onClick={handleAdd}
           disabled={!product.inStock}
@@ -267,6 +293,82 @@ export function ProductPurchase({ product }: { product: Product }) {
           </p>
         ))}
       </div>
+
+      {/* Sticky purchase bar. Slides up once the inline button leaves view and
+          carries the same live price and action, so a shopper reading reviews,
+          Q&A or the guarantees can still add to bag without scrolling back.
+          Only for real retail units, not application-priced products. */}
+      {mounted &&
+        !isApplication &&
+        createPortal(
+          <div
+            className={`dark-island fixed inset-x-0 bottom-0 z-[70] border-t border-gold/25 bg-neutral-900/95 backdrop-blur-md transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              showSticky ? "translate-y-0" : "translate-y-full"
+            }`}
+            aria-hidden={!showSticky}
+          >
+            <div className="mx-auto flex max-w-[1440px] items-center gap-4 px-[4vw] py-3">
+              <span className="hidden w-12 shrink-0 sm:block">
+                <ProductImage src={product.images[0].src} alt={product.title} ratio="1 / 1" />
+              </span>
+
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[0.875rem] text-paper">{product.title}</p>
+                <p className="truncate text-[0.75rem] text-neutral-400">
+                  {options
+                    .map((o) => o.values.find((v) => v.value === selections[o.name])?.label)
+                    .filter(Boolean)
+                    .join(" · ") || product.tagline}
+                </p>
+              </div>
+
+              <div className="hidden text-right sm:block">
+                <Money usd={unitPrice} className="text-[1.0625rem] text-paper tabular-nums" />
+                {product.compareAtPrice && product.compareAtPrice > unitPrice && (
+                  <span className="ml-2 text-[0.75rem] text-gold">
+                    save <Money usd={product.compareAtPrice - unitPrice} />
+                  </span>
+                )}
+              </div>
+
+              {/* Compact quantity, so the sticky bar is a full mini-purchase. */}
+              <div className="hidden items-center border border-white/15 md:flex">
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  className="px-3 py-2.5 text-neutral-200 transition-colors hover:text-gold"
+                  aria-label="Decrease quantity"
+                >
+                  −
+                </button>
+                <span className="w-7 text-center text-[0.8125rem] text-paper tabular-nums">
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity((q) => q + 1)}
+                  className="px-3 py-2.5 text-neutral-200 transition-colors hover:text-gold"
+                  aria-label="Increase quantity"
+                >
+                  +
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleAdd}
+                disabled={!product.inStock}
+                // Not focusable while hidden, so keyboard users never land on an
+                // off-screen control.
+                tabIndex={showSticky ? 0 : -1}
+                className="cta-primary shrink-0 px-6 py-3.5 text-[0.75rem] tracking-[0.14em] uppercase sm:px-9"
+              >
+                {!product.inStock ? "Join the waitlist" : added ? "Added ✓" : "Add to bag"}
+              </button>
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

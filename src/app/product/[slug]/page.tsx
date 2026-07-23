@@ -14,6 +14,7 @@ import { ProductPurchase } from "@/components/product/ProductPurchase";
 import { ProductInformation } from "@/components/product/ProductInformation";
 import { ProductReviews } from "@/components/product/ProductReviews";
 import { ProductQA } from "@/components/product/ProductQA";
+import { SellerGuarantees } from "@/components/product/SellerGuarantees";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { Reveal, Stagger, StaggerItem, SplitText, DrawRule } from "@/components/motion/primitives";
 import { Tilt } from "@/components/motion/interactions";
@@ -255,6 +256,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           facets={reviewFacets}
           photoCount={Math.max(12, Math.round(breakdown.count * 0.26))}
         />
+      </section>
+
+      {/* Seller guarantees */}
+      <section className="border-t border-white/[0.07] py-20">
+        <SellerGuarantees product={product} />
       </section>
 
       {/* Q&A */}
