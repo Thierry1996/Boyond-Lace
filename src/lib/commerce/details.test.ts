@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { catalog } from "./catalog";
 import { deriveProductDetails } from "./details";
-import { getReviews, getRatingBreakdown, getReviewFacets } from "./reviews";
+import { getReviews, getRatingBreakdown, getReviewFacets, getQuestions } from "./reviews";
 
 describe("deriveProductDetails", () => {
   const wigs = catalog.filter((p) => ["luxe", "silk"].includes(p.line) && p.price > 0);
@@ -45,5 +45,43 @@ describe("seeded reviews", () => {
   it("apportions facet counts under the review total", () => {
     const total = getReviewFacets(p).reduce((s, f) => s + f.count, 0);
     expect(total).toBeLessThanOrEqual(p.reviewCount);
+  });
+});
+
+describe("seeded Q&A", () => {
+  const p = catalog.find((x) => x.line === "luxe" && x.price > 0)!;
+
+  it("is deterministic per product", () => {
+    expect(getQuestions(p)).toEqual(getQuestions(p));
+  });
+
+  it("leads with a brand answer and fills the rest with shoppers", () => {
+    const qs = getQuestions(p);
+    expect(qs[0].fromBrand).toBe(true);
+    expect(qs[0].answeredBy).toBe("Beyond Lace");
+    expect(qs.slice(1).every((q) => !q.fromBrand)).toBe(true);
+  });
+
+  it("gives every card a question and an answer", () => {
+    for (const q of getQuestions(p)) {
+      expect(q.question.trim().length).toBeGreaterThan(0);
+      expect(q.answer.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  // Regression: a signed-shift seed once indexed the author arrays out of
+  // bounds for a single slug, yielding undefined and a build-time crash.
+  it("never yields an undefined author on any product", () => {
+    for (const prod of catalog) {
+      for (const r of getReviews(prod)) {
+        expect(r.author, `${prod.slug} review author`).toBeTruthy();
+        expect(r.title).toBeTruthy();
+        expect(r.body).toBeTruthy();
+      }
+      for (const q of getQuestions(prod)) {
+        expect(q.answeredBy, `${prod.slug} answerer`).toBeTruthy();
+        expect(q.askedBy).toBeTruthy();
+      }
+    }
   });
 });

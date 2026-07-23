@@ -79,8 +79,8 @@ export function getReviews(product: Product, count = 5): Review[] {
       author: SEED_AUTHORS[n % SEED_AUTHORS.length],
       rating,
       date,
-      title: SEED_TITLES[(n >> 3) % SEED_TITLES.length],
-      body: SEED_BODIES[(n >> 5) % SEED_BODIES.length],
+      title: SEED_TITLES[(n >>> 3) % SEED_TITLES.length],
+      body: SEED_BODIES[(n >>> 5) % SEED_BODIES.length],
       verified: true,
       helpful: n % 34,
       hasPhoto: i < 3,
@@ -98,4 +98,62 @@ export function getReviewFacets(product: Product): Array<{ label: string; count:
     { label: "True to length", count: Math.round(total * 0.18) },
     { label: "Fast shipping", count: Math.round(total * 0.07) },
   ];
+}
+
+/**
+ * Seeded placeholder Q&A — same honesty stance as the reviews above. Real
+ * questions and answers arrive with the community integration; until then the
+ * layout runs on generic, deterministic, clearly-labelled demo content. The
+ * first answer to each is attributed to Beyond Lace (the brand's own reply),
+ * the rest to other shoppers, mirroring how a real Q&A reads.
+ */
+export interface Question {
+  id: string;
+  question: string;
+  askedBy: string;
+  answer: string;
+  answeredBy: string;
+  fromBrand: boolean;
+  date: string;
+  answerCount: number;
+}
+
+const SEED_QUESTIONS = [
+  "Will this hold a defined curl after a wash, or does the pattern relax?",
+  "How do you keep the style looking fresh through a full day?",
+  "Is this unit beginner-friendly if I've never installed a wig before?",
+  "Does the lace need bleaching, or is it ready to install out of the box?",
+  "How true to the listed length is it once it's stretched out?",
+  "Can I dye or tone this at home without ruining it?",
+  "Is the cap secure enough for workouts and humidity?",
+];
+
+const SEED_ANSWERS = [
+  "It's built to hold. Refresh with a little mousse or light oil on damp hair, scrunch upward, and air-dry — the texture redefines every time.",
+  "A pea of curl cream or mousse on damp hair, then let it air-dry. It stays soft and defined all day without feeling heavy or crunchy.",
+  "Yes — this is one of the least intimidating units we make. Glueless, adjustable band, on your head in minutes, no adhesive to get right.",
+  "The knots come pre-bleached and the hairline is pre-plucked, so it reads scalp-natural out of the box. No bleaching appointment needed.",
+  "Measured stretched, so it lands true to the label. Curl and wave patterns sit shorter until you stretch them — that's the texture, not the length.",
+  "It takes colour well. We'd still order the $5 Lace Test first to confirm your target shade, and tone rather than lift where you can.",
+  "The band and combs hold through a full day. For heavy sweat or humidity, add the grip band from the Install Kit and it will not budge.",
+];
+
+export function getQuestions(product: Product, count = 5): Question[] {
+  const base = seed(product.slug + "-qa");
+  return Array.from({ length: count }, (_, i) => {
+    const n = base + i * 61;
+    const daysAgo = 3 + (n % 200);
+    const date = new Date(Date.now() - daysAgo * 86_400_000).toISOString().slice(0, 10);
+    const fromBrand = i === 0;
+    return {
+      id: `${product.slug}-q${i}`,
+      question: SEED_QUESTIONS[(n >>> 2) % SEED_QUESTIONS.length],
+      askedBy: SEED_AUTHORS[(n >>> 4) % SEED_AUTHORS.length],
+      answer: SEED_ANSWERS[(n >>> 2) % SEED_ANSWERS.length],
+      answeredBy: fromBrand ? "Beyond Lace" : SEED_AUTHORS[(n >>> 6) % SEED_AUTHORS.length],
+      fromBrand,
+      date,
+      answerCount: 1 + (n % 4),
+    };
+  });
 }
