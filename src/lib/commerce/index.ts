@@ -11,6 +11,8 @@ export const commerce: CommerceAdapter = mockAdapter;
 
 export * from "./types";
 export * from "./variations";
+export * from "./details";
+export * from "./reviews";
 
 /** Formats minor units for display. Currency selector wires in here later. */
 export function formatPrice(minorUnits: number, currency = "USD", locale = "en-US"): string {

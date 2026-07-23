@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { commerce } from "@/lib/commerce";
+import { commerce, getRatingBreakdown, getReviews, getReviewFacets } from "@/lib/commerce";
 import { Money } from "@/components/ui/Money";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { ProductPurchase } from "@/components/product/ProductPurchase";
+import { ProductInformation } from "@/components/product/ProductInformation";
+import { ProductReviews } from "@/components/product/ProductReviews";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { Reveal, Stagger, StaggerItem, SplitText, DrawRule } from "@/components/motion/primitives";
 import { Tilt } from "@/components/motion/interactions";
@@ -37,6 +39,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   const related = await commerce.getRelated(slug, 4);
   const attachments = await commerce.getAttachments(slug);
+  const breakdown = getRatingBreakdown(product);
+  const reviews = getReviews(product);
+  const reviewFacets = getReviewFacets(product);
 
   // Explicit product typing so search engines never file this under intimates.
   const jsonLd = {
@@ -217,6 +222,32 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           </dl>
         </div>
       </Section>
+
+      {/* Description + Product details, as expandable panels. */}
+      <Section className="py-16" eyebrowLeft="Product information" eyebrowRight="The full sheet">
+        <div className="mx-auto max-w-3xl">
+          <ProductInformation product={product} />
+        </div>
+      </Section>
+
+      {/* Reviews */}
+      <section className="border-t border-white/[0.07] py-20">
+        <div className="mx-auto max-w-[1440px] px-[4vw]">
+          <div className="mb-10 flex items-center justify-between">
+            <span className="eyebrow">Reviews</span>
+            <span className="eyebrow tabular-nums">
+              {breakdown.overall.toFixed(1)} · {breakdown.count.toLocaleString()}
+            </span>
+          </div>
+        </div>
+        <ProductReviews
+          product={product}
+          breakdown={breakdown}
+          reviews={reviews}
+          facets={reviewFacets}
+          photoCount={Math.max(12, Math.round(breakdown.count * 0.26))}
+        />
+      </section>
 
       {/* Default attachments.
           The buying directive treats the Install Kit and Care Bundle as default
