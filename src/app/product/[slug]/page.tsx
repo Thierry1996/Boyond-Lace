@@ -15,6 +15,8 @@ import { ProductInformation } from "@/components/product/ProductInformation";
 import { ProductReviews } from "@/components/product/ProductReviews";
 import { ProductQA } from "@/components/product/ProductQA";
 import { SellerGuarantees } from "@/components/product/SellerGuarantees";
+import { TutorialCarousel } from "@/components/product/TutorialCarousel";
+import { getTutorials } from "@/lib/tutorials";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { Reveal, Stagger, StaggerItem, SplitText, DrawRule } from "@/components/motion/primitives";
 import { Tilt } from "@/components/motion/interactions";
@@ -51,6 +53,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const reviews = getReviews(product);
   const reviewFacets = getReviewFacets(product);
   const questions = getQuestions(product);
+  const tutorials = getTutorials(product.texture);
 
   // Explicit product typing so search engines never file this under intimates.
   const jsonLd = {
@@ -256,6 +259,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           facets={reviewFacets}
           photoCount={Math.max(12, Math.round(breakdown.count * 0.26))}
         />
+      </section>
+
+      {/* Tutorials */}
+      <section className="border-t border-white/[0.07] py-20">
+        <TutorialCarousel tutorials={tutorials} />
       </section>
 
       {/* Seller guarantees */}
