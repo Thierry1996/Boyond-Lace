@@ -88,8 +88,11 @@ export function WholesaleQuote({ slug, pricing }: { slug: string; pricing: Whole
         volumes are negotiated with the partner team.
       </p>
 
+      {/* Real query params before the hash — anything after `#` is the
+          fragment, so `#apply?...` would hide the quote from searchParams. The
+          wholesale page reads unit + qty and prefills the application. */}
       <Link
-        href={`/wholesale#apply?sku=${encodeURIComponent(slug)}&qty=${qty}`}
+        href={`/wholesale?unit=${encodeURIComponent(slug)}&qty=${qty}#apply`}
         className="cta-primary mt-6 block w-full px-8 py-4 text-center text-[0.8125rem] tracking-[0.14em] uppercase"
       >
         Request this quote

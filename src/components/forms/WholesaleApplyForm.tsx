@@ -6,7 +6,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { wholesaleApplicationSchema, type WholesaleApplication } from "@/lib/schemas";
 import { Field, FormSuccess, SubmitButton, inputClass } from "./fields";
 
-export function WholesaleApplyForm() {
+/**
+ * The quote a "Request this quote" link carries into this form, resolved on the
+ * wholesale page. Kept as a plain prop rather than a schema field so the API and
+ * the Prisma model stay unchanged — the quote rides through inside the message.
+ */
+export interface QuotePrefill {
+  slug: string;
+  sku: string;
+  title: string;
+  qty: number;
+  volume: WholesaleApplication["estimatedVolume"];
+}
+
+export function WholesaleApplyForm({ prefill }: { prefill?: QuotePrefill }) {
   const [done, setDone] = useState(false);
   const {
     register,
@@ -14,6 +27,15 @@ export function WholesaleApplyForm() {
     formState: { errors, isSubmitting },
   } = useForm<WholesaleApplication>({
     resolver: zodResolver(wholesaleApplicationSchema),
+    // A quote carried in from a product page preselects the volume tier and
+    // seeds the message with the unit and quantity, so the enquiry the partner
+    // team receives already says what was quoted.
+    defaultValues: prefill
+      ? {
+          estimatedVolume: prefill.volume,
+          message: `I'd like a wholesale quote for ${prefill.title} (${prefill.sku}) — ${prefill.qty} units.`,
+        }
+      : undefined,
   });
 
   if (done) {
@@ -38,6 +60,20 @@ export function WholesaleApplyForm() {
       className="grid gap-6 text-left sm:grid-cols-2"
       noValidate
     >
+      {prefill && (
+        <div className="border border-gold/30 bg-gold/[0.06] p-4 sm:col-span-2">
+          <p className="eyebrow mb-1 text-gold">Your quote is attached</p>
+          <p className="text-[0.9375rem] text-paper">
+            {prefill.title}{" "}
+            <span className="text-neutral-400">
+              · {prefill.qty} units · {prefill.sku}
+            </span>
+          </p>
+          <p className="mt-1 text-[0.8125rem] leading-relaxed text-neutral-400">
+            It is noted in the message below — adjust anything before you send.
+          </p>
+        </div>
+      )}
       <Field label="Business name" error={errors.businessName?.message}>
         <input className={inputClass} {...register("businessName")} />
       </Field>

@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { WholesaleApplyForm } from "@/components/forms/WholesaleApplyForm";
+import { commerce } from "@/lib/commerce";
+import { WHOLESALE_MOQ } from "@/lib/channel";
+import type { QuotePrefill } from "@/components/forms/WholesaleApplyForm";
 
 export const metadata: Metadata = {
   title: "Wholesale & Private Label — Beyond Lace Pro",
@@ -50,7 +53,44 @@ const TIERS = [
   },
 ];
 
-export default function WholesalePage() {
+/** Maps an order quantity to the application's volume-tier options. */
+function volumeTierFor(qty: number): QuotePrefill["volume"] {
+  if (qty >= 500) return "500+";
+  if (qty >= 150) return "150-499";
+  return "50-149";
+}
+
+/**
+ * Resolves the ?unit=&qty= a "Request this quote" link carries into a prefill
+ * for the application form. Server-side, so the product title is looked up from
+ * the catalogue rather than fetched on the client, and a bad slug simply yields
+ * no prefill instead of an error.
+ */
+async function resolvePrefill(sp: {
+  unit?: string;
+  qty?: string;
+}): Promise<QuotePrefill | undefined> {
+  if (!sp.unit) return undefined;
+  const product = await commerce.getProduct(sp.unit);
+  if (!product?.wholesale) return undefined;
+
+  const qty = Math.max(WHOLESALE_MOQ, Number(sp.qty) || WHOLESALE_MOQ);
+  return {
+    slug: product.slug,
+    sku: product.sku,
+    title: product.title,
+    qty,
+    volume: volumeTierFor(qty),
+  };
+}
+
+export default async function WholesalePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ unit?: string; qty?: string }>;
+}) {
+  const prefill = await resolvePrefill(await searchParams);
+
   return (
     <>
       <section className="surface-velvet border-b border-white/[0.07] pt-20 pb-24">
@@ -329,7 +369,7 @@ export default function WholesalePage() {
             </p>
           </div>
           <div className="mt-14">
-            <WholesaleApplyForm />
+            <WholesaleApplyForm prefill={prefill} />
           </div>
           <div id="samples" className="rule-gilded my-14 scroll-mt-32" />
           <p className="text-center text-[0.9375rem] leading-relaxed text-neutral-400">
