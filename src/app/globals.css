@@ -683,6 +683,76 @@
   }
 }
 
+/* --- Search attention ring ------------------------------------------------
+   A gold light that runs continuously around the search pill to pull the eye
+   on arrival. The animated angle needs a registered custom property, or the
+   conic gradient would jump rather than sweep. A masked pseudo-element paints
+   the gradient only in a 2px ring (padding-box XOR border-box), so the field
+   interior stays clean. It fades out on focus — once you are typing, it has
+   done its job and would only distract. */
+@property --bl-ring-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.search-attn::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--bl-ring-angle),
+    transparent 0deg,
+    rgb(201 166 107 / 0.15) 40deg,
+    var(--color-gold) 90deg,
+    #f6ebd5 120deg,
+    var(--color-gold) 150deg,
+    transparent 210deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 1;
+  transition: opacity 0.4s ease;
+  animation: blRingSpin 3s linear infinite;
+}
+
+/* Keep the field's own content above the ring. */
+.search-attn > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Once the shopper engages, retire the attention cue. */
+.search-attn:focus-within::before {
+  opacity: 0;
+}
+
+@keyframes blRingSpin {
+  to {
+    --bl-ring-angle: 360deg;
+  }
+}
+
+/* Contained horizontal scroll with no visible scrollbar — the primary nav
+   band uses this so nine non-wrapping items never push the page. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

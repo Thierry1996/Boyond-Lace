@@ -72,42 +72,28 @@ export function Header() {
         className="overflow-hidden bg-ink transition-[max-height,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
         style={{ maxHeight: condensed ? 0 : 160, opacity: condensed ? 0 : 1 }}
       >
-        <div className="mx-auto grid max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center gap-6 px-[4vw] py-2">
-          {/* Left — search only. Three zones in this bar and nothing else:
-              search, wordmark, then every control grouped at the right corner. */}
-          <div className="hidden items-center lg:flex">
-            <HeaderSearch className="min-w-0 flex-1 xl:max-w-[26rem]" />
-          </div>
-
-          {/* Mobile menu trigger sits where the locale nav would be */}
-          <button
-            className="lg:hidden"
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileOpen}
-          >
-            {mobileOpen ? (
-              <X size={20} strokeWidth={1.5} className="text-paper" />
-            ) : (
-              <Menu size={20} strokeWidth={1.5} className="text-paper" />
-            )}
-          </button>
-
-          {/* Centre — the wordmark */}
+        <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-6 px-5 py-2.5">
+          {/* Left — the wordmark, kept dominant. Equal 1fr side columns so the
+              centre search sits on the true viewport centre, not the gap centre. */}
           <Link
             href="/"
             aria-label="Beyond Lace — home"
-            className="justify-self-center transition-opacity duration-300 hover:opacity-85"
+            className="justify-self-start transition-opacity duration-300 hover:opacity-85"
           >
-            <LogoMark width={230} priority className="w-[9.5rem] sm:w-[11.5rem] lg:w-[13rem]" />
+            <LogoMark width={230} priority className="w-[10rem] sm:w-[12rem] lg:w-[13.5rem]" />
           </Link>
 
-          {/* Right — preferences and commerce, grouped into one corner cluster
-              and separated by a hairline so the two roles stay legible. */}
-          <div className="flex items-center justify-end gap-4">
+          {/* Centre — the search field, ~700px, with a running attention ring. */}
+          <div className="hidden justify-self-center lg:block">
+            <HeaderSearch className="w-[clamp(320px,46vw,700px)]" attention />
+          </div>
+
+          {/* Right — preferences and commerce, compact. On mobile the search
+              collapses to a link and the menu trigger lives here too. */}
+          <div className="flex items-center justify-end gap-3">
             <nav
               aria-label="Preferences"
-              className="hidden items-center gap-4 border-r border-white/12 pr-4 lg:flex"
+              className="hidden items-center gap-3 border-r border-white/12 pr-3 lg:flex"
             >
               <ChannelSwitch />
               <CurrencySelector />
@@ -120,25 +106,25 @@ export function Header() {
                 aria-label="WhatsApp"
                 className="text-neutral-400 transition-colors duration-300 hover:text-gold"
               >
-                <WhatsAppGlyph size={17} />
+                <WhatsAppGlyph size={15} />
               </a>
             </nav>
 
-            <nav aria-label="Account and cart" className="flex items-center gap-5">
+            <nav aria-label="Account and cart" className="flex items-center gap-3.5">
               {/* Below lg the inline field is hidden, so keep a route to search. */}
               <Link
                 href="/search"
                 aria-label="Search"
                 className="text-neutral-400 transition-colors duration-300 hover:text-gold lg:hidden"
               >
-                <Search size={18} strokeWidth={1.5} />
+                <Search size={16} strokeWidth={1.5} />
               </Link>
               <Link
                 href="/wishlist"
                 aria-label="Wishlist"
                 className="hidden text-neutral-400 transition-colors duration-300 hover:text-gold sm:block"
               >
-                <Heart size={18} strokeWidth={1.5} />
+                <Heart size={16} strokeWidth={1.5} />
               </Link>
               <div className="hidden sm:block">
                 <AuthControls />
@@ -149,13 +135,26 @@ export function Header() {
                 aria-label={`Bag, ${hydrated ? count : 0} item${count === 1 ? "" : "s"}`}
                 className="group relative text-neutral-400 transition-colors duration-300 hover:text-gold"
               >
-                <ShoppingBag size={18} strokeWidth={1.5} />
+                <ShoppingBag size={16} strokeWidth={1.5} />
                 <span
                   suppressHydrationWarning
                   className="count-badge absolute -top-2 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[0.625rem] font-medium tabular-nums"
                 >
                   {hydrated ? count : 0}
                 </span>
+              </button>
+              {/* Mobile menu trigger */}
+              <button
+                className="lg:hidden"
+                onClick={() => setMobileOpen((v) => !v)}
+                aria-label={mobileOpen ? "Close menu" : "Open menu"}
+                aria-expanded={mobileOpen}
+              >
+                {mobileOpen ? (
+                  <X size={20} strokeWidth={1.5} className="text-paper" />
+                ) : (
+                  <Menu size={20} strokeWidth={1.5} className="text-paper" />
+                )}
               </button>
             </nav>
           </div>
@@ -168,7 +167,7 @@ export function Header() {
           condensed ? "shadow-[0_14px_44px_-16px_rgb(0_0_0/0.75)]" : ""
         }`}
       >
-        <div className="mx-auto flex max-w-[1440px] items-center justify-center gap-1 px-[4vw]">
+        <div className="flex w-full items-center gap-1 px-5">
           {/* Condensed state reintroduces the mark so the brand never vanishes.
               Width has to clear the full wordmark — 7rem clipped it to "Beyo". */}
           <Link
@@ -183,7 +182,13 @@ export function Header() {
             </span>
           </Link>
 
-          <nav aria-label="Primary" className="hidden items-stretch lg:flex">
+          {/* Full-width, non-wrapping: items spread edge to edge across the band.
+              At tighter widths the nine items exceed the band; rather than wrap
+              or push the page, the band scrolls horizontally inside itself. */}
+          <nav
+            aria-label="Primary"
+            className="no-scrollbar hidden w-full items-stretch justify-between overflow-x-auto lg:flex"
+          >
             {primaryNav.map((item) => (
               <div
                 key={item.label}
@@ -194,7 +199,7 @@ export function Header() {
                   href={item.href}
                   aria-expanded={item.groups ? openMenu === item.label : undefined}
                   data-open={openMenu === item.label ? "true" : undefined}
-                  className="nav-link relative flex items-center px-5 py-4 text-[0.8125rem] font-medium tracking-[0.13em] text-ink uppercase"
+                  className="nav-link relative flex items-center px-2.5 py-4 text-[0.75rem] font-medium tracking-[0.08em] whitespace-nowrap text-ink uppercase xl:px-4 xl:text-[0.8125rem] xl:tracking-[0.12em]"
                 >
                   <span className="relative z-[1]">{item.label}</span>
                   <span

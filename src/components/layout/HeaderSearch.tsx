@@ -26,7 +26,14 @@ import { MIN_QUERY_LENGTH, type SearchResults } from "@/lib/search";
 
 const DEBOUNCE_MS = 220;
 
-export function HeaderSearch({ className = "" }: { className?: string }) {
+export function HeaderSearch({
+  className = "",
+  attention = false,
+}: {
+  className?: string;
+  /** Runs a gold light around the pill to pull the eye on first visit. */
+  attention?: boolean;
+}) {
   const router = useRouter();
   const [term, setTerm] = useState("");
   const [debounced, setDebounced] = useState("");
@@ -152,7 +159,9 @@ export function HeaderSearch({ className = "" }: { className?: string }) {
           the icon cannot drift. */}
       <div
         ref={fieldRef}
-        className="flex items-center gap-1 rounded-full border border-white/20 bg-white/[0.05] py-1 pr-1.5 pl-5 transition-colors duration-300 focus-within:border-gold focus-within:bg-white/[0.08]"
+        className={`relative flex items-center gap-1 rounded-full border border-white/20 bg-white/[0.05] py-1 pr-1.5 pl-5 transition-colors duration-300 focus-within:border-gold focus-within:bg-white/[0.08] ${
+          attention ? "search-attn" : ""
+        }`}
       >
         <input
           ref={inputRef}
