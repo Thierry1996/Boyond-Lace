@@ -5,6 +5,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
+import { ChannelGate } from "@/components/channel/ChannelGate";
 import { Providers } from "@/components/Providers";
 import { SupportWidget } from "@/components/support/SupportWidget";
 
@@ -80,6 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main id="main">{children}</main>
             <Footer />
             <CartDrawer />
+            <ChannelGate />
             <SupportWidget />
           </Providers>
         </ClerkProvider>

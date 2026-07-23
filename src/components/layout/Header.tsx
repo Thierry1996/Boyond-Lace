@@ -12,6 +12,7 @@ import { LanguageSelector } from "@/components/ui/LanguageSelector";
 import { LogoMark } from "@/components/brand/LogoMark";
 import { AnnouncementBar } from "./AnnouncementBar";
 import { HeaderSearch } from "./HeaderSearch";
+import { ChannelSwitch } from "@/components/channel/ChannelSwitch";
 import { MegaMenu } from "./MegaMenu";
 import { WhatsAppGlyph } from "@/components/brand/SocialIcons";
 import { URLS } from "@/lib/contact";
@@ -108,6 +109,7 @@ export function Header() {
               aria-label="Preferences"
               className="hidden items-center gap-4 border-r border-white/12 pr-4 lg:flex"
             >
+              <ChannelSwitch />
               <CurrencySelector />
               <LanguageSelector />
               <ThemeToggle />

@@ -71,12 +71,24 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       />
 
       <div className="mx-auto max-w-[1440px] px-[4vw] pt-12 pb-24">
-        <div className="flex items-center gap-2 text-[0.75rem] text-neutral-400">
-          <a href="/shop" className="hover:text-paper">
-            Collection
-          </a>
-          <span aria-hidden="true">/</span>
-          <span className="text-neutral-200">{product.title}</span>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-[0.75rem] text-neutral-400">
+            <a href="/shop" className="hover:text-paper">
+              Collection
+            </a>
+            <span aria-hidden="true">/</span>
+            <span className="text-neutral-200">{product.title}</span>
+          </div>
+          {/* Same unit, trade view — the channel cross-link. Only for SKUs
+              actually stocked wholesale, so it never points at a dead page. */}
+          {product.wholesale && (
+            <a
+              href={`/wholesale/product/${product.slug}`}
+              className="text-[0.75rem] tracking-[0.08em] text-gold uppercase underline-offset-4 hover:underline"
+            >
+              Buying for a salon or store? See trade pricing →
+            </a>
+          )}
         </div>
 
         <div className="mt-10 grid gap-16 lg:grid-cols-[1.1fr_1fr]">
