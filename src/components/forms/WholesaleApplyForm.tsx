@@ -17,6 +17,8 @@ export interface QuotePrefill {
   title: string;
   qty: number;
   volume: WholesaleApplication["estimatedVolume"];
+  /** Customization brief composed on the wholesale PDP, if any. */
+  custom?: string;
 }
 
 export function WholesaleApplyForm({ prefill }: { prefill?: QuotePrefill }) {
@@ -33,7 +35,9 @@ export function WholesaleApplyForm({ prefill }: { prefill?: QuotePrefill }) {
     defaultValues: prefill
       ? {
           estimatedVolume: prefill.volume,
-          message: `I'd like a wholesale quote for ${prefill.title} (${prefill.sku}) — ${prefill.qty} units.`,
+          message:
+            `I'd like a wholesale quote for ${prefill.title} (${prefill.sku}) — ${prefill.qty} units.` +
+            (prefill.custom ? `\nCustomization — ${prefill.custom}` : ""),
         }
       : undefined,
   });

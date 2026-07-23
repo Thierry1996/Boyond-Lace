@@ -10,6 +10,7 @@ import type { CommerceAdapter } from "./types";
 export const commerce: CommerceAdapter = mockAdapter;
 
 export * from "./types";
+export * from "./variations";
 
 /** Formats minor units for display. Currency selector wires in here later. */
 export function formatPrice(minorUnits: number, currency = "USD", locale = "en-US"): string {

@@ -5,7 +5,8 @@ import { commerce } from "@/lib/commerce";
 import { Money } from "@/components/ui/Money";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { WholesaleProductCard } from "@/components/wholesale/WholesaleProductCard";
-import { WholesaleQuote } from "@/components/wholesale/WholesaleQuote";
+import { WholesaleOrderPanel } from "@/components/wholesale/WholesaleOrderPanel";
+import { VariationSummary } from "@/components/product/VariationSummary";
 import { WHOLESALE_MOQ } from "@/lib/channel";
 
 export async function generateStaticParams() {
@@ -106,9 +107,15 @@ export default async function WholesaleProductPage({
             {product.description}
           </p>
 
+          {/* Consistent variation anatomy — style, lace, colour, length,
+              density — read-only for a trade buyer reviewing the spec. */}
+          <div className="mt-8 border-t border-white/[0.07] pt-8">
+            <VariationSummary product={product} />
+          </div>
+
           <div className="rule-gilded my-9" />
 
-          <WholesaleQuote slug={product.slug} pricing={product.wholesale} />
+          <WholesaleOrderPanel slug={product.slug} pricing={product.wholesale} />
 
           {/* Price break ladder */}
           <div className="mt-8">

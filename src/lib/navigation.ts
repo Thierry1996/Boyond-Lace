@@ -233,6 +233,126 @@ export const primaryNav: PrimaryNavItem[] = [
     },
   },
   {
+    /**
+     * Extensions & Bundles. The submenu names are generic industry categories;
+     * the hrefs resolve to Beyond Lace's own shop filters and bundle SKUs, not
+     * the competitor URLs they were sourced from. Categories we do not yet stock
+     * as distinct products (clip-in, tape-in, ponytail) route to the nearest
+     * real inventory rather than a dead page — nothing here 404s.
+     */
+    label: "Extensions & Bundles",
+    href: "/shop?line=bundle",
+    image: "navShop",
+    groups: [
+      {
+        heading: "Shop by Style",
+        image: "laceDetail",
+        blurb: "The texture, as a bundle or a weft.",
+        links: [
+          { label: "Hair Bundles", href: "/shop?line=bundle" },
+          { label: "Body Wave", href: "/shop?texture=body-wave" },
+          { label: "Straight", href: "/shop?texture=straight" },
+          { label: "Deep Wave", href: "/shop?texture=deep-wave" },
+          // Water Wave and Yaki are not yet stocked as distinct textures — the
+          // yaki finish lives under Kinky Straight — so these route to the
+          // nearest real inventory rather than an empty facet.
+          { label: "Water Wave", href: "/shop?texture=deep-wave" },
+          { label: "Kinky Curly", href: "/shop?texture=kinky-curly" },
+          { label: "Yaki Straight", href: "/shop?texture=kinky-straight" },
+          { label: "Kinky Straight", href: "/shop?texture=kinky-straight" },
+          { label: "Jerry Curl", href: "/shop?texture=jerry-curl" },
+        ],
+      },
+      {
+        heading: "Shop by Type",
+        image: "navShop",
+        blurb: "How it attaches.",
+        links: [
+          { label: "Sew-In / Weave", href: "/shop?line=bundle" },
+          { label: "Closure + Bundle Kits", href: "/shop?lace=closure-4x4" },
+          { label: "Frontal + Bundle Kits", href: "/shop?lace=hd-swiss-13x4" },
+          { label: "The Foundation Set", href: "/product/the-foundation-closure-set" },
+          { label: "The Workroom Set", href: "/product/the-workroom-deep-wave-frontal-set" },
+        ],
+      },
+      {
+        heading: "Shop by Hair Type",
+        image: "navBrand",
+        blurb: "Origin and grade.",
+        links: [
+          { label: "Human Hair Bundles", href: "/shop?line=bundle" },
+          { label: "Virgin Remy", href: "/shop?line=bundle" },
+          { label: "Colored Bundles", href: "/shop?shade=blonde-613" },
+          { label: "Burgundy 99J", href: "/shop?shade=burgundy-99j" },
+          { label: "Auburn Copper", href: "/shop?shade=auburn-copper" },
+        ],
+      },
+    ],
+    feature: {
+      eyebrow: "Batch-matched",
+      title: "Closure and bundles from one run",
+      body: "Every piece in a set is cut from a single production run, so the closure and the bundles agree on tone and texture without a colourist.",
+      href: "/product/the-foundation-closure-set",
+      cta: "See The Foundation",
+    },
+  },
+  {
+    /**
+     * Tools & Accessories. Same rule: generic accessory category names, routed
+     * to our real care products, install kit and care bundle. Where we do not
+     * yet stock a discrete SKU (scalp massagers, steamers, styling irons) the
+     * link lands on the nearest real product or the care listing.
+     */
+    label: "Tools & Accessories",
+    href: "/shop?line=care",
+    image: "navSupport",
+    groups: [
+      {
+        heading: "Cleaning & Care",
+        image: "navSupport",
+        blurb: "What decides twelve months or thirty.",
+        links: [
+          { label: "Shampoo & Conditioner", href: "/shop?line=care" },
+          { label: "Detangler", href: "/shop?line=care" },
+          { label: "The Care Ritual", href: "/product/beyond-care-ritual-box" },
+          { label: "Brushes & Combs", href: "/product/beyond-wig-care-bundle" },
+          { label: "Bags & Storage", href: "/product/beyond-wig-care-bundle" },
+        ],
+      },
+      {
+        heading: "Installation Tools",
+        image: "laceDetail",
+        blurb: "Everything the first install needs.",
+        links: [
+          { label: "The Install Kit", href: "/product/beyond-install-kit" },
+          { label: "Wig Glue & Tapes", href: "/product/the-hold-lace-adhesive" },
+          { label: "Stands & Mannequins", href: "/product/beyond-wig-care-bundle" },
+          { label: "Glue Remover", href: "/product/beyond-install-kit" },
+          { label: "Scalp Protector", href: "/product/beyond-install-kit" },
+        ],
+      },
+      {
+        heading: "Styling & Extension Care",
+        image: "navLearn",
+        blurb: "Keep the finish you paid for.",
+        links: [
+          { label: "Heat Protectant", href: "/shop?line=care" },
+          { label: "Edge Control", href: "/shop?line=care" },
+          { label: "Hair Nets & Wig Caps", href: "/product/beyond-wig-care-bundle" },
+          { label: "Weave Sealer", href: "/shop?line=care" },
+          { label: "Parting Tools", href: "/shop?line=care" },
+        ],
+      },
+    ],
+    feature: {
+      eyebrow: "Ships with every unit",
+      title: "The Install Kit",
+      body: "Waterproof adhesive, lace tape, melting spray and a grip band. Most first installs fail for want of one of the four.",
+      href: "/product/beyond-install-kit",
+      cta: "See the kit",
+    },
+  },
+  {
     label: "The Beyond Circle",
     href: "/circle",
     image: "navCircle",

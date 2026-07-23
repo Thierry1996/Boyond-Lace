@@ -158,7 +158,7 @@ export const catalog: Product[] = [
     origin: "Single-donor virgin Remy, cuticle intact",
     options: [
       { name: "Length", values: LENGTHS },
-      { name: "Shade", values: SHADES },
+      { name: "Color", values: SHADES },
       { name: "Density", values: DENSITIES },
     ],
     images: [
@@ -199,7 +199,7 @@ export const catalog: Product[] = [
     origin: "Virgin Remy, cuticle intact",
     options: [
       { name: "Length", values: LENGTHS },
-      { name: "Shade", values: SHADES },
+      { name: "Color", values: SHADES },
       { name: "Density", values: DENSITIES },
     ],
     images: [
@@ -241,7 +241,7 @@ export const catalog: Product[] = [
     lengths: [12, 14],
     wholesale: resellerPricing(58500),
     crossSell: UNIT_ATTACHMENTS,
-    options: [lengthOption([12, 14]), { name: "Shade", values: SHADES.slice(0, 4) }],
+    options: [lengthOption([12, 14]), { name: "Color", values: SHADES.slice(0, 4) }],
     images: [
       { src: "velvet", alt: "The Standard 5x5 glueless closure bob in natural black human hair" },
       { src: "plum", alt: "Adjustable band and silicone grip detail on the 5x5 closure cap" },
@@ -278,7 +278,7 @@ export const catalog: Product[] = [
     origin: "Virgin Remy, cuticle intact",
     options: [
       { name: "Length", values: LENGTHS.slice(0, 5) },
-      { name: "Shade", values: SHADES },
+      { name: "Color", values: SHADES },
       {
         name: "Cap Size",
         values: [
@@ -337,7 +337,7 @@ export const catalog: Product[] = [
           { label: "140% — Full", value: "140", priceDelta: 6000 },
         ],
       },
-      { name: "Shade", values: SHADES.slice(0, 3) },
+      { name: "Color", values: SHADES.slice(0, 3) },
     ],
     images: [
       { src: "mono", alt: "System One hair system, front hairline detail" },
@@ -440,7 +440,7 @@ export const catalog: Product[] = [
     origin: "Virgin Remy, cuticle intact",
     options: [
       { name: "Length", values: LENGTHS.slice(2, 7) },
-      { name: "Shade", values: SHADES.slice(1, 5) },
+      { name: "Color", values: SHADES.slice(1, 5) },
     ],
     images: [
       { src: "aurora", alt: "The Capsule deep wave unit, brunette" },
@@ -485,7 +485,7 @@ export const catalog: Product[] = [
     crossSell: UNIT_ATTACHMENTS,
     options: [
       lengthOption([16, 20]),
-      { name: "Shade", values: SHADES.slice(0, 3) },
+      { name: "Color", values: SHADES.slice(0, 3) },
       { name: "Density", values: DENSITIES },
     ],
     images: [
@@ -562,7 +562,7 @@ export const catalog: Product[] = [
     crossSell: UNIT_ATTACHMENTS,
     options: [
       lengthOption([14, 18]),
-      { name: "Shade", values: SHADES.slice(0, 3) },
+      { name: "Color", values: SHADES.slice(0, 3) },
       { name: "Density", values: DENSITIES },
     ],
     images: [
@@ -600,7 +600,7 @@ export const catalog: Product[] = [
     origin: "Virgin Remy, cuticle intact",
     options: [
       { name: "Length", values: LENGTHS.slice(0, 4) },
-      { name: "Shade", values: SHADES.slice(0, 4) },
+      { name: "Color", values: SHADES.slice(0, 4) },
     ],
     images: [
       { src: "mono-2", alt: "The Ease natural-density glueless unit" },
@@ -647,7 +647,7 @@ export const catalog: Product[] = [
           { label: '22" / 24" / 26"', value: "22-24-26", priceDelta: 26000 },
         ],
       },
-      { name: "Shade", values: SHADES.slice(0, 3) },
+      { name: "Color", values: SHADES.slice(0, 3) },
     ],
     images: [
       { src: "gold", alt: "The Foundation 4x4 closure and three human hair bundles, body wave" },
@@ -1059,7 +1059,7 @@ export const catalog: Product[] = [
     options: [
       lengthOption([16, 20]),
       capSizeOption(["petite", "average", "large"]),
-      { name: "Shade", values: SHADES.slice(0, 3) },
+      { name: "Color", values: SHADES.slice(0, 3) },
     ],
     images: [
       { src: "velvet", alt: "The Affirmation reinforced cap human hair wig, straight, 13x4 lace" },
@@ -1105,7 +1105,7 @@ export const catalog: Product[] = [
     options: [
       lengthOption([12, 14]),
       capSizeOption(["petite", "average", "large"]),
-      { name: "Shade", values: SHADES.slice(0, 4) },
+      { name: "Color", values: SHADES.slice(0, 4) },
     ],
     images: [
       { src: "mono-2", alt: "The Affirmation glueless bob human hair wig with soft layers" },

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { type Product } from "@/lib/commerce";
+import { type Product, deriveVariations } from "@/lib/commerce";
 import { useCart } from "@/lib/stores/cart";
 import { useWishlist } from "@/lib/stores/wishlist";
 import { Money } from "@/components/ui/Money";
@@ -33,6 +33,11 @@ export function ProductPurchase({ product }: { product: Product }) {
   }, [product, selections]);
 
   const isApplication = product.price === 0;
+
+  // Normalise every listing onto the same five axes so the storefront reads
+  // consistently: fixed attributes become chips, priced ranges stay interactive,
+  // and colour always carries a swatch.
+  const { options, attributes } = useMemo(() => deriveVariations(product), [product]);
 
   function handleAdd() {
     // Store display labels, not raw values — the cart renders these verbatim
@@ -90,47 +95,108 @@ export function ProductPurchase({ product }: { product: Product }) {
         )}
       </div>
 
-      {product.options.map((option) => (
-        <fieldset key={option.name} className="mt-9">
-          <legend className="eyebrow mb-4">
-            {option.name}
-            <span className="ml-2 text-neutral-200 normal-case tracking-normal">
-              {option.values.find((v) => v.value === selections[option.name])?.label}
+      {/* Fixed axes the unit does not vary, shown so every listing presents the
+          same anatomy — style, lace, colour, length, density — even when some
+          are set. */}
+      {attributes.length > 0 && (
+        <div className="mt-8 flex flex-wrap gap-2">
+          {attributes.map((attr) => (
+            <span
+              key={attr.axis}
+              className="inline-flex items-center gap-2 border border-white/[0.12] px-3 py-1.5 text-[0.8125rem] text-neutral-200"
+            >
+              <span className="text-neutral-400">{attr.label}:</span>
+              {attr.swatch && (
+                <span
+                  aria-hidden="true"
+                  className="inline-block h-3.5 w-3.5 rounded-full border border-white/25"
+                  style={{ background: attr.swatch }}
+                />
+              )}
+              {attr.value}
             </span>
-          </legend>
-          <div className="flex flex-wrap gap-2.5">
-            {option.values.map((value) => {
-              const active = selections[option.name] === value.value;
-              const disabled = value.available === false;
-              return (
-                <button
-                  key={value.value}
-                  type="button"
-                  disabled={disabled}
-                  aria-pressed={active}
-                  onClick={() => setSelections((prev) => ({ ...prev, [option.name]: value.value }))}
-                  className={`flex items-center gap-2 border px-4 py-2.5 text-[0.8125rem] transition-all duration-300 ${
-                    disabled
-                      ? "cursor-not-allowed border-white/[0.07] text-neutral-400/40 line-through"
-                      : active
-                        ? "border-gold text-gold"
-                        : "border-white/15 text-neutral-200 hover:border-white/40"
-                  }`}
-                >
-                  {value.swatch && (
-                    <span
-                      aria-hidden="true"
-                      className="inline-block h-3.5 w-3.5 rounded-full border border-white/20"
-                      style={{ background: value.swatch }}
-                    />
-                  )}
-                  {value.label}
-                </button>
-              );
-            })}
-          </div>
-        </fieldset>
-      ))}
+          ))}
+        </div>
+      )}
+
+      {options.map((option) => {
+        const isColor = option.axis === "color";
+        return (
+          <fieldset key={option.name} className="mt-9">
+            <legend className="eyebrow mb-4">
+              {option.name}
+              <span className="ml-2 text-neutral-200 normal-case tracking-normal">
+                {option.values.find((v) => v.value === selections[option.name])?.label}
+              </span>
+            </legend>
+            <div className="flex flex-wrap gap-2.5">
+              {option.values.map((value) => {
+                const active = selections[option.name] === value.value;
+                const disabled = value.available === false;
+
+                // Colour renders as a swatch tile so the axis is scannable at a
+                // glance; every other axis is a text pill.
+                if (isColor && value.swatch) {
+                  return (
+                    <button
+                      key={value.value}
+                      type="button"
+                      disabled={disabled}
+                      aria-pressed={active}
+                      aria-label={value.label}
+                      title={value.label}
+                      onClick={() =>
+                        setSelections((prev) => ({ ...prev, [option.name]: value.value }))
+                      }
+                      className={`relative h-9 w-9 rounded-full border-2 transition-all duration-300 ${
+                        disabled
+                          ? "cursor-not-allowed opacity-30"
+                          : active
+                            ? "border-gold"
+                            : "border-white/20 hover:border-white/50"
+                      }`}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="absolute inset-1 rounded-full"
+                        style={{ background: value.swatch }}
+                      />
+                    </button>
+                  );
+                }
+
+                return (
+                  <button
+                    key={value.value}
+                    type="button"
+                    disabled={disabled}
+                    aria-pressed={active}
+                    onClick={() =>
+                      setSelections((prev) => ({ ...prev, [option.name]: value.value }))
+                    }
+                    className={`flex items-center gap-2 border px-4 py-2.5 text-[0.8125rem] transition-all duration-300 ${
+                      disabled
+                        ? "cursor-not-allowed border-white/[0.07] text-neutral-400/40 line-through"
+                        : active
+                          ? "border-gold text-gold"
+                          : "border-white/15 text-neutral-200 hover:border-white/40"
+                    }`}
+                  >
+                    {value.swatch && (
+                      <span
+                        aria-hidden="true"
+                        className="inline-block h-3.5 w-3.5 rounded-full border border-white/20"
+                        style={{ background: value.swatch }}
+                      />
+                    )}
+                    {value.label}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+        );
+      })}
 
       <div className="mt-10 flex items-stretch gap-4">
         <div className="flex items-center border border-white/15">

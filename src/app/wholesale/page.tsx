@@ -69,25 +69,30 @@ function volumeTierFor(qty: number): QuotePrefill["volume"] {
 async function resolvePrefill(sp: {
   unit?: string;
   qty?: string;
+  custom?: string;
 }): Promise<QuotePrefill | undefined> {
   if (!sp.unit) return undefined;
   const product = await commerce.getProduct(sp.unit);
   if (!product?.wholesale) return undefined;
 
   const qty = Math.max(WHOLESALE_MOQ, Number(sp.qty) || WHOLESALE_MOQ);
+  // The customization brief is untrusted URL text; cap its length so a crafted
+  // link cannot stuff the message field.
+  const custom = sp.custom?.slice(0, 600).trim() || undefined;
   return {
     slug: product.slug,
     sku: product.sku,
     title: product.title,
     qty,
     volume: volumeTierFor(qty),
+    custom,
   };
 }
 
 export default async function WholesalePage({
   searchParams,
 }: {
-  searchParams: Promise<{ unit?: string; qty?: string }>;
+  searchParams: Promise<{ unit?: string; qty?: string; custom?: string }>;
 }) {
   const prefill = await resolvePrefill(await searchParams);
 

@@ -210,7 +210,10 @@ export default async function RecommendedPage() {
       </Section>
 
       {/* Comparison engine */}
-      <section id="compare" className="grain section-rhythm scroll-mt-40 border-y border-gold/20 bg-plum-900">
+      <section
+        id="compare"
+        className="grain section-rhythm scroll-mt-40 border-y border-gold/20 bg-plum-900"
+      >
         <div className="mx-auto max-w-[1440px] px-[4vw]">
           <div className="mb-12 max-w-3xl">
             <SectionHeading
