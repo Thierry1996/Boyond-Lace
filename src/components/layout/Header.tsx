@@ -40,10 +40,32 @@ export function Header() {
   const { count, hydrated, setOpen: setCartOpen } = useCart();
 
   useEffect(() => {
-    const onScroll = () => setCondensed(window.scrollY > 140);
-    onScroll();
+    // Hysteresis, not a single threshold. Rows 1–2 collapse only after scrolling
+    // DOWN past 160, and re-expand only after scrolling back UP under 70. A lone
+    // threshold flips condensed on/off with every pixel of jitter around that
+    // point, and each flip reverses the 500ms row transition mid-flight — which
+    // is the flicker when you slide back and forth across it. The 90px deadband
+    // between the two bounds means the state holds unless you genuinely move.
+    // rAF-batched so a burst of scroll events resolves to one state read.
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const y = window.scrollY;
+      setCondensed((prev) => {
+        if (!prev && y > 160) return true;
+        if (prev && y < 70) return false;
+        return prev;
+      });
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
 
   useEffect(() => {
