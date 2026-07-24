@@ -8,8 +8,8 @@ import {
   getQuestions,
 } from "@/lib/commerce";
 import { Money } from "@/components/ui/Money";
-import { ProductImage } from "@/components/ui/ProductImage";
 import { ProductCard } from "@/components/ui/ProductCard";
+import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductPurchase } from "@/components/product/ProductPurchase";
 import { ProductInformation } from "@/components/product/ProductInformation";
 import { ProductReviews } from "@/components/product/ProductReviews";
@@ -17,9 +17,8 @@ import { ProductQA } from "@/components/product/ProductQA";
 import { SellerGuarantees } from "@/components/product/SellerGuarantees";
 import { TutorialCarousel } from "@/components/product/TutorialCarousel";
 import { getTutorials } from "@/lib/tutorials";
-import { Section, SectionHeading } from "@/components/ui/Section";
-import { Reveal, Stagger, StaggerItem, SplitText, DrawRule } from "@/components/motion/primitives";
-import { Tilt } from "@/components/motion/interactions";
+import { Section } from "@/components/ui/Section";
+import { Reveal, SplitText, DrawRule } from "@/components/motion/primitives";
 
 export async function generateStaticParams() {
   const products = await commerce.getProducts();
@@ -108,39 +107,20 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           )}
         </div>
 
-        <div className="mt-10 grid gap-16 lg:grid-cols-[1.1fr_1fr]">
-          {/* Gallery — hero frame rises first, supporting shots follow staggered */}
-          <div className="space-y-5">
+        {/* Two columns: a sticky gallery on the left, and a scrolling column on
+            the right that holds the buy panel, the specification and the full
+            product information. The gallery sticks through all of it and only
+            releases when this grid ends — just before the reviews. */}
+        <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:items-start lg:gap-14">
+          {/* Left — sticky media */}
+          <div className="lg:sticky lg:top-24 lg:self-start">
             <Reveal direction="up" duration={1.05}>
-              <div className="overflow-hidden rounded-lg">
-                <Tilt max={4}>
-                  <ProductImage
-                    src={product.images[0].src}
-                    alt={product.images[0].alt}
-                    ratio="4 / 5"
-                  />
-                </Tilt>
-              </div>
+              <ProductGallery images={product.images} title={product.title} />
             </Reveal>
-            {product.images.length > 1 && (
-              <Stagger className="grid grid-cols-2 gap-5" gap={0.09} delay={0.15}>
-                {product.images.slice(1).map((img, i) => (
-                  <StaggerItem key={i}>
-                    <div className="group overflow-hidden rounded-lg">
-                      <ProductImage
-                        src={img.src}
-                        alt={img.alt}
-                        className="transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
-                      />
-                    </div>
-                  </StaggerItem>
-                ))}
-              </Stagger>
-            )}
           </div>
 
-          {/* Buy column — the sequence that carries a $600 decision */}
-          <div className="lg:sticky lg:top-32 lg:self-start">
+          {/* Right — scrollable stats: buy, spec, product information */}
+          <div>
             {product.badges.length > 0 && (
               <Reveal duration={0.7}>
                 <div className="mb-5 flex flex-wrap gap-2">
@@ -191,56 +171,51 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <Reveal delay={0.5} duration={0.85}>
               <ProductPurchase product={product} />
             </Reveal>
+
+            {/* Specification — the load-bearing construction */}
+            <div className="mt-16 border-t border-white/[0.07] pt-12">
+              <div className="flex items-baseline justify-between">
+                <span className="eyebrow text-gold">Specification</span>
+                <span className="eyebrow">Batch-guaranteed</span>
+              </div>
+              <h2 className="mt-6 text-[clamp(1.75rem,3.5vw,2.5rem)] leading-tight text-paper">
+                What it&apos;s actually made of.
+              </h2>
+              <p className="mt-4 max-w-xl text-[0.9375rem] leading-relaxed text-neutral-400">
+                Competitors argue over grade labels. We publish the construction, because the grade
+                was never the thing that failed you.
+              </p>
+              <dl className="mt-8 divide-y divide-white/[0.07] border-t border-white/[0.07]">
+                {product.specs.map((spec) => (
+                  <div key={spec.label} className="grid grid-cols-[130px_1fr] gap-5 py-4">
+                    <dt className="eyebrow pt-0.5">{spec.label}</dt>
+                    <dd className="text-[0.9375rem] leading-relaxed text-neutral-200">
+                      {spec.value}
+                    </dd>
+                  </div>
+                ))}
+                {product.origin && (
+                  <div className="grid grid-cols-[130px_1fr] gap-5 py-4">
+                    <dt className="eyebrow pt-0.5">Origin</dt>
+                    <dd className="text-[0.9375rem] leading-relaxed text-neutral-200">
+                      {product.origin}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+
+            {/* Product information — Description, Product details, etc. */}
+            <div className="mt-16 border-t border-white/[0.07] pt-12">
+              <div className="mb-6 flex items-baseline justify-between">
+                <span className="eyebrow text-gold">Product information</span>
+                <span className="eyebrow">The full sheet</span>
+              </div>
+              <ProductInformation product={product} />
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Specifications */}
-      <Section
-        className="py-24"
-        eyebrowLeft="The engineering"
-        eyebrowCenter="Specification"
-        eyebrowRight="Batch-guaranteed"
-      >
-        <div className="grid gap-16 lg:grid-cols-[1fr_1.3fr]">
-          <SectionHeading
-            title="What it's actually made of."
-            body="Competitors argue over grade labels. We publish the construction, because the grade was never the thing that failed you."
-          />
-          {/* Specs arrive row by row — a construction record being read out,
-              rather than a table that was simply already there. Reveal wraps
-              each row individually so the <dl>/<dt>/<dd> semantics survive. */}
-          <dl className="divide-y divide-white/[0.07] border-t border-white/[0.07]">
-            {product.specs.map((spec, i) => (
-              <Reveal key={spec.label} direction="left" delay={i * 0.06} duration={0.8}>
-                <div className="grid grid-cols-[140px_1fr] gap-6 py-5">
-                  <dt className="eyebrow pt-0.5">{spec.label}</dt>
-                  <dd className="text-[0.9375rem] leading-relaxed text-neutral-200">
-                    {spec.value}
-                  </dd>
-                </div>
-              </Reveal>
-            ))}
-            {product.origin && (
-              <Reveal direction="left" delay={product.specs.length * 0.06} duration={0.8}>
-                <div className="grid grid-cols-[140px_1fr] gap-6 py-5">
-                  <dt className="eyebrow pt-0.5">Origin</dt>
-                  <dd className="text-[0.9375rem] leading-relaxed text-neutral-200">
-                    {product.origin}
-                  </dd>
-                </div>
-              </Reveal>
-            )}
-          </dl>
-        </div>
-      </Section>
-
-      {/* Description + Product details, as expandable panels. */}
-      <Section className="py-16" eyebrowLeft="Product information" eyebrowRight="The full sheet">
-        <div className="mx-auto max-w-3xl">
-          <ProductInformation product={product} />
-        </div>
-      </Section>
 
       {/* Reviews */}
       <section className="border-t border-white/[0.07] py-20">

@@ -58,13 +58,16 @@ export function ProductReviews({
 }) {
   const [sort, setSort] = useState<"hottest" | "newest">("hottest");
   const [facet, setFacet] = useState<string>("All");
+  // Which reviews the shopper has marked helpful, so the count bumps live and
+  // the vote can be taken back.
+  const [voted, setVoted] = useState<Record<string, boolean>>({});
 
   const sorted = useMemo(() => {
-    const list = [...reviews];
+    const list = reviews.filter((r) => facet === "All" || r.tags.includes(facet));
     return sort === "newest"
-      ? list.sort((a, b) => b.date.localeCompare(a.date))
-      : list.sort((a, b) => b.helpful - a.helpful);
-  }, [reviews, sort]);
+      ? [...list].sort((a, b) => b.date.localeCompare(a.date))
+      : [...list].sort((a, b) => b.helpful - a.helpful);
+  }, [reviews, sort, facet]);
 
   return (
     <div className="mx-auto max-w-[1440px] px-[4vw]">
@@ -184,16 +187,43 @@ export function ProductReviews({
               </div>
               <p className="mt-3 text-[0.9375rem] text-paper">{r.title}</p>
               <p className="mt-2 text-[0.9375rem] leading-relaxed text-neutral-400">{r.body}</p>
+              {r.tags.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {r.tags.map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setFacet(t)}
+                      className="rounded-full border border-white/12 px-2.5 py-0.5 text-[0.6875rem] text-neutral-400 transition-colors hover:border-gold hover:text-gold"
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              )}
               <button
                 type="button"
-                className="mt-4 inline-flex items-center gap-1.5 text-[0.75rem] text-neutral-400 transition-colors hover:text-gold"
+                onClick={() => setVoted((v) => ({ ...v, [r.id]: !v[r.id] }))}
+                aria-pressed={voted[r.id]}
+                className={`mt-4 inline-flex items-center gap-1.5 text-[0.75rem] transition-colors ${
+                  voted[r.id] ? "text-gold" : "text-neutral-400 hover:text-gold"
+                }`}
               >
-                <ThumbsUp size={13} strokeWidth={1.6} />
-                Helpful ({r.helpful})
+                <ThumbsUp
+                  size={13}
+                  strokeWidth={1.6}
+                  fill={voted[r.id] ? "currentColor" : "none"}
+                />
+                Helpful ({r.helpful + (voted[r.id] ? 1 : 0)})
               </button>
             </div>
           </li>
         ))}
+        {sorted.length === 0 && (
+          <li className="py-12 text-center text-[0.9375rem] text-neutral-400">
+            No reviews tagged &ldquo;{facet}&rdquo; yet.
+          </li>
+        )}
       </ul>
 
       <p className="mt-8 text-center text-[0.75rem] text-neutral-400">

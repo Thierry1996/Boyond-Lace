@@ -1,28 +1,17 @@
 import Link from "next/link";
 import { Truck, RotateCcw, ShieldCheck, CreditCard } from "lucide-react";
 import { deriveProductDetails, type Product } from "@/lib/commerce";
+import { PaymentBadges } from "./PaymentBadges";
 
 /**
  * Seller guarantees — four cards covering shipping, returns, the hair promise,
  * and payment. The first three are links into the pages that own those
- * policies, so a click goes somewhere real; the fourth lists accepted payment
- * methods. Content is drawn from the product where it varies (lifespan, origin)
- * so the promise on a given unit is that unit's, not boilerplate.
+ * policies, so a click goes somewhere real; the fourth shows accepted payment
+ * brands and security badges. Content is drawn from the product where it varies
+ * (lifespan, origin) so the promise on a given unit is that unit's.
  */
 
 const FREE_SHIPPING_THRESHOLD = "$400";
-
-const PAYMENT_METHODS = [
-  "Visa",
-  "Mastercard",
-  "Amex",
-  "Discover",
-  "PayPal",
-  "Apple Pay",
-  "Klarna",
-  "Afterpay",
-  "Alipay",
-];
 
 function GuaranteeCard({
   href,
@@ -129,15 +118,8 @@ export function SellerGuarantees({ product }: { product: Product }) {
           <p className="mt-4 text-[0.875rem] leading-relaxed text-neutral-400">
             PCI-DSS secured checkout. Pay in full or split it — buy-now-pay-later at no extra cost.
           </p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            {PAYMENT_METHODS.map((m) => (
-              <span
-                key={m}
-                className="rounded border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[0.75rem] text-neutral-200"
-              >
-                {m}
-              </span>
-            ))}
+          <div className="mt-5">
+            <PaymentBadges />
           </div>
           <Link
             href="/support#contact"

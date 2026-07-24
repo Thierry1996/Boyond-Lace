@@ -46,6 +46,16 @@ describe("seeded reviews", () => {
     const total = getReviewFacets(p).reduce((s, f) => s + f.count, 0);
     expect(total).toBeLessThanOrEqual(p.reviewCount);
   });
+
+  it("tags every review only with labels the facet chips expose, so filtering is real", () => {
+    for (const prod of catalog) {
+      const chipLabels = new Set(getReviewFacets(prod).map((f) => f.label));
+      for (const r of getReviews(prod)) {
+        expect(r.tags.length).toBeGreaterThan(0);
+        for (const t of r.tags) expect(chipLabels.has(t), `${prod.slug}: ${t}`).toBe(true);
+      }
+    }
+  });
 });
 
 describe("seeded Q&A", () => {

@@ -20,6 +20,8 @@ export interface Review {
   verified: boolean;
   helpful: number;
   hasPhoto: boolean;
+  /** Facet labels this review belongs to, so the chips can filter for real. */
+  tags: string[];
 }
 
 export interface RatingBreakdown {
@@ -68,12 +70,22 @@ function seed(slug: string): number {
 
 export function getReviews(product: Product, count = 5): Review[] {
   const base = seed(product.slug);
+  const badge = product.badges[0] ?? "Verified";
+  // The pool a review's facet tags are drawn from — the same labels the chips
+  // above the list expose, so filtering by a chip actually narrows the list.
+  const tagPool = ["Human hair", badge, "True to length", "Fast shipping"];
   return Array.from({ length: count }, (_, i) => {
     const n = base + i * 97;
     const daysAgo = 4 + (n % 320);
     const date = new Date(Date.now() - daysAgo * 86_400_000).toISOString().slice(0, 10);
     // Ratings cluster at 5 and 4, matching a ~4.8 average.
     const rating = i % 5 === 4 ? 4 : 5;
+    // Every review carries "Human hair"; the rest are seeded so each chip has a
+    // real, deterministic subset behind it.
+    const tags = ["Human hair"];
+    if ((n >>> 4) % 2 === 0) tags.push(badge);
+    if ((n >>> 6) % 3 === 0) tags.push("True to length");
+    if ((n >>> 7) % 4 === 0) tags.push("Fast shipping");
     return {
       id: `${product.slug}-r${i}`,
       author: SEED_AUTHORS[n % SEED_AUTHORS.length],
@@ -84,6 +96,7 @@ export function getReviews(product: Product, count = 5): Review[] {
       verified: true,
       helpful: n % 34,
       hasPhoto: i < 3,
+      tags: [...new Set(tags.filter(Boolean))].filter((t) => tagPool.includes(t)),
     };
   });
 }
