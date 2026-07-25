@@ -22,6 +22,11 @@ export interface Review {
   hasPhoto: boolean;
   /** Facet labels this review belongs to, so the chips can filter for real. */
   tags: string[];
+  /** Trade fields — only populated for the wholesale supplier-review view. */
+  country?: string;
+  repeatBuyer?: boolean;
+  photos?: number;
+  supplierReply?: string;
 }
 
 export interface RatingBreakdown {
@@ -99,6 +104,70 @@ export function getReviews(product: Product, count = 5): Review[] {
       tags: [...new Set(tags.filter(Boolean))].filter((t) => tagPool.includes(t)),
     };
   });
+}
+
+const SEED_COUNTRIES = ["United States", "Canada", "United Kingdom", "Nigeria", "Australia"];
+const SEED_TRADE_BODIES = [
+  "The supplier is very sweet and attentive. Units arrived exactly as we agreed — size, colour, everything. Totally recommend.",
+  "Thank you so much, the hair is very soft and the quality is excellent. Reordering the same spec.",
+  "Communication with the seller was great, and the hair is true to density and true to length. My clients love it.",
+  "Second bulk order and the batch matched the first exactly. No shedding, no tangling. Fast to ship.",
+  "Private-label packaging came out clean and the logo placement was perfect. Will keep ordering.",
+];
+const SEED_REPLIES = [
+  "Dear, thanks a lot for your kind comment. Stable quality, trustworthy service — this is Beyond Lace. Message us any time you need to reorder.",
+  "Thank you for your support and trust. We are so glad you are satisfied, and we will keep offering high quality and fair trade pricing.",
+  "Appreciate the repeat order. Your batch is logged, so every reorder matches — reach the partner team directly whenever you scale.",
+];
+
+/**
+ * Wholesale supplier-review view. Builds on the same seeded reviews but adds the
+ * trade fields a marketplace shows — buyer country, repeat-buyer status, photo
+ * counts and a supplier reply — with trade-toned copy. Same honesty stance:
+ * clearly-labelled demo content until the real review integration lands.
+ */
+export function getWholesaleReviews(product: Product, count = 6): Review[] {
+  const base = seed(product.slug + "-trade");
+  const badge = product.badges[0] ?? "Verified";
+  const tagPool = ["Good service", "Customer service", "Fast delivery", badge];
+  return Array.from({ length: count }, (_, i) => {
+    const n = base + i * 89;
+    const daysAgo = 3 + (n % 300);
+    const date = new Date(Date.now() - daysAgo * 86_400_000).toISOString().slice(0, 10);
+    const rating = i % 6 === 5 ? 4 : 5;
+    const tags: string[] = [];
+    if ((n >>> 3) % 2 === 0) tags.push("Fast delivery");
+    if ((n >>> 5) % 2 === 0) tags.push("Customer service");
+    if ((n >>> 7) % 3 === 0) tags.push("Good service");
+    return {
+      id: `${product.slug}-tr${i}`,
+      author: SEED_AUTHORS[n % SEED_AUTHORS.length],
+      rating,
+      date,
+      title: "",
+      body: SEED_TRADE_BODIES[(n >>> 2) % SEED_TRADE_BODIES.length],
+      verified: true,
+      helpful: n % 6,
+      hasPhoto: i % 2 === 0,
+      photos: i % 2 === 0 ? 3 + (n % 2) : 0,
+      country: SEED_COUNTRIES[(n >>> 4) % SEED_COUNTRIES.length],
+      repeatBuyer: (n >>> 6) % 2 === 0,
+      supplierReply: SEED_REPLIES[(n >>> 3) % SEED_REPLIES.length],
+      tags: [...new Set(tags)].filter((t) => tagPool.includes(t)),
+    };
+  });
+}
+
+/** Mention chips for the wholesale review section. */
+export function getWholesaleReviewFacets(
+  product: Product,
+): Array<{ label: string; count: number }> {
+  const total = product.reviewCount;
+  return [
+    { label: "Good service", count: Math.max(1, Math.round(total * 0.02)) },
+    { label: "Customer service", count: Math.round(total * 0.05) },
+    { label: "Fast delivery", count: Math.round(total * 0.09) },
+  ];
 }
 
 /** Filter chips shown above the reviews, with counts apportioned from the total. */

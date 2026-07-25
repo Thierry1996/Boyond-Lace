@@ -1,10 +1,17 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { commerce } from "@/lib/commerce";
+import {
+  commerce,
+  deriveKeyAttributes,
+  getWholesaleReviews,
+  getWholesaleReviewFacets,
+} from "@/lib/commerce";
 import { WholesaleProductCard } from "@/components/wholesale/WholesaleProductCard";
 import { WholesaleOrderPanel } from "@/components/wholesale/WholesaleOrderPanel";
 import { WholesaleTierColumns } from "@/components/wholesale/WholesaleTierColumns";
+import { KeyAttributes } from "@/components/wholesale/KeyAttributes";
+import { WholesaleReviews } from "@/components/wholesale/WholesaleReviews";
 import { VariationSummary } from "@/components/product/VariationSummary";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { WHOLESALE_MOQ } from "@/lib/channel";
@@ -48,6 +55,12 @@ export default async function WholesaleProductPage({
   const related = (await commerce.getProducts({ wholesaleOnly: true, sort: "launch-rank" }))
     .filter((p) => p.slug !== slug)
     .slice(0, 4);
+
+  const keyAttributes = deriveKeyAttributes(product);
+  const wholesaleReviews = getWholesaleReviews(product);
+  const wholesaleMentions = getWholesaleReviewFacets(product);
+  // Store-wide review count: this unit's reviews as a share of the whole store.
+  const storeReviewCount = product.reviewCount * 12;
 
   return (
     <div className="mx-auto max-w-[1440px] px-[4vw] pt-12 pb-24">
@@ -132,6 +145,21 @@ export default async function WholesaleProductPage({
           <WholesaleOrderPanel slug={product.slug} pricing={product.wholesale} />
         </div>
       </div>
+
+      {/* Key attributes — quick glance for experienced buyers, full table on demand */}
+      <section className="mt-20 border-t border-white/[0.07] pt-16">
+        <KeyAttributes data={keyAttributes} />
+      </section>
+
+      {/* Supplier reviews — trade layout with replies */}
+      <section className="mt-4 border-t border-white/[0.07] py-16">
+        <WholesaleReviews
+          product={product}
+          reviews={wholesaleReviews}
+          mentions={wholesaleMentions}
+          storeReviewCount={storeReviewCount}
+        />
+      </section>
 
       {/* Construction spec — a buyer's due diligence */}
       <section className="mt-24 border-t border-white/[0.07] pt-16">

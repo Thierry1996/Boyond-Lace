@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { catalog } from "./catalog";
-import { deriveProductDetails } from "./details";
-import { getReviews, getRatingBreakdown, getReviewFacets, getQuestions } from "./reviews";
+import { deriveProductDetails, deriveKeyAttributes } from "./details";
+import {
+  getReviews,
+  getRatingBreakdown,
+  getReviewFacets,
+  getQuestions,
+  getWholesaleReviews,
+} from "./reviews";
 
 describe("deriveProductDetails", () => {
   const wigs = catalog.filter((p) => ["luxe", "silk"].includes(p.line) && p.price > 0);
@@ -21,6 +27,42 @@ describe("deriveProductDetails", () => {
   it("never emits a row with an empty value", () => {
     for (const p of catalog) {
       for (const row of deriveProductDetails(p)) expect(row.value.trim().length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("deriveKeyAttributes", () => {
+  const wigs = catalog.filter((p) => p.wholesale);
+
+  it("builds a rich, non-empty attribute table for every wholesale unit", () => {
+    for (const p of wigs) {
+      const { rows } = deriveKeyAttributes(p);
+      expect(rows.length).toBeGreaterThanOrEqual(20);
+      for (const r of rows) expect(r.value.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it("draws the quick glance only from real attribute rows", () => {
+    for (const p of wigs) {
+      const { rows, glance, highlights } = deriveKeyAttributes(p);
+      const labels = new Set(rows.map((r) => r.label));
+      for (const g of glance) expect(labels.has(g.label)).toBe(true);
+      expect(glance.length).toBe(6);
+      expect(highlights.length).toBe(3);
+    }
+  });
+});
+
+describe("wholesale supplier reviews", () => {
+  const p = catalog.find((x) => x.wholesale)!;
+
+  it("is deterministic and every review carries a supplier reply", () => {
+    const first = getWholesaleReviews(p);
+    expect(getWholesaleReviews(p)).toEqual(first);
+    for (const r of first) {
+      expect(r.supplierReply?.trim().length).toBeGreaterThan(0);
+      expect(r.country).toBeTruthy();
+      expect(r.author).toBeTruthy();
     }
   });
 });
