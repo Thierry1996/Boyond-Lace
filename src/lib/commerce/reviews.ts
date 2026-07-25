@@ -158,6 +158,45 @@ export function getWholesaleReviews(product: Product, count = 6): Review[] {
   });
 }
 
+export interface SocialShot {
+  id: string;
+  src: string;
+  /** CSS aspect-ratio, varied so the masonry columns stagger. */
+  ratio: string;
+  video: boolean;
+}
+
+const SHOT_RATIOS = ["3 / 4", "1 / 1", "4 / 5", "3 / 5", "4 / 3", "1 / 1", "5 / 7", "2 / 3"];
+
+/**
+ * Seeded customer social proof — the photo and video wall behind the reviews.
+ * Deterministic gradient placeholders at varied aspect ratios (so the masonry
+ * staggers like a real UGC feed) with roughly two in five flagged as video.
+ * Real customer media replaces this when the community upload flow is live.
+ */
+export function getSocialProof(product: Product, count = 35): SocialShot[] {
+  const base = seed(product.slug + "-ugc");
+  const posters = [
+    "velvet",
+    "plum",
+    "aurora",
+    "blush",
+    "gold",
+    "mono",
+    "mono-2",
+    ...product.images.map((i) => i.src),
+  ];
+  return Array.from({ length: count }, (_, i) => {
+    const n = base + i * 53;
+    return {
+      id: `${product.slug}-ugc${i}`,
+      src: posters[n % posters.length],
+      ratio: SHOT_RATIOS[(n >>> 3) % SHOT_RATIOS.length],
+      video: (n >>> 2) % 5 < 2,
+    };
+  });
+}
+
 /** Mention chips for the wholesale review section. */
 export function getWholesaleReviewFacets(
   product: Product,

@@ -6,6 +6,7 @@ import {
   getReviews,
   getReviewFacets,
   getQuestions,
+  getSocialProof,
 } from "@/lib/commerce";
 import { Money } from "@/components/ui/Money";
 import { ProductCard } from "@/components/ui/ProductCard";
@@ -52,6 +53,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const reviews = getReviews(product);
   const reviewFacets = getReviewFacets(product);
   const questions = getQuestions(product);
+  const socialProof = getSocialProof(product);
   const tutorials = getTutorials(product.texture);
 
   // Explicit product typing so search engines never file this under intimates.
@@ -233,6 +235,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           reviews={reviews}
           facets={reviewFacets}
           photoCount={Math.max(12, Math.round(breakdown.count * 0.26))}
+          socialProof={socialProof}
         />
       </section>
 

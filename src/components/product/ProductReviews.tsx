@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Star, ThumbsUp, ShieldCheck } from "lucide-react";
+import { Star, ThumbsUp, ShieldCheck, Play } from "lucide-react";
 import { ProductImage } from "@/components/ui/ProductImage";
-import type { Product, Review, RatingBreakdown } from "@/lib/commerce";
+import type { Product, Review, RatingBreakdown, SocialShot } from "@/lib/commerce";
+import { SocialProofGallery } from "./SocialProofGallery";
 
 /**
  * Reviews section. Overall score and sub-rating bars on the left, a customer
@@ -49,15 +50,20 @@ export function ProductReviews({
   reviews,
   facets,
   photoCount,
+  socialProof,
 }: {
   product: Product;
   breakdown: RatingBreakdown;
   reviews: Review[];
   facets: Array<{ label: string; count: number }>;
   photoCount: number;
+  socialProof: SocialShot[];
 }) {
   const [sort, setSort] = useState<"hottest" | "newest">("hottest");
   const [facet, setFacet] = useState<string>("All");
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  // Every gallery submission bumps both the photo count and the review total.
+  const [submitted, setSubmitted] = useState(0);
   // Which reviews the shopper has marked helpful, so the count bumps live and
   // the vote can be taken back.
   const [voted, setVoted] = useState<Record<string, boolean>>({});
@@ -84,7 +90,7 @@ export function ProductReviews({
             <Stars value={breakdown.overall} size={20} />
           </div>
           <p className="mt-2 text-[0.9375rem] text-neutral-400">
-            Based on {breakdown.count.toLocaleString()} reviews
+            Based on {(breakdown.count + submitted).toLocaleString()} reviews
           </p>
 
           <div className="mt-6 max-w-sm space-y-2.5">
@@ -94,25 +100,46 @@ export function ProductReviews({
           </div>
         </div>
 
-        {/* Customer photo strip — placeholder gradient tiles until real UGC. */}
-        <div className="grid grid-cols-4 gap-3">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="overflow-hidden rounded-lg">
-              <ProductImage
-                src={product.images[i % product.images.length].src}
-                alt={`Customer photo ${i + 1}`}
-                ratio="1 / 1"
-              />
+        {/* Customer photo strip — the whole strip opens the masonry wall. */}
+        <button
+          type="button"
+          onClick={() => setGalleryOpen(true)}
+          aria-label={`View all ${photoCount + submitted} customer photos and videos`}
+          className="group grid grid-cols-4 gap-3"
+        >
+          {socialProof.slice(0, 3).map((shot, i) => (
+            <div key={shot.id} className="relative overflow-hidden rounded-lg">
+              <ProductImage src={shot.src} alt={`Customer photo ${i + 1}`} ratio="1 / 1" />
+              {shot.video && (
+                <span className="absolute inset-0 grid place-items-center bg-ink/25">
+                  <span className="grid size-8 place-items-center rounded-full bg-ink/50 text-paper">
+                    <Play size={13} strokeWidth={1.75} className="ml-0.5" fill="currentColor" />
+                  </span>
+                </span>
+              )}
             </div>
           ))}
           <div className="relative overflow-hidden rounded-lg">
             <ProductImage src={product.images[0].src} alt="More customer photos" ratio="1 / 1" />
-            <span className="absolute inset-0 flex items-center justify-center bg-ink/60 text-[0.8125rem] font-medium text-paper">
-              {photoCount} photos
+            <span className="absolute inset-0 flex flex-col items-center justify-center bg-ink/65 text-paper transition-colors group-hover:bg-ink/75">
+              <span className="text-[1.0625rem] font-medium tabular-nums">
+                {(photoCount + submitted).toLocaleString()}
+              </span>
+              <span className="text-[0.625rem] tracking-[0.12em] text-neutral-200 uppercase">
+                view all →
+              </span>
             </span>
           </div>
-        </div>
+        </button>
       </div>
+
+      <SocialProofGallery
+        open={galleryOpen}
+        onClose={() => setGalleryOpen(false)}
+        title={product.title}
+        shots={socialProof}
+        onSubmit={() => setSubmitted((s) => s + 1)}
+      />
 
       {/* Filters + sort */}
       <div className="flex flex-wrap items-center justify-between gap-4 py-6">

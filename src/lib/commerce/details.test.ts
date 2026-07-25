@@ -7,6 +7,7 @@ import {
   getReviewFacets,
   getQuestions,
   getWholesaleReviews,
+  getSocialProof,
 } from "./reviews";
 
 describe("deriveProductDetails", () => {
@@ -97,6 +98,15 @@ describe("seeded reviews", () => {
         for (const t of r.tags) expect(chipLabels.has(t), `${prod.slug}: ${t}`).toBe(true);
       }
     }
+  });
+
+  it("builds a 35-shot social-proof wall, deterministic and mixed media", () => {
+    const shots = getSocialProof(p);
+    expect(shots.length).toBe(35);
+    expect(getSocialProof(p)).toEqual(shots);
+    expect(shots.some((s) => s.video)).toBe(true);
+    expect(shots.some((s) => !s.video)).toBe(true);
+    for (const s of shots) expect(s.ratio).toMatch(/\d+ \/ \d+/);
   });
 });
 
