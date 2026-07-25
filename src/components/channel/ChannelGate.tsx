@@ -20,12 +20,15 @@ import { useChannel, type Channel } from "@/lib/stores/channel";
  */
 export function ChannelGate() {
   const router = useRouter();
-  const { channel, hydrated, chooserOpen, setChannel, closeChooser } = useChannel();
+  const { channel, hydrated, sessionConfirmed, chooserOpen, setChannel, closeChooser } =
+    useChannel();
 
-  // Show on first visit (chosen nothing yet) or whenever re-opened from the switch.
-  const open = hydrated && (channel === null || chooserOpen);
-  // The first, choice-less pass is mandatory; a re-open (channel already set) is not.
-  const compulsory = channel === null;
+  // Launches once per browser session on app open (until confirmed), and also
+  // whenever re-opened from the header switch.
+  const open = hydrated && (!sessionConfirmed || chooserOpen);
+  // A pass that has not been confirmed this session is mandatory; a re-open of
+  // an already-confirmed session (from the switch) is not.
+  const compulsory = !sessionConfirmed;
 
   useEffect(() => {
     if (!open) return;
@@ -91,8 +94,15 @@ export function ChannelGate() {
         <div className="mt-9 grid gap-5 sm:grid-cols-2">
           <button
             onClick={() => choose("retail")}
-            className="card-lift group flex flex-col items-start border border-white/12 p-6 text-left transition-colors hover:border-gold/50"
+            className={`card-lift group relative flex flex-col items-start border p-6 text-left transition-colors hover:border-gold/50 ${
+              channel === "retail" ? "border-gold/50" : "border-white/12"
+            }`}
           >
+            {channel === "retail" && (
+              <span className="absolute top-4 right-4 text-[0.625rem] tracking-[0.12em] text-gold uppercase">
+                Last time
+              </span>
+            )}
             <User size={22} strokeWidth={1.5} className="text-gold" />
             <span className="mt-4 font-[family-name:var(--font-display)] text-xl text-paper">
               For myself
@@ -107,8 +117,15 @@ export function ChannelGate() {
 
           <button
             onClick={() => choose("wholesale")}
-            className="card-lift group flex flex-col items-start border border-white/12 p-6 text-left transition-colors hover:border-gold/50"
+            className={`card-lift group relative flex flex-col items-start border p-6 text-left transition-colors hover:border-gold/50 ${
+              channel === "wholesale" ? "border-gold/50" : "border-white/12"
+            }`}
           >
+            {channel === "wholesale" && (
+              <span className="absolute top-4 right-4 text-[0.625rem] tracking-[0.12em] text-gold uppercase">
+                Last time
+              </span>
+            )}
             <Store size={22} strokeWidth={1.5} className="text-gold" />
             <span className="mt-4 font-[family-name:var(--font-display)] text-xl text-paper">
               For a salon or store
