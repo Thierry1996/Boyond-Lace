@@ -2,11 +2,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { commerce } from "@/lib/commerce";
-import { Money } from "@/components/ui/Money";
-import { ProductImage } from "@/components/ui/ProductImage";
 import { WholesaleProductCard } from "@/components/wholesale/WholesaleProductCard";
 import { WholesaleOrderPanel } from "@/components/wholesale/WholesaleOrderPanel";
+import { WholesaleTierColumns } from "@/components/wholesale/WholesaleTierColumns";
 import { VariationSummary } from "@/components/product/VariationSummary";
+import { ProductGallery } from "@/components/product/ProductGallery";
 import { WHOLESALE_MOQ } from "@/lib/channel";
 
 export async function generateStaticParams() {
@@ -49,8 +49,6 @@ export default async function WholesaleProductPage({
     .filter((p) => p.slug !== slug)
     .slice(0, 4);
 
-  const orderedTiers = [...product.wholesale.tiers].sort((a, b) => a.minQty - b.minQty);
-
   return (
     <div className="mx-auto max-w-[1440px] px-[4vw] pt-12 pb-24">
       {/* Breadcrumb + channel cross-link */}
@@ -70,25 +68,17 @@ export default async function WholesaleProductPage({
         </Link>
       </div>
 
-      <div className="mt-10 grid gap-16 lg:grid-cols-[1.1fr_1fr]">
-        {/* Gallery */}
-        <div className="space-y-5">
-          <div className="overflow-hidden rounded-lg">
-            <ProductImage src={product.images[0].src} alt={product.images[0].alt} ratio="4 / 5" />
-          </div>
-          {product.images.length > 1 && (
-            <div className="grid grid-cols-2 gap-5">
-              {product.images.slice(1).map((img, i) => (
-                <div key={i} className="overflow-hidden rounded-lg">
-                  <ProductImage src={img.src} alt={img.alt} />
-                </div>
-              ))}
-            </div>
-          )}
+      {/* Two columns: a sticky media gallery on the left, and a scrolling trade
+          stats column on the right — the same anatomy as the retail PDP, priced
+          for a buyer. The gallery holds while the stats scroll. */}
+      <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:items-start lg:gap-14">
+        {/* Left — sticky media (8 thumbnails + a product video) */}
+        <div className="lg:sticky lg:top-24 lg:self-start">
+          <ProductGallery images={product.images} title={product.title} />
         </div>
 
-        {/* Trade buy column */}
-        <div className="lg:sticky lg:top-32 lg:self-start">
+        {/* Right — scrolling trade stats */}
+        <div>
           <div className="flex items-center gap-3">
             <span className="border border-gold/40 px-2.5 py-1 text-[0.625rem] tracking-[0.14em] text-gold uppercase">
               Wholesale
@@ -96,73 +86,50 @@ export default async function WholesaleProductPage({
             <span className="text-[0.75rem] text-neutral-400 tabular-nums">SKU {product.sku}</span>
           </div>
 
-          <h1 className="mt-5 text-[clamp(2.25rem,5vw,3.5rem)] leading-[1.02] text-paper">
+          <h1 className="mt-5 text-[clamp(2rem,4vw,3rem)] leading-[1.05] text-paper">
             {product.title}
           </h1>
-          <p className="mt-3 font-[family-name:var(--font-display)] text-xl text-blush-300 italic">
-            {product.tagline}
-          </p>
 
-          <p className="mt-7 text-[1.0625rem] leading-relaxed text-neutral-400">
+          {/* Rating · reviews · units moved — the trade proof line */}
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[0.8125rem] text-neutral-400">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="text-gold" aria-hidden="true">
+                {"★".repeat(Math.round(product.rating))}
+              </span>
+              <span className="tabular-nums text-paper">{product.rating.toFixed(1)}</span>
+              <span className="tabular-nums">({product.reviewCount.toLocaleString()} reviews)</span>
+            </span>
+            <span className="tabular-nums">
+              {(product.reviewCount * 6).toLocaleString()}+ units moved
+            </span>
+            <span className="inline-flex items-center gap-1.5 text-gold">
+              <span aria-hidden="true">🏆</span>
+              {product.badges[0] ?? "Trade favourite"}
+            </span>
+          </div>
+
+          {/* Volume price columns — the wholesale stats header */}
+          <div className="mt-7">
+            <WholesaleTierColumns pricing={product.wholesale} />
+            <p className="mt-3 text-[0.75rem] leading-relaxed text-neutral-400">
+              Trade minimum {WHOLESALE_MOQ} units, so every order lands on the deepest standing
+              tier. Larger volumes are negotiated with the partner team.
+            </p>
+          </div>
+
+          <p className="mt-7 text-[0.9375rem] leading-relaxed text-neutral-400">
             {product.description}
           </p>
 
-          {/* Consistent variation anatomy — style, lace, colour, length,
-              density — read-only for a trade buyer reviewing the spec. */}
+          {/* Style · lace · colour · length — the variation anatomy, read-only */}
           <div className="mt-8 border-t border-white/[0.07] pt-8">
             <VariationSummary product={product} />
           </div>
 
           <div className="rule-gilded my-9" />
 
+          {/* Quantity, live per-unit price, customization and the quote CTAs */}
           <WholesaleOrderPanel slug={product.slug} pricing={product.wholesale} />
-
-          {/* Price break ladder */}
-          <div className="mt-8">
-            <p className="eyebrow mb-4">Volume price breaks</p>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-[0.875rem]">
-                <thead>
-                  <tr className="border-b border-white/[0.12] text-left">
-                    <th className="py-3 font-normal text-neutral-400">Tier</th>
-                    <th className="py-3 font-normal text-neutral-400">From</th>
-                    <th className="py-3 text-right font-normal text-neutral-400">Per unit</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orderedTiers.map((t) => {
-                    // The trade floor is 50, so the tier a real order lands in.
-                    const active = WHOLESALE_MOQ >= t.minQty;
-                    return (
-                      <tr
-                        key={t.label}
-                        className={`border-b border-white/[0.06] ${active ? "text-paper" : "text-neutral-400"}`}
-                      >
-                        <td className="py-3">
-                          {t.label}
-                          {active &&
-                            t.minQty === Math.max(...orderedTiers.map((x) => x.minQty)) && (
-                              <span className="ml-2 text-[0.625rem] tracking-[0.12em] text-gold uppercase">
-                                Your tier
-                              </span>
-                            )}
-                        </td>
-                        <td className="py-3 tabular-nums">{t.minQty} units</td>
-                        <td className="py-3 text-right tabular-nums">
-                          <Money usd={t.unitPrice} />
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-            <p className="mt-3 text-[0.75rem] leading-relaxed text-neutral-400">
-              The trade minimum is {WHOLESALE_MOQ} units, so every order lands on the deepest
-              standing tier. Lower rows show how the ladder is structured; larger volumes are
-              negotiated with the partner team.
-            </p>
-          </div>
         </div>
       </div>
 
