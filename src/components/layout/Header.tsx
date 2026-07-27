@@ -102,7 +102,7 @@ export function Header() {
             aria-label="Beyond Lace — home"
             className="justify-self-start transition-opacity duration-300 hover:opacity-85"
           >
-            <LogoMark width={230} priority className="w-[10rem] sm:w-[12rem] lg:w-[13.5rem]" />
+            <LogoMark width={260} priority className="w-[11rem] sm:w-[13rem] lg:w-[15rem]" />
           </Link>
 
           {/* Centre — the search field, ~700px, with a running attention ring. */}

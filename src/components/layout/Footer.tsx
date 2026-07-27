@@ -1,6 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
 import { footerColumns } from "@/lib/navigation";
-import { CrownWave } from "@/components/brand/Logo";
 import { LogoMark } from "@/components/brand/LogoMark";
 import { SocialRow } from "@/components/brand/SocialIcons";
 
@@ -10,7 +10,7 @@ export function Footer() {
       <div className="mx-auto max-w-[1440px] px-[4vw] py-20">
         {/* Official gold wordmark — the brand closes the way it opens. */}
         <div className="mb-16 flex flex-col items-start gap-8 lg:flex-row lg:items-end lg:justify-between">
-          <LogoMark width={300} className="w-[15rem] sm:w-[18rem]" />
+          <LogoMark width={340} className="w-[17rem] sm:w-[20rem]" />
           <div className="max-w-md">
             <p className="text-lg leading-relaxed text-neutral-400">
               We don&apos;t sell hair. We sell the version of you that exists beyond the wig.
@@ -45,7 +45,17 @@ export function Footer() {
 
         <div className="flex flex-col gap-6 pb-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3 text-neutral-400">
-            <CrownWave size={24} className="text-gold" />
+            {/* BL-crown trademark, embedded in the copyright line. Served
+                uncompressed (unoptimized) and only scaled down. */}
+            <Image
+              src="/brand/trademark-mark.png"
+              alt="Beyond Lace"
+              width={1203}
+              height={621}
+              unoptimized
+              sizes="64px"
+              className="h-8 w-auto"
+            />
             <p className="text-[0.8125rem]">
               © {new Date().getFullYear()} Beyond Lace. All rights reserved.
             </p>
