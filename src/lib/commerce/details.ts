@@ -173,7 +173,7 @@ export function deriveKeyAttributes(product: Product): KeyAttributes {
     { label: "Customized packaging", value: "Tag, label, box, bag — your branding" },
     { label: "Wrap", value: "Private-label packaging box" },
     { label: "Advantage", value: "Batch-matched, large quantities in stock" },
-    { label: "MOQ", value: "50 units, MAP-protected" },
+    { label: "MOQ", value: "5 units first trial, MAP-protected" },
     { label: "Shipping", value: "Within 72 hours in stock; 2–4 days customised" },
   ];
 

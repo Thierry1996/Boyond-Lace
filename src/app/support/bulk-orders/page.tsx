@@ -16,7 +16,7 @@ const DESK = [
   },
   {
     t: "Batch-matched allocation",
-    b: "Order fifty units and they come from one production run — the same texture, tone and density across every piece. That is the whole point of the guarantee.",
+    b: "Order in volume and they come from one production run — the same texture, tone and density across every piece. That is the whole point of the guarantee.",
   },
   {
     t: "Staged delivery",
@@ -35,7 +35,7 @@ export default function BulkOrdersPage() {
         eyebrow="Orders & logistics"
         title="Bulk order support."
         italic="A desk, not a queue."
-        body="Fifty units and up is a different conversation to a single purchase, so it gets different handling: a named contact, batch-matched stock, and terms that move as your volume does."
+        body="Wholesale is a different conversation to a single purchase, so it gets different handling: a named contact, batch-matched stock, and terms that move as your volume does — from a five-unit first trial upward."
         image="ordersLogistics"
         cta={{ label: "Talk to the desk", href: "/support#contact" }}
       />
@@ -43,12 +43,12 @@ export default function BulkOrdersPage() {
       <Section
         className="py-20"
         eyebrowLeft="The desk"
-        eyebrowCenter="MOQ 50"
+        eyebrowCenter="From 5 units"
         eyebrowRight="Named contact"
       >
         <SectionHeading
           title="What high-volume gets you."
-          body="Everything here is standard at fifty units. None of it requires negotiation, and none of it is withheld until you ask."
+          body="Everything here is standard from your first trial. None of it requires negotiation, and none of it is withheld until you ask."
         />
         <div className="mt-14 grid gap-8 md:grid-cols-2">
           {DESK.map((d) => (

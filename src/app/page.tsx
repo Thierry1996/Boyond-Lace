@@ -103,8 +103,8 @@ export default async function HomePage() {
             </h2>
             <p className="mt-6 text-[1.0625rem] leading-relaxed text-blush-200/70">
               Beyond Lace Pro is the private-label line: our cap construction and batch guarantee,
-              your branding on the box. Fifty-unit minimum. Turnkey photography and spec sheets so
-              you can sell it the day it lands.
+              your branding on the box. Five-unit first trial. Turnkey photography and spec sheets
+              so you can sell it the day it lands.
             </p>
             <p className="mt-4 text-[1.0625rem] leading-relaxed text-blush-200/70">
               MAP is enforced, not suggested. Your margin is contractually defended — no partner

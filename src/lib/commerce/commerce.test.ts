@@ -215,11 +215,16 @@ describe("launch assortment (buying directive)", () => {
 
 describe("mockAdapter — wholesale and attachments", () => {
   it("quotes the tier a quantity actually lands in", async () => {
+    // 50 units clears the Silver break (50) but not Gold (200).
     const q = await mockAdapter.getWholesaleQuote("the-signature-13x4-straight", 50);
     expect(q).not.toBeNull();
-    expect(q!.tier.label).toBe("Gold");
+    expect(q!.tier.label).toBe("Silver");
     expect(q!.subtotal).toBe(q!.unitPrice * 50);
     expect(q!.belowMoq).toBe(false);
+
+    // 200 units reaches the deepest break.
+    const gold = await mockAdapter.getWholesaleQuote("the-signature-13x4-straight", 200);
+    expect(gold!.tier.label).toBe("Gold");
   });
 
   it("still quotes below MOQ, flagged as indicative", async () => {

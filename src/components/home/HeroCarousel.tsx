@@ -22,7 +22,7 @@ const SLIDES = [
   {
     eyebrow: "Pillar 02 · Private Label Agility",
     title: "Your name. Our floor.",
-    body: "Fifty-unit minimums, custom packaging, turnkey assets — Beyond Lace Pro puts salons in the manufacturing seat.",
+    body: "Five-unit first trials, custom packaging, turnkey assets — Beyond Lace Pro puts salons in the manufacturing seat.",
     cta: { label: "Wholesale programme", href: "/wholesale" },
     bg: "linear-gradient(160deg, #5A2D67 0%, #321528 60%, #090909 100%)",
   },

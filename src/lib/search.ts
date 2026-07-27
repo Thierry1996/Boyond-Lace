@@ -145,7 +145,7 @@ const ENRICHMENT: Record<string, { blurb: string; keywords?: string[] }> = {
     keywords: ["bulk", "volume", "large order"],
   },
   "/wholesale": {
-    blurb: "Bronze / Silver / Gold tiers, MOQ 50, MAP-protected.",
+    blurb: "Bronze / Silver / Gold tiers, from 5 units, MAP-protected.",
     keywords: ["wholesale", "salon", "trade", "reseller", "stockist", "b2b"],
   },
   "/wholesale#apply": {

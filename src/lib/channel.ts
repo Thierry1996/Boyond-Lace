@@ -9,7 +9,12 @@
 
 export type Channel = "retail" | "wholesale";
 
-/** Trade orders start here. Also the brand's stated salon MOQ. */
-export const WHOLESALE_MOQ = 50;
+/**
+ * Trade orders start here — five units, the first-trial minimum a small salon
+ * or a new wig business can test us with before committing to a full tier.
+ * Standing volume breaks then open at 50 and 200 (see the reseller ladder in
+ * commerce/catalog.ts).
+ */
+export const WHOLESALE_MOQ = 5;
 /** Quantity increment on the wholesale quote stepper. */
 export const WHOLESALE_STEP = 5;

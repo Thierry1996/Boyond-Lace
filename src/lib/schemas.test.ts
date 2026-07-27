@@ -13,12 +13,18 @@ const validWholesale = {
   email: "owner@velvetrooms.example",
   phone: "+1 404 555 0100",
   country: "United States",
-  estimatedVolume: "150-499",
+  estimatedVolume: "50-200",
+  consent: true,
 };
 
 describe("wholesaleApplicationSchema", () => {
   it("accepts a valid application", () => {
     expect(wholesaleApplicationSchema.safeParse(validWholesale).success).toBe(true);
+  });
+
+  it("requires consent before submission", () => {
+    const r = wholesaleApplicationSchema.safeParse({ ...validWholesale, consent: false });
+    expect(r.success).toBe(false);
   });
 
   it("rejects a bad email", () => {

@@ -13,7 +13,7 @@ export type { Channel } from "@/lib/channel";
  *
  * Beyond Lace sells the same catalogue two ways, and the two must never bleed
  * into each other: a retail shopper sees single-unit prices and a cart; a trade
- * buyer sees per-unit wholesale pricing, a 50-unit minimum, and a quote flow
+ * buyer sees per-unit wholesale pricing, a 5-unit first-trial minimum, and a quote flow
  * with no retail cart at all. Keeping them on separate routes and gating the
  * pricing behind this one flag is what prevents the channels from conflicting.
  *

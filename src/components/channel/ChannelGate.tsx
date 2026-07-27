@@ -131,7 +131,7 @@ export function ChannelGate() {
               For a salon or store
             </span>
             <span className="mt-2 text-[0.8125rem] leading-relaxed text-neutral-400">
-              Per-unit trade pricing from 50 units, MAP-protected. Quote, not cart.
+              Per-unit trade pricing from 5 units, MAP-protected. Quote, not cart.
             </span>
             <span className="mt-5 text-[0.75rem] tracking-[0.14em] text-gold uppercase">
               Shop wholesale →

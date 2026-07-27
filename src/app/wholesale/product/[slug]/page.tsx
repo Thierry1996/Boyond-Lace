@@ -37,7 +37,7 @@ export async function generateMetadata({
 
 /**
  * Wholesale PDP — the trade preview of a unit. Same product, a buyer's view:
- * per-unit tier pricing, a quantity that starts at the 50-unit minimum, the
+ * per-unit tier pricing, a quantity that starts at the 5-unit first-trial minimum, the
  * batch and sourcing terms a stockist actually decides on, and a quote instead
  * of a cart. A unit not stocked for resale has no wholesale page.
  */
@@ -125,8 +125,9 @@ export default async function WholesaleProductPage({
           <div className="mt-7">
             <WholesaleTierColumns pricing={product.wholesale} />
             <p className="mt-3 text-[0.75rem] leading-relaxed text-neutral-400">
-              Trade minimum {WHOLESALE_MOQ} units, so every order lands on the deepest standing
-              tier. Larger volumes are negotiated with the partner team.
+              First-trial minimum {WHOLESALE_MOQ} units at the Bronze break; the price deepens as
+              volume clears the Silver and Gold tiers. Larger volumes are negotiated with the
+              partner team.
             </p>
           </div>
 

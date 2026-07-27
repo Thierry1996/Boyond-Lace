@@ -36,11 +36,11 @@ const CAMPAIGNS: Record<string, Campaign> = {
   },
   "salon-onboarding": {
     title: "Beyond Lace for Salons",
-    eyebrow: "Wholesale · MOQ 50 · MAP-protected",
+    eyebrow: "Wholesale · From 5 units · MAP-protected",
     h1a: "Stock the brand",
     h1b: "your clients ask about.",
     body: [
-      "Fifty units is the whole minimum. Bronze tier opens the full collection, the turnkey asset kit — photography, spec sheets, launch copy — and a margin we defend contractually through MAP enforcement.",
+      "Five units is all you need to start. Bronze tier opens the full collection, the turnkey asset kit — photography, spec sheets, launch copy — and a margin we defend contractually through MAP enforcement.",
       "Your first order ships with everything needed to sell it the week it lands. Most salons reorder inside sixty days; the batch guarantee means their reorder matches their first order exactly.",
     ],
     cta: { label: "Apply as a partner", href: "/wholesale#apply" },

@@ -19,7 +19,7 @@ const PILLARS = [
   {
     n: "02",
     title: "White-Label & Private Label Agility",
-    body: "Fifty-unit minimums, custom packaging, branded combs, and a turnkey asset kit. Boutique salons get the terms that used to require a container order, which turns small buyers into long-term partners rather than one-time customers.",
+    body: "Five-unit first trials, custom packaging, branded combs, and a turnkey asset kit. Boutique salons get the terms that used to require a container order, which turns small buyers into long-term partners rather than one-time customers.",
   },
   {
     n: "03",

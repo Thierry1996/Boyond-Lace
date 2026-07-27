@@ -19,7 +19,7 @@ const NOTICES = [
   { text: "The Lace Test — $5, credited back in full", href: "/product/lace-test-kit" },
   { text: "30-day returns, lace uncut", href: "/support/returns-portal" },
   { text: "Capsule drops: 200 numbered units, never restocked", href: "/drops" },
-  { text: "Salon partners — MOQ 50, MAP protected", href: "/wholesale" },
+  { text: "Salon partners — from 5 units, MAP protected", href: "/wholesale" },
 ];
 
 export function AnnouncementBar() {

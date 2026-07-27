@@ -103,24 +103,26 @@ const dollars = (minor: number) => Math.round(minor / 100) * 100;
  * creator tiers legible in the pricing structure itself, so the margin story is
  * arithmetic rather than adjectives:
  *
- *   Bronze  55% of retail   entry, at the SKU's MOQ
- *   Silver  48% of retail   25 units
- *   Gold    42% of retail   50 units
+ *   Bronze  55% of retail   5–50 units    the first-trial entry break
+ *   Silver  48% of retail   50–200 units  the standing salon break
+ *   Gold    42% of retail   200–500 units the distributor break
  *   MAP     90% of retail   the floor a partner may advertise
  *   Creator 65% of retail   one unit, vetted creators sampling pre-campaign
  *
  * MAP sits above every reseller break by design: a partner always has room to
- * discount toward MAP and still hold margin, and can never undercut us.
+ * discount toward MAP and still hold margin, and can never undercut us. A first
+ * order of as few as five units already earns Bronze — the entry break — rather
+ * than an indicative quote.
  */
-function resellerPricing(retail: number, moq = 10): WholesalePricing {
+function resellerPricing(retail: number, moq = 5): WholesalePricing {
   return {
     moq,
     mapPrice: dollars(retail * 0.9),
     creatorSamplePrice: dollars(retail * 0.65),
     tiers: [
       { label: "Bronze", minQty: moq, unitPrice: dollars(retail * 0.55) },
-      { label: "Silver", minQty: 25, unitPrice: dollars(retail * 0.48) },
-      { label: "Gold", minQty: 50, unitPrice: dollars(retail * 0.42) },
+      { label: "Silver", minQty: 50, unitPrice: dollars(retail * 0.48) },
+      { label: "Gold", minQty: 200, unitPrice: dollars(retail * 0.42) },
     ],
   };
 }
@@ -673,14 +675,14 @@ export const catalog: Product[] = [
     avatar: "wholesale",
     tagline: "Your salon's name on our manufacturing floor.",
     description:
-      "The private-label line. Your branding, our cap construction and batch consistency guarantee. Fifty-unit minimum, custom packaging, and a turnkey asset kit so you can sell it the day it lands.",
+      "The private-label line. Your branding, our cap construction and batch consistency guarantee. Start with a five-unit first trial, custom packaging, and a turnkey asset kit so you can sell it the day it lands.",
     price: 0,
     currency: "USD",
     options: [],
     images: [{ src: "plum", alt: "Beyond Lace Pro private label programme" }],
     specs: [
-      { label: "MOQ", value: "50 units" },
-      { label: "Tiers", value: "Bronze, Silver, Gold — volume-based" },
+      { label: "MOQ", value: "5 units — first-trial minimum" },
+      { label: "Tiers", value: "Bronze 5–50, Silver 50–200, Gold 200–500" },
       { label: "Customisation", value: "Branded packaging, combs, hang tags, inserts" },
       { label: "Assets", value: "Lifestyle photography, spec sheets, launch copy" },
       { label: "Protection", value: "MAP enforced — your margin is contractually defended" },
@@ -1308,9 +1310,9 @@ export const catalog: Product[] = [
     avatar: "wholesale",
     launchTier: "wholesale-bulk",
     launchRank: 18,
-    tagline: "Five units. One decision. No fifty-piece leap of faith.",
+    tagline: "Five units, curated. The first-trial sampler done for you.",
     description:
-      "A five-unit assorted pack at pre-set lengths — two natural black straight, two body wave, one 613 blonde — built as a low-friction first order for a small wig business testing us as a supplier. Fifty units is the right MOQ once you trust a factory. This is how you find out whether you should.",
+      "A five-unit assorted pack at pre-set lengths — two natural black straight, two body wave, one 613 blonde — curated so a small wig business can judge the range in one order. Any single SKU already trials from five units; this pack is the version we assort for you, across textures, so the first order teaches you the most.",
     price: 245000,
     compareAtPrice: 312000,
     currency: "USD",
@@ -1341,7 +1343,7 @@ export const catalog: Product[] = [
     ],
     specs: [
       { label: "Contents", value: "5 units — 2 straight 1B, 2 body wave 1B, 1 613 blonde" },
-      { label: "MOQ", value: "One pack. No fifty-unit commitment to start." },
+      { label: "MOQ", value: "One curated pack — the assorted first trial" },
       { label: "Per-unit", value: "Works out around $490 — below our Bronze single-SKU break" },
       { label: "Batch rule", value: "All five cut from one production run" },
       { label: "Next step", value: "Reorder at Bronze, Silver or Gold on any single SKU" },

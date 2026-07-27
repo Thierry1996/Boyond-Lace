@@ -30,10 +30,10 @@ const BUSINESS_TYPES: Array<{
 ];
 
 const VOLUMES: Array<{ value: WholesaleSurvey["monthlyVolume"]; label: string; note: string }> = [
-  { value: "under-50", label: "Under 50", note: "Below the standing minimum" },
-  { value: "50-149", label: "50 – 149", note: "Bronze tier" },
-  { value: "150-499", label: "150 – 499", note: "Silver tier" },
-  { value: "500+", label: "500+", note: "Gold tier" },
+  { value: "sample", label: "Sample / trial", note: "5-unit first order" },
+  { value: "5-50", label: "5 – 50", note: "Bronze tier" },
+  { value: "50-200", label: "50 – 200", note: "Silver tier" },
+  { value: "200-500", label: "200 – 500", note: "Gold tier" },
 ];
 
 const TIMELINES: Array<{ value: WholesaleSurvey["timeline"]; label: string; note: string }> = [

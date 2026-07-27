@@ -15,7 +15,7 @@ export const wholesaleSurveySchema = z.object({
   businessType: z.enum(["salon", "stylist", "reseller", "distributor", "new"], {
     message: "Tell us what best describes you",
   }),
-  monthlyVolume: z.enum(["under-50", "50-149", "150-499", "500+"], {
+  monthlyVolume: z.enum(["sample", "5-50", "50-200", "200-500"], {
     message: "Select an expected monthly volume",
   }),
   channels: z.array(z.string()).min(1, "Select at least one sales channel"),
@@ -35,10 +35,15 @@ export const wholesaleApplicationSchema = z.object({
   email: z.string().email("A valid email is required"),
   phone: z.string().min(7, "A valid phone number is required"),
   country: z.string().min(2, "Country is required"),
-  estimatedVolume: z.enum(["50-149", "150-499", "500+"], {
-    message: "Select an annual volume tier",
+  estimatedVolume: z.enum(["5-50", "50-200", "200-500"], {
+    message: "Select a volume tier",
   }),
+  /** Services Needed — turnkey options the partner wants scoped up front. */
+  services: z.array(z.string()).optional(),
   message: z.string().max(2000).optional(),
+  consent: z.boolean().refine((v) => v, {
+    message: "Please agree before submitting your application",
+  }),
 });
 export type WholesaleApplication = z.infer<typeof wholesaleApplicationSchema>;
 

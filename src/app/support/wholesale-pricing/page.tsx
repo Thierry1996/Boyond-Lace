@@ -6,23 +6,23 @@ import { Section, SectionHeading } from "@/components/ui/Section";
 export const metadata: Metadata = {
   title: "Wholesale Pricing — Tier Sheet & Download",
   description:
-    "Beyond Lace wholesale pricing tiers for salons, resellers and distributors: Bronze, Silver and Gold, 50-unit MOQ, MAP-protected margins.",
+    "Beyond Lace wholesale pricing tiers for salons, resellers and distributors: Bronze, Silver and Gold, from a 5-unit first trial, MAP-protected margins.",
 };
 
 const TIERS = [
   {
     name: "Bronze",
-    volume: "50–149 units / yr",
+    volume: "5–50 units",
     terms: "Net 15 after first order",
-    margin: "Standard partner pricing",
+    margin: "First-trial entry pricing",
   },
   {
     name: "Silver",
-    volume: "150–499 units / yr",
+    volume: "50–200 units",
     terms: "Net 30",
-    margin: "Improved tier pricing",
+    margin: "Standing salon pricing",
   },
-  { name: "Gold", volume: "500+ units / yr", terms: "Net 45", margin: "Best available pricing" },
+  { name: "Gold", volume: "200–500 units", terms: "Net 45", margin: "Best available pricing" },
 ];
 
 export default function WholesalePricingPage() {
@@ -41,7 +41,7 @@ export default function WholesalePricingPage() {
         className="py-20"
         eyebrowLeft="Tiers"
         eyebrowCenter="Volume-based"
-        eyebrowRight="MOQ 50"
+        eyebrowRight="From 5 units"
       >
         <SectionHeading
           title="Three tiers, reviewed quarterly."

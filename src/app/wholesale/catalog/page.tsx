@@ -5,9 +5,9 @@ import { WholesaleProductCard } from "@/components/wholesale/WholesaleProductCar
 import { WHOLESALE_MOQ } from "@/lib/channel";
 
 export const metadata: Metadata = {
-  title: "Wholesale Catalogue — Trade Pricing, MOQ 50",
+  title: "Wholesale Catalogue — Trade Pricing from 5 Units",
   description:
-    "The Beyond Lace wholesale catalogue: per-unit trade pricing from 50 units, MAP-protected, batch-consistent virgin Remy human hair. Apply once, order the whole range.",
+    "The Beyond Lace wholesale catalogue: per-unit trade pricing from a 5-unit first trial, MAP-protected, batch-consistent virgin Remy human hair. Apply once, order the whole range.",
   robots: { index: true, follow: true },
 };
 
@@ -34,9 +34,9 @@ export default async function WholesaleCatalogPage() {
               <span className="block italic">your clients ask about.</span>
             </h1>
             <p className="mt-7 max-w-xl text-[1.0625rem] leading-relaxed text-neutral-400">
-              Per-unit pricing from fifty units, defended by an enforced MAP so no partner undercuts
-              another. Every SKU is cut from a single production run, so the batch you reorder in
-              eighteen months matches the one on your shelf today.
+              Per-unit pricing from a five-unit first trial, defended by an enforced MAP so no
+              partner undercuts another. Every SKU is cut from a single production run, so the batch
+              you reorder in eighteen months matches the one on your shelf today.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-6">
               <Link
@@ -69,12 +69,12 @@ export default async function WholesaleCatalogPage() {
             <div>
               <p className="eyebrow mb-3 text-gold">New partner? Start smaller</p>
               <h2 className="text-[clamp(1.75rem,3.5vw,2.5rem)] leading-tight text-paper">
-                Fifty is the standing minimum. Five is how you test us.
+                Five units is how you test us.
               </h2>
               <p className="mt-5 max-w-xl text-[0.9375rem] leading-relaxed text-neutral-400">
-                The First Order pack is five assorted units at Gold-adjacent pricing — the way a
-                small wig business finds out whether Beyond Lace is the supplier before committing
-                to a full tier.
+                Any SKU trials from five units — or take the First Order pack: five assorted units,
+                curated across textures, the way a small wig business finds out whether Beyond Lace
+                is the supplier before scaling to a full tier.
               </p>
             </div>
             <Link

@@ -98,7 +98,7 @@ export function PillarBento() {
     {
       n: "02",
       title: "White-label agility",
-      body: "Fifty units is the whole minimum. Custom packaging and a turnkey asset kit from the first order.",
+      body: "Five units is all you need to start. Custom packaging and a turnkey asset kit from the first order.",
       span: "lg:col-span-5",
       tall: false,
     },

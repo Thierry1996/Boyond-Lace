@@ -12,7 +12,7 @@ import { WHOLESALE_MOQ } from "@/lib/channel";
  * channels from crossing.
  */
 export function WholesaleProductCard({ product }: { product: Product }) {
-  // Deepest standing tier = the price a 50-unit order actually pays.
+  // Deepest standing tier = the best per-unit price, reached at the top break.
   const unit = product.wholesale
     ? [...product.wholesale.tiers].sort((a, b) => b.minQty - a.minQty)[0].unitPrice
     : product.price;

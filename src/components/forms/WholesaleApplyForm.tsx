@@ -21,6 +21,16 @@ export interface QuotePrefill {
   custom?: string;
 }
 
+/** Turnkey options a partner can flag on the application (Services Needed). */
+const SERVICES = [
+  "Dropshipping",
+  "Private label",
+  "Custom packaging",
+  "Custom textures",
+  "USA warehouse",
+  "1-on-1 consultation",
+];
+
 export function WholesaleApplyForm({ prefill }: { prefill?: QuotePrefill }) {
   const [done, setDone] = useState(false);
   const {
@@ -32,14 +42,18 @@ export function WholesaleApplyForm({ prefill }: { prefill?: QuotePrefill }) {
     // A quote carried in from a product page preselects the volume tier and
     // seeds the message with the unit and quantity, so the enquiry the partner
     // team receives already says what was quoted.
-    defaultValues: prefill
-      ? {
-          estimatedVolume: prefill.volume,
-          message:
-            `I'd like a wholesale quote for ${prefill.title} (${prefill.sku}) — ${prefill.qty} units.` +
-            (prefill.custom ? `\nCustomization — ${prefill.custom}` : ""),
-        }
-      : undefined,
+    defaultValues: {
+      services: [],
+      consent: false,
+      ...(prefill
+        ? {
+            estimatedVolume: prefill.volume,
+            message:
+              `I'd like a wholesale quote for ${prefill.title} (${prefill.sku}) — ${prefill.qty} units.` +
+              (prefill.custom ? `\nCustomization — ${prefill.custom}` : ""),
+          }
+        : {}),
+    },
   });
 
   if (done) {
@@ -104,14 +118,14 @@ export function WholesaleApplyForm({ prefill }: { prefill?: QuotePrefill }) {
       <Field label="Country" error={errors.country?.message}>
         <input className={inputClass} {...register("country")} />
       </Field>
-      <Field label="Estimated annual volume" error={errors.estimatedVolume?.message}>
+      <Field label="Order volume" error={errors.estimatedVolume?.message}>
         <select className={inputClass} defaultValue="" {...register("estimatedVolume")}>
           <option value="" disabled>
             Select tier…
           </option>
-          <option value="50-149">50–149 units — Bronze</option>
-          <option value="150-499">150–499 units — Silver</option>
-          <option value="500+">500+ units — Gold</option>
+          <option value="5-50">5–50 units — Bronze</option>
+          <option value="50-200">50–200 units — Silver</option>
+          <option value="200-500">200–500 units — Gold</option>
         </select>
       </Field>
       <div className="sm:col-span-2">
@@ -119,8 +133,48 @@ export function WholesaleApplyForm({ prefill }: { prefill?: QuotePrefill }) {
           <textarea rows={4} className={inputClass} {...register("message")} />
         </Field>
       </div>
+
+      {/* Services needed — turnkey options scoped up front */}
+      <fieldset className="sm:col-span-2">
+        <legend className="eyebrow mb-3">Services needed (optional)</legend>
+        <div className="flex flex-wrap gap-2.5">
+          {SERVICES.map((s) => (
+            <label key={s} className="group cursor-pointer">
+              <input type="checkbox" value={s} {...register("services")} className="peer sr-only" />
+              <span className="inline-flex items-center rounded-full border border-white/15 px-4 py-2 text-[0.8125rem] text-neutral-300 transition-colors duration-300 group-hover:border-white/40 peer-checked:border-gold peer-checked:bg-gold/[0.06] peer-checked:text-gold">
+                {s}
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      {/* Consent gate */}
       <div className="sm:col-span-2">
-        <SubmitButton pending={isSubmitting}>Submit application</SubmitButton>
+        <label className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            {...register("consent")}
+            className="mt-1 size-4 shrink-0 accent-[#C9A66B]"
+          />
+          <span className="text-[0.8125rem] leading-relaxed text-neutral-400">
+            I agree to Beyond Lace processing my enquiry in accordance with the{" "}
+            <a href="/legal/privacy" className="text-gold underline-offset-4 hover:underline">
+              Privacy Policy
+            </a>
+            .
+          </span>
+        </label>
+        {errors.consent && (
+          <span role="alert" className="mt-1.5 block text-[0.75rem] text-rose-400">
+            {errors.consent.message}
+          </span>
+        )}
+      </div>
+
+      <div className="sm:col-span-2">
+        <SubmitButton pending={isSubmitting}>Submit wholesale application</SubmitButton>
+        <p className="mt-3 text-[0.75rem] text-neutral-400">Secure · Free · No obligation</p>
       </div>
     </form>
   );

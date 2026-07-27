@@ -25,10 +25,21 @@ export async function POST(request: Request) {
     );
   }
 
+  // `services` and `consent` are captured by the form but are not columns on the
+  // WholesaleApplication model. Consent is a submit gate (already enforced by the
+  // schema); the chosen services are folded into the message so the partner team
+  // sees them without a schema migration.
+  const { services, consent: _consent, message, ...rest } = parsed.data;
+  const composedMessage =
+    services && services.length > 0
+      ? `${message ? `${message}\n\n` : ""}Services needed: ${services.join(", ")}`
+      : message;
+  const record = { ...rest, message: composedMessage };
+
   if (process.env.DATABASE_URL) {
     try {
       const { db } = await import("@/lib/db");
-      await db.wholesaleApplication.create({ data: parsed.data });
+      await db.wholesaleApplication.create({ data: record });
     } catch (err) {
       console.error("[wholesale-application] persistence failed:", err);
       return NextResponse.json(
@@ -37,7 +48,7 @@ export async function POST(request: Request) {
       );
     }
   } else {
-    console.log("[wholesale-application]", JSON.stringify(parsed.data));
+    console.log("[wholesale-application]", JSON.stringify(record));
   }
 
   return NextResponse.json({

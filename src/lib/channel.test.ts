@@ -8,8 +8,8 @@ import { mockAdapter } from "./commerce/mock-adapter";
  * quote engine handing out a sub-MOQ trade price. Both are asserted here.
  */
 describe("channel separation", () => {
-  it("uses a 50-unit trade minimum", () => {
-    expect(WHOLESALE_MOQ).toBe(50);
+  it("uses a 5-unit first-trial trade minimum", () => {
+    expect(WHOLESALE_MOQ).toBe(5);
     expect(WHOLESALE_MOQ % WHOLESALE_STEP).toBe(0);
   });
 
@@ -26,15 +26,24 @@ describe("channel separation", () => {
     expect(slugs).not.toContain("lace-test-kit");
   });
 
-  it("a wholesale quote at the trade minimum lands on the deepest tier", async () => {
+  it("quotes a real break at the first-trial minimum, and the deepest break at its own volume", async () => {
     const wholesale = await mockAdapter.getProducts({ wholesaleOnly: true });
     // Any single-SKU trade unit (skip the assorted reseller pack, which has its
-    // own ladder) resolves to its top break at 50 units.
+    // own ladder). A first-trial order of five units earns the entry break —
+    // never a below-MOQ indicative quote.
     const unit = wholesale.find((p) => p.line === "luxe")!;
-    const quote = await mockAdapter.getWholesaleQuote(unit.slug, WHOLESALE_MOQ);
-    const deepest = [...unit.wholesale!.tiers].sort((a, b) => b.minQty - a.minQty)[0];
-    expect(quote!.unitPrice).toBe(deepest.unitPrice);
-    expect(quote!.belowMoq).toBe(false);
+    const tiers = [...unit.wholesale!.tiers].sort((a, b) => a.minQty - b.minQty);
+    const entry = tiers[0];
+    const deepest = tiers[tiers.length - 1];
+
+    const trial = await mockAdapter.getWholesaleQuote(unit.slug, WHOLESALE_MOQ);
+    expect(trial!.unitPrice).toBe(entry.unitPrice);
+    expect(trial!.belowMoq).toBe(false);
+
+    // The best per-unit price is reached only at the top break's own volume.
+    const bulk = await mockAdapter.getWholesaleQuote(unit.slug, deepest.minQty);
+    expect(bulk!.unitPrice).toBe(deepest.unitPrice);
+    expect(bulk!.unitPrice).toBeLessThan(entry.unitPrice);
   });
 
   it("keeps the trade unit price below the retail single-unit price", async () => {

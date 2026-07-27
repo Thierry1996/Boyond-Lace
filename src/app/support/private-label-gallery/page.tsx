@@ -35,7 +35,7 @@ export default function PrivateLabelGalleryPage() {
         className="py-20"
         eyebrowLeft="Mockups"
         eyebrowCenter="Packaging system"
-        eyebrowRight="MOQ 50"
+        eyebrowRight="From 5 units"
       >
         <SectionHeading
           title="Every surface, brandable."
