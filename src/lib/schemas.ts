@@ -5,6 +5,27 @@ import { z } from "zod";
  * (client) and the API route handlers (server). Phase 1/2 of the locked stack.
  */
 
+/**
+ * Wholesale buyer survey — a lighter qualifying questionnaire than the full
+ * application. It captures what the partner team needs to price and prioritise a
+ * lead, without the full business profile the application collects.
+ */
+export const wholesaleSurveySchema = z.object({
+  email: z.string().email("A valid email is required"),
+  businessType: z.enum(["salon", "stylist", "reseller", "distributor", "new"], {
+    message: "Tell us what best describes you",
+  }),
+  monthlyVolume: z.enum(["under-50", "50-149", "150-499", "500+"], {
+    message: "Select an expected monthly volume",
+  }),
+  channels: z.array(z.string()).min(1, "Select at least one sales channel"),
+  textures: z.array(z.string()).min(1, "Select at least one texture"),
+  privateLabel: z.enum(["yes", "maybe", "no"]),
+  timeline: z.enum(["now", "1-3-months", "exploring"]),
+  message: z.string().max(1000).optional(),
+});
+export type WholesaleSurvey = z.infer<typeof wholesaleSurveySchema>;
+
 export const wholesaleApplicationSchema = z.object({
   businessName: z.string().min(2, "Tell us your business name"),
   businessType: z.enum(["salon", "reseller", "distributor", "stylist"], {
