@@ -91,10 +91,14 @@ export function Header() {
 
       {/* ── Row 2 · Utility / centred wordmark / commerce ─────────────────── */}
       <div
-        className="overflow-hidden bg-ink transition-[max-height,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
-        style={{ maxHeight: condensed ? 0 : 160, opacity: condensed ? 0 : 1 }}
+        className="bg-ink transition-[max-height,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        style={{
+          maxHeight: condensed ? 0 : 160,
+          opacity: condensed ? 0 : 1,
+          overflow: condensed ? "hidden" : "visible",
+        }}
       >
-        <div className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-6 px-5 py-2.5">
+        <div className="grid w-full grid-cols-[auto_1fr_auto] items-center gap-4 px-5 py-2.5">
           {/* Left — the wordmark, kept dominant. Equal 1fr side columns so the
               centre search sits on the true viewport centre, not the gap centre. */}
           <Link
@@ -105,17 +109,17 @@ export function Header() {
             <LogoMark width={260} priority className="w-[11rem] sm:w-[13rem] lg:w-[15rem]" />
           </Link>
 
-          {/* Centre — the search field, ~700px, with a running attention ring. */}
-          <div className="hidden justify-self-center lg:block">
-            <HeaderSearch className="w-[clamp(320px,46vw,700px)]" attention />
+          {/* Centre — the search field fills the 1fr track. */}
+          <div className="hidden justify-self-stretch lg:block">
+            <HeaderSearch className="w-full max-w-[700px] mx-auto" attention />
           </div>
 
           {/* Right — preferences and commerce, compact. On mobile the search
               collapses to a link and the menu trigger lives here too. */}
-          <div className="flex items-center justify-end gap-3">
+          <div className="flex items-center justify-end gap-2">
             <nav
               aria-label="Preferences"
-              className="hidden items-center gap-3 border-r border-white/12 pr-3 lg:flex"
+              className="hidden items-center gap-2 border-r border-white/12 pr-2.5 lg:flex"
             >
               <ChannelSwitch />
               <CurrencySelector />

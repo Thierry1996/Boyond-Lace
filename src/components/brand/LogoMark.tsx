@@ -37,24 +37,31 @@ export function LogoMark({
    */
   crop?: boolean;
 }) {
-  // Source artwork is 2048×1152 (16:9) with generous internal padding.
-  const height = Math.round((width * 1152) / 2048);
+  // Source artwork is 2048×1152 (16:9). The logo + tagline glyph area
+  // occupies roughly the centre 640 px of that 1152 px height.
+  // We expose the corrected intrinsic height so Next.js reserves the
+  // right amount of space before the image loads, preventing CLS.
+  const srcH = Math.round((width * 1152) / 2048);
 
   return (
     <span className={`inline-flex flex-col items-center ${className}`}>
       {crop ? (
-        // object-cover in a shorter box scales to the width and trims the
-        // padding equally top and bottom; the mark is centred in the source.
-        <span className="block w-full overflow-hidden" style={{ aspectRatio: "2048 / 560" }}>
+        // Crop to the glyph region only. The 2048:640 ratio matches where
+        // the wordmark + tagline actually live inside the source frame.
+        // object-[center_55%] aligns to the visual centre of the artwork.
+        <span
+          className="block w-full overflow-hidden"
+          style={{ aspectRatio: "2048 / 640" }}
+        >
           <Image
             src="/brand/wordmark.png"
             alt="Beyond Lace"
             width={width}
-            height={height}
+            height={srcH}
             priority={priority}
-            unoptimized
-            sizes={`${width}px`}
-            className="h-full w-full object-cover"
+            quality={95}
+            sizes={`(max-width: 640px) ${Math.round(width * 0.85)}px, ${width}px`}
+            className="h-full w-full object-cover object-[center_55%]"
           />
         </span>
       ) : (
@@ -62,10 +69,10 @@ export function LogoMark({
           src="/brand/wordmark.png"
           alt="Beyond Lace"
           width={width}
-          height={height}
+          height={srcH}
           priority={priority}
-          unoptimized
-          sizes={`${width}px`}
+          quality={95}
+          sizes={`(max-width: 640px) ${Math.round(width * 0.85)}px, ${width}px`}
           className="h-auto w-full object-contain"
         />
       )}
