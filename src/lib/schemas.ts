@@ -58,6 +58,25 @@ export const contactSchema = z.object({
 });
 export type ContactMessage = z.infer<typeof contactSchema>;
 
+/**
+ * Spin-wheel marketing capture. Email is required; phone is optional. Both
+ * consents must be true (the box is the marketing/SMS opt-in; the terms/privacy
+ * acknowledgment is the act of submitting). The rest is provenance stored with
+ * the lead so the marketing desk knows which prize and page it came from.
+ */
+export const emailCaptureSchema = z.object({
+  email: z.string().email("A valid email is required"),
+  phone: z.string().max(40).optional().or(z.literal("")),
+  consentMarketing: z.boolean().refine((v) => v, {
+    message: "Please agree to receive messages before spinning",
+  }),
+  consentTerms: z.boolean().refine((v) => v, { message: "You must accept the terms" }),
+  prize: z.string().max(60).optional(),
+  source: z.string().max(60).optional(),
+  pagePath: z.string().max(300).optional(),
+});
+export type EmailCapture = z.infer<typeof emailCaptureSchema>;
+
 export const quizLeadSchema = z.object({
   email: z.string().email("A valid email is required"),
   answers: z.record(z.string(), z.string()),

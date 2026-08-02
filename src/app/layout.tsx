@@ -8,6 +8,7 @@ import { CartDrawer } from "@/components/layout/CartDrawer";
 import { ChannelGate } from "@/components/channel/ChannelGate";
 import { Providers } from "@/components/Providers";
 import { SupportWidget } from "@/components/support/SupportWidget";
+import { SpinWheelPopup } from "@/components/marketing/SpinWheelPopup";
 
 /**
  * Brand Kit v2 typography — kit fonts only, no substitutes
@@ -83,6 +84,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <CartDrawer />
             <ChannelGate />
             <SupportWidget />
+            <SpinWheelPopup />
           </Providers>
         </ClerkProvider>
       </body>
