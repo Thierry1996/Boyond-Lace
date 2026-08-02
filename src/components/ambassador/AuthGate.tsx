@@ -4,30 +4,12 @@ import { Lock } from "lucide-react";
 /**
  * Ambassador portal gate.
  *
- * Clerk owns sessions for this app. When keys are configured the portal is
- * protected by the proxy matcher and this renders its children directly; the
- * signed-out fallback below only appears if the gate is reached without an
- * authenticated session, so the dashboard is never silently public.
+ * Better Auth owns sessions. The /ambassadors/dashboard route is protected by
+ * the proxy middleware, which redirects signed-out visitors to sign-in before
+ * they reach here — so this wrapper renders its children directly. It is kept as
+ * the server-side seam for a future approved-ambassador role check.
  */
-const clerkEnabled = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
 export function AuthGate({ children }: { children: React.ReactNode }) {
-  if (!clerkEnabled) {
-    return (
-      <>
-        <div className="mb-8 flex items-start gap-4 rounded-xl border border-gold/40 bg-plum-900/60 p-5">
-          <Lock size={18} strokeWidth={1.6} className="mt-0.5 shrink-0 text-gold" />
-          <p className="text-[0.8125rem] leading-relaxed text-blush-200">
-            <span className="text-gold">Preview mode.</span> Clerk authentication keys are not
-            configured in this environment, so the portal is rendering unauthenticated for review.
-            With keys present, this route requires a verified email sign-in.
-          </p>
-        </div>
-        {children}
-      </>
-    );
-  }
-
   return <>{children}</>;
 }
 

@@ -1,4 +1,3 @@
-import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -70,23 +69,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `try{if(localStorage.getItem("bl.mode")==="light")document.documentElement.dataset.mode="light"}catch(e){}`,
           }}
         />
-        <ClerkProvider>
-          <Providers>
-            <a
-              href="#main"
-              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-plum-700 focus:px-4 focus:py-2 focus:text-paper"
-            >
-              Skip to content
-            </a>
-            <Header />
-            <main id="main">{children}</main>
-            <Footer />
-            <CartDrawer />
-            <ChannelGate />
-            <SupportWidget />
-            <SpinWheelPopup />
-          </Providers>
-        </ClerkProvider>
+        <Providers>
+          <a
+            href="#main"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-plum-700 focus:px-4 focus:py-2 focus:text-paper"
+          >
+            Skip to content
+          </a>
+          <Header />
+          <main id="main">{children}</main>
+          <Footer />
+          <CartDrawer />
+          <ChannelGate />
+          <SupportWidget />
+          <SpinWheelPopup />
+        </Providers>
       </body>
     </html>
   );

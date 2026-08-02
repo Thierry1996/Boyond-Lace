@@ -1,34 +1,26 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
-
-/** The ambassador portal is members-only; the public programme pages are not. */
-const isProtectedRoute = createRouteMatcher(["/ambassadors/dashboard(.*)", "/account(.*)"]);
+import { NextResponse, type NextRequest } from "next/server";
+import { getSessionCookie } from "better-auth/cookies";
 
 /**
- * Next.js 16 proxy (the middleware convention). Clerk activates only when its
- * keys are configured — without them every request passes through untouched,
- * so the storefront never breaks on a missing key.
+ * Next.js 16 proxy (the middleware convention), backed by Better Auth.
  *
- * Route protection (wholesale portal, account, admin) is layered on here once
- * roles exist in the DB: createRouteMatcher + auth.protect().
+ * The ambassador portal and the account area are members-only. We do an
+ * optimistic session-cookie check here — Edge-safe, no database call, no Node
+ * imports — and redirect to sign-in when it is missing, carrying the intended
+ * path in ?redirect. The pages themselves still verify the session server-side
+ * (auth.api.getSession) before trusting it; this middleware only keeps
+ * signed-out visitors out of the protected shells.
  */
-
-const clerkEnabled =
-  !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && !!process.env.CLERK_SECRET_KEY;
-
-export default clerkEnabled
-  ? clerkMiddleware(async (auth, req) => {
-      // Verified-email sign-in required for the portal and account areas.
-      if (isProtectedRoute(req)) await auth.protect();
-    })
-  : () => NextResponse.next();
+export default function proxy(request: NextRequest) {
+  const sessionCookie = getSessionCookie(request);
+  if (!sessionCookie) {
+    const url = new URL("/sign-in", request.url);
+    url.searchParams.set("redirect", request.nextUrl.pathname);
+    return NextResponse.redirect(url);
+  }
+  return NextResponse.next();
+}
 
 export const config = {
-  matcher: [
-    // Everything except static assets and Next internals…
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // …plus APIs and Clerk's auto-proxy path (required, per Clerk's Next.js rules).
-    "/(api|trpc)(.*)",
-    "/__clerk/:path*",
-  ],
+  matcher: ["/ambassadors/dashboard/:path*", "/account/:path*"],
 };
