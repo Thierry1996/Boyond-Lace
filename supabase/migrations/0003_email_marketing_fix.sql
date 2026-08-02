@@ -30,4 +30,6 @@ drop policy if exists "Public insert leads" on public."Beyond-Lace email-marketi
 create policy "Public insert leads"
   on public."Beyond-Lace email-marketing" for insert
   to anon, authenticated
-  with check (true);
+  with check (email is not null and char_length(email) between 3 and 320);
+
+-- Applied to the live project via the Supabase MCP on 2026-08-02.
