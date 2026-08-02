@@ -5,7 +5,12 @@ import { commerce, type Product, type ProductQuery } from "@/lib/commerce";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { FaqAccordion } from "@/components/collections/FaqAccordion";
-import { collections, getCollection, type Collection, type RefineKey } from "@/lib/collections";
+import {
+  collections,
+  getCollectionBySlug,
+  type Collection,
+  type RefineKey,
+} from "@/lib/collections";
 
 export function generateStaticParams() {
   return collections.map((c) => ({ slug: c.slug }));
@@ -17,7 +22,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const collection = getCollection(slug);
+  const collection = await getCollectionBySlug(slug);
   if (!collection) return { title: "Collection not found" };
   return {
     title: `${collection.title.replace(/\.$/, "")} — ${collection.eyebrow} | Beyond Lace`,
@@ -194,7 +199,7 @@ export default async function CollectionPage({
   searchParams: Promise<SearchParams>;
 }) {
   const { slug } = await params;
-  const collection = getCollection(slug);
+  const collection = await getCollectionBySlug(slug);
   if (!collection) notFound();
 
   const sp = await searchParams;

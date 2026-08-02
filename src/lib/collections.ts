@@ -1,4 +1,5 @@
 import type { ProductQuery, Shade } from "@/lib/commerce";
+import { getDataClient } from "@/lib/supabase/data";
 
 /**
  * Collection registry — the shelf-front taxonomy.
@@ -356,9 +357,69 @@ export const collections: Collection[] = [
   },
 ];
 
+/** Synchronous lookup against the in-code seed — used where async is not an
+ * option (e.g. generateStaticParams pre-render). */
 export function getCollection(slug: string): Collection | undefined {
   return collections.find((c) => c.slug === slug);
 }
 
-/** Collections shown on the home rail and /collections index, in order. */
-export const homeCollections = collections;
+/* ── Supabase-backed source, with the in-code registry as a bulletproof
+   fallback ───────────────────────────────────────────────────────────────────
+
+   The registry above is the seed (see supabase/migrations/0001_collections.sql,
+   generated from it). Once that migration runs, these loaders read the live
+   `collections` table; until then — or on any read failure — they return the
+   in-code array, so the storefront never breaks on a data-layer hiccup. */
+
+interface CollectionRow {
+  slug: string;
+  label: string;
+  eyebrow: string;
+  title: string;
+  title_italic: string | null;
+  tagline: string;
+  card_image: string;
+  meta_description: string;
+  query: ProductQuery | null;
+  selection: Collection["select"] | null;
+  refine: RefineKey[] | null;
+  intro: string;
+  faqs: CollectionFaq[] | null;
+}
+
+function rowToCollection(r: CollectionRow): Collection {
+  return {
+    slug: r.slug,
+    label: r.label,
+    eyebrow: r.eyebrow,
+    title: r.title,
+    titleItalic: r.title_italic ?? undefined,
+    tagline: r.tagline,
+    cardImage: r.card_image,
+    metaDescription: r.meta_description,
+    query: r.query ?? undefined,
+    select: r.selection ?? undefined,
+    refine: r.refine ?? undefined,
+    intro: r.intro,
+    faqs: r.faqs ?? [],
+  };
+}
+
+/** All collections, in display order. Supabase-first, static fallback. */
+export async function getCollections(): Promise<Collection[]> {
+  const sb = getDataClient();
+  if (!sb) return collections;
+  try {
+    const { data, error } = await sb.from("collections").select("*").order("sort_order");
+    if (error || !data || data.length === 0) return collections;
+    return (data as CollectionRow[]).map(rowToCollection);
+  } catch {
+    return collections;
+  }
+}
+
+/** A single collection by slug. Supabase-first, static fallback. */
+export async function getCollectionBySlug(slug: string): Promise<Collection | undefined> {
+  const all = await getCollections();
+  return all.find((c) => c.slug === slug);
+}

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ProductImage } from "@/components/ui/ProductImage";
-import { collections } from "@/lib/collections";
+import { getCollections } from "@/lib/collections";
 
 export const metadata: Metadata = {
   title: "Collections — Shop by Style, Texture & Construction",
@@ -10,7 +10,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/collections" },
 };
 
-export default function CollectionsIndexPage() {
+export default async function CollectionsIndexPage() {
+  const collections = await getCollections();
   return (
     <>
       <section className="surface-velvet border-b border-white/[0.07] pt-20 pb-16">

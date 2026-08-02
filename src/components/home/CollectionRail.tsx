@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ProductImage } from "@/components/ui/ProductImage";
-import { homeCollections } from "@/lib/collections";
+import { getCollections } from "@/lib/collections";
 
 /**
  * Home collection rail — the shop-by-collection row that sits directly under the
@@ -9,7 +9,8 @@ import { homeCollections } from "@/lib/collections";
  * works without hydration. Imagery is the on-brand gradient placeholder until
  * the shoot lands (the brand's photographic system is hair-only).
  */
-export function CollectionRail() {
+export async function CollectionRail() {
+  const items = await getCollections();
   return (
     <section aria-label="Shop by collection" className="border-b border-white/[0.07] bg-ink py-10">
       <div className="mx-auto max-w-[1560px] px-[3vw]">
@@ -27,7 +28,7 @@ export function CollectionRail() {
           className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3 [scrollbar-width:thin] sm:gap-5"
           style={{ scrollbarColor: "rgba(201,166,107,0.4) transparent" }}
         >
-          {homeCollections.map((c) => (
+          {items.map((c) => (
             <li key={c.slug} className="shrink-0 snap-start">
               <Link
                 href={`/collections/${c.slug}`}
