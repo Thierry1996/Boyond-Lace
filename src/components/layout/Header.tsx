@@ -109,10 +109,10 @@ export function Header() {
           </Link>
 
           {/* Centre — the search field. The column flexes with the viewport while
-              the field itself caps at 650px and stays centred, so the right nav
+              the field itself caps at 700px and stays centred, so the right nav
               always keeps its natural width and is never clipped. */}
           <div className="hidden w-full lg:block">
-            <HeaderSearch className="mx-auto w-full max-w-[650px]" attention />
+            <HeaderSearch className="mx-auto w-full max-w-[700px]" attention />
           </div>
 
           {/* Right — preferences and commerce, compact. On mobile the search
