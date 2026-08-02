@@ -98,9 +98,8 @@ export function Header() {
           overflow: condensed ? "hidden" : "visible",
         }}
       >
-        <div className="grid w-full grid-cols-[auto_1fr_auto] items-center gap-4 px-5 py-2.5">
-          {/* Left — the wordmark, kept dominant. Equal 1fr side columns so the
-              centre search sits on the true viewport centre, not the gap centre. */}
+        <div className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-5 py-2.5">
+          {/* Left — the wordmark, sized to content so it never squeezes the nav. */}
           <Link
             href="/"
             aria-label="Beyond Lace — home"
@@ -109,9 +108,11 @@ export function Header() {
             <LogoMark width={260} priority className="w-[11rem] sm:w-[13rem] lg:w-[15rem]" />
           </Link>
 
-          {/* Centre — the search field fills the 1fr track. */}
-          <div className="hidden justify-self-stretch lg:block">
-            <HeaderSearch className="w-full max-w-[700px] mx-auto" attention />
+          {/* Centre — the search field. The column flexes with the viewport while
+              the field itself caps at 650px and stays centred, so the right nav
+              always keeps its natural width and is never clipped. */}
+          <div className="hidden w-full lg:block">
+            <HeaderSearch className="mx-auto w-full max-w-[650px]" attention />
           </div>
 
           {/* Right — preferences and commerce, compact. On mobile the search
@@ -136,7 +137,7 @@ export function Header() {
               </a>
             </nav>
 
-            <nav aria-label="Account and cart" className="flex items-center gap-3.5">
+            <nav aria-label="Account and cart" className="flex items-center gap-3">
               {/* Below lg the inline field is hidden, so keep a route to search. */}
               <Link
                 href="/search"
