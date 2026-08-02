@@ -5,6 +5,7 @@ import { ProductCard } from "@/components/ui/ProductCard";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { MonogramAurora, CrownWave } from "@/components/brand/Logo";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
+import { CollectionRail } from "@/components/home/CollectionRail";
 import { BrandMarquee, ProofBand, EditorialSplit, PillarBento } from "@/components/home/Sections";
 
 export default async function HomePage() {
@@ -28,6 +29,9 @@ export default async function HomePage() {
         what&apos;s beyond it.
       </h1>
       <HeroCarousel />
+
+      {/* Shop-by-collection rail — the category entry points, straight under the hero. */}
+      <CollectionRail />
 
       {/* Gilded statement ticker — a pulse between two dark blocks. */}
       <BrandMarquee />

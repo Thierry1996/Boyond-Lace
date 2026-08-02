@@ -45,33 +45,30 @@ export const primaryNav: PrimaryNavItem[] = [
         heading: "Collections",
         links: [
           { label: "All Wigs", href: "/shop" },
-          { label: "Bestsellers", href: "/shop/bestsellers" },
-          { label: "New Arrivals", href: "/shop/new-arrivals" },
+          { label: "All Collections", href: "/collections" },
+          { label: "New In", href: "/collections/new-in" },
+          { label: "Bestsellers", href: "/collections/bestsellers" },
           { label: "Capsule Drops", href: "/drops" },
-          { label: "Archive Sale", href: "/shop/sale" },
         ],
       },
       {
         heading: "By Construction",
         links: [
-          { label: "HD Swiss Full Lace", href: "/shop?lace=hd-swiss-full" },
-          { label: "13x6 HD Frontals", href: "/shop?lace=hd-swiss-13x6" },
-          { label: "Glueless", href: "/shop?lace=glueless" },
-          { label: "Silk Top — Sensitive Scalp", href: "/shop?lace=silk-top" },
-          { label: "Closures & Bundles", href: "/shop?lace=hd-swiss-13x4" },
+          { label: "Glueless Wigs", href: "/collections/glueless-wigs" },
+          { label: "HD Full Lace", href: "/collections/hd-full-lace" },
+          { label: "13x6 HD Frontals", href: "/collections/13x6-hd-frontals" },
+          { label: "13x4 Frontals", href: "/collections/13x4-frontal-wigs" },
+          { label: "Closures & Bundles", href: "/collections/closures-and-bundles" },
         ],
       },
       {
-        heading: "By Texture",
+        heading: "By Texture & Colour",
         links: [
-          { label: "Straight", href: "/shop?texture=straight" },
-          { label: "Body Wave", href: "/shop?texture=body-wave" },
-          { label: "Deep Wave", href: "/shop?texture=deep-wave" },
-          // The coil range is now typed precisely (kinky-curly / jerry-curl)
-          // rather than lumped under a generic "curly", so this points at the
-          // 4C-adjacent pattern the launch assortment actually stocks.
+          { label: "Straight", href: "/collections/straight-wigs" },
+          { label: "Body Wave", href: "/collections/body-wave-wigs" },
+          { label: "Deep Wave", href: "/collections/deep-wave-wigs" },
+          { label: "Coloured Wigs", href: "/collections/coloured-wigs" },
           { label: "Coily & Curly", href: "/shop?texture=kinky-curly" },
-          { label: "Kinky Straight", href: "/shop?texture=kinky-straight" },
         ],
       },
       {
