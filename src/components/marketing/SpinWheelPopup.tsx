@@ -43,6 +43,58 @@ const SEG = 360 / PRIZES.length;
 const GOLD = "#C9A66B";
 const PLUM = "#3B1F35";
 
+/** Light input styling — dark text on a solid field, so the value is always
+ * legible (a dark field turned white by browser autofill hid it before). */
+const FIELD =
+  "w-full rounded-md border border-black/10 bg-white px-4 py-3 text-[0.9375rem] text-ink placeholder:text-neutral-500 transition-colors focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/40 disabled:opacity-60";
+
+interface Country {
+  iso: string;
+  name: string;
+  dial: string;
+  flag: string;
+}
+
+/** Dial-code list — key markets first, then broadly alphabetical. */
+const COUNTRIES: Country[] = [
+  { iso: "US", name: "United States", dial: "+1", flag: "🇺🇸" },
+  { iso: "GB", name: "United Kingdom", dial: "+44", flag: "🇬🇧" },
+  { iso: "CA", name: "Canada", dial: "+1", flag: "🇨🇦" },
+  { iso: "NG", name: "Nigeria", dial: "+234", flag: "🇳🇬" },
+  { iso: "ZA", name: "South Africa", dial: "+27", flag: "🇿🇦" },
+  { iso: "GH", name: "Ghana", dial: "+233", flag: "🇬🇭" },
+  { iso: "CM", name: "Cameroon", dial: "+237", flag: "🇨🇲" },
+  { iso: "KE", name: "Kenya", dial: "+254", flag: "🇰🇪" },
+  { iso: "DE", name: "Germany", dial: "+49", flag: "🇩🇪" },
+  { iso: "FR", name: "France", dial: "+33", flag: "🇫🇷" },
+  { iso: "AU", name: "Australia", dial: "+61", flag: "🇦🇺" },
+  { iso: "IE", name: "Ireland", dial: "+353", flag: "🇮🇪" },
+  { iso: "NL", name: "Netherlands", dial: "+31", flag: "🇳🇱" },
+  { iso: "ES", name: "Spain", dial: "+34", flag: "🇪🇸" },
+  { iso: "IT", name: "Italy", dial: "+39", flag: "🇮🇹" },
+  { iso: "BE", name: "Belgium", dial: "+32", flag: "🇧🇪" },
+  { iso: "PT", name: "Portugal", dial: "+351", flag: "🇵🇹" },
+  { iso: "SE", name: "Sweden", dial: "+46", flag: "🇸🇪" },
+  { iso: "CH", name: "Switzerland", dial: "+41", flag: "🇨🇭" },
+  { iso: "BR", name: "Brazil", dial: "+55", flag: "🇧🇷" },
+  { iso: "JM", name: "Jamaica", dial: "+1876", flag: "🇯🇲" },
+  { iso: "TT", name: "Trinidad & Tobago", dial: "+1868", flag: "🇹🇹" },
+  { iso: "IN", name: "India", dial: "+91", flag: "🇮🇳" },
+  { iso: "AE", name: "United Arab Emirates", dial: "+971", flag: "🇦🇪" },
+  { iso: "SA", name: "Saudi Arabia", dial: "+966", flag: "🇸🇦" },
+  { iso: "SG", name: "Singapore", dial: "+65", flag: "🇸🇬" },
+  { iso: "MY", name: "Malaysia", dial: "+60", flag: "🇲🇾" },
+  { iso: "NZ", name: "New Zealand", dial: "+64", flag: "🇳🇿" },
+  { iso: "MX", name: "Mexico", dial: "+52", flag: "🇲🇽" },
+  { iso: "EG", name: "Egypt", dial: "+20", flag: "🇪🇬" },
+  { iso: "UG", name: "Uganda", dial: "+256", flag: "🇺🇬" },
+  { iso: "TZ", name: "Tanzania", dial: "+255", flag: "🇹🇿" },
+  { iso: "CI", name: "Côte d’Ivoire", dial: "+225", flag: "🇨🇮" },
+  { iso: "SN", name: "Senegal", dial: "+221", flag: "🇸🇳" },
+];
+
+const dialFor = (iso: string) => COUNTRIES.find((c) => c.iso === iso)?.dial ?? "+1";
+
 function pt(cx: number, cy: number, r: number, deg: number): [number, number] {
   const a = (deg * Math.PI) / 180;
   return [cx + r * Math.sin(a), cy - r * Math.cos(a)];
@@ -145,6 +197,7 @@ export function SpinWheelPopup() {
   const [won, setWon] = useState<Prize | null>(null);
 
   const [email, setEmail] = useState("");
+  const [country, setCountry] = useState("US");
   const [phone, setPhone] = useState("");
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState("");
@@ -238,11 +291,19 @@ export function SpinWheelPopup() {
       setError("Enter a valid email address.");
       return;
     }
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length < 6) {
+      setError("Enter a valid phone number.");
+      return;
+    }
     if (!consent) {
       setError("Please tick the box to subscribe and spin.");
       return;
     }
     setError("");
+
+    const dial = dialFor(country);
+    const fullPhone = `${dial} ${phone.trim()}`;
 
     const index = pickPrizeIndex();
     const prize = PRIZES[index];
@@ -264,7 +325,8 @@ export function SpinWheelPopup() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email,
-        phone,
+        phone: fullPhone,
+        phoneCountry: dial,
         consentMarketing: consent,
         consentTerms: true,
         prize: `${prize.label} (${prize.code})`,
@@ -391,20 +453,39 @@ export function SpinWheelPopup() {
                   <input
                     type="email"
                     required
-                    placeholder="Email address"
+                    placeholder="Email address *"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={phase === "spinning"}
-                    className="w-full border border-white/15 bg-white/[0.04] px-4 py-3 text-[0.9375rem] text-paper placeholder:text-neutral-400/70 transition-colors focus:border-gold focus:outline-none"
+                    className={FIELD}
                   />
-                  <input
-                    type="tel"
-                    placeholder="Phone number (optional)"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    disabled={phase === "spinning"}
-                    className="w-full border border-white/15 bg-white/[0.04] px-4 py-3 text-[0.9375rem] text-paper placeholder:text-neutral-400/70 transition-colors focus:border-gold focus:outline-none"
-                  />
+
+                  {/* Phone — country dial-code dropdown + number, both required */}
+                  <div className="flex gap-2">
+                    <select
+                      aria-label="Country dialing code"
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      disabled={phase === "spinning"}
+                      className="w-[7.25rem] shrink-0 rounded-md border border-black/10 bg-white px-2 py-3 text-[0.9375rem] text-ink transition-colors focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/40 disabled:opacity-60"
+                    >
+                      {COUNTRIES.map((c) => (
+                        <option key={c.iso} value={c.iso}>
+                          {c.flag} {c.dial}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="tel"
+                      required
+                      inputMode="tel"
+                      placeholder="Phone number *"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      disabled={phase === "spinning"}
+                      className={`${FIELD} flex-1`}
+                    />
+                  </div>
 
                   <label className="flex items-start gap-2.5 text-left">
                     <input

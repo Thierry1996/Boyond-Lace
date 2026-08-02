@@ -34,7 +34,8 @@ export async function POST(request: Request) {
   const d = parsed.data;
   const row = {
     email: d.email,
-    phone: d.phone || null,
+    phone: d.phone, // full international string, e.g. "+234 8012345678"
+    phone_country: d.phoneCountry ?? null,
     consent_marketing: d.consentMarketing,
     consent_terms: d.consentTerms,
     prize: d.prize ?? null,

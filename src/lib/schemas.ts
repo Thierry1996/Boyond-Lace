@@ -66,7 +66,10 @@ export type ContactMessage = z.infer<typeof contactSchema>;
  */
 export const emailCaptureSchema = z.object({
   email: z.string().email("A valid email is required"),
-  phone: z.string().max(40).optional().or(z.literal("")),
+  /** Full international number, e.g. "+234 8012345678". Required. */
+  phone: z.string().min(6, "A valid phone number is required").max(40),
+  /** Dial code of the chosen country, e.g. "+234". */
+  phoneCountry: z.string().max(8).optional(),
   consentMarketing: z.boolean().refine((v) => v, {
     message: "Please agree to receive messages before spinning",
   }),
