@@ -1,16 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { Check } from "lucide-react";
 import { commerce, type Product, type ProductQuery } from "@/lib/commerce";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { FaqAccordion } from "@/components/collections/FaqAccordion";
-import {
-  collections,
-  getCollectionBySlug,
-  type Collection,
-  type RefineKey,
-} from "@/lib/collections";
+import { PriceFilter } from "@/components/collections/PriceFilter";
+import { collections, getCollectionBySlug, type Collection } from "@/lib/collections";
 
 export function generateStaticParams() {
   return collections.map((c) => ({ slug: c.slug }));
@@ -31,69 +28,131 @@ export async function generateMetadata({
   };
 }
 
-/* ── Refine filter config (shared vocabulary with /shop) ─────────────────── */
-const FILTERS: Record<
-  RefineKey,
-  {
-    label: string;
-    param: string;
-    field: keyof ProductQuery;
-    options: { value: string; label: string }[];
-  }
-> = {
+/* ── Facets ──────────────────────────────────────────────────────────────────
+   Every filter group is computed from the collection's own product set, so the
+   options and their counts are always real and a group with only one value is
+   hidden as redundant. Filtering is multi-select and applied in-page, which
+   keeps colour, length, texture, construction, cap size, density and price on
+   one consistent mechanism. */
+
+const LABELS: Record<string, Record<string, string>> = {
+  color: {
+    "natural-black": "Natural Black",
+    espresso: "Espresso",
+    brunette: "Brunette",
+    "honey-blonde": "Honey Blonde",
+    platinum: "Platinum",
+    "custom-fashion": "Custom Fashion",
+    "blonde-613": "613 Blonde",
+    "honey-balayage": "Honey Balayage",
+    "auburn-copper": "Auburn Copper",
+    "burgundy-99j": "Burgundy 99J",
+  },
   texture: {
-    label: "Texture",
-    param: "texture",
-    field: "texture",
-    options: [
-      { value: "straight", label: "Straight" },
-      { value: "body-wave", label: "Body Wave" },
-      { value: "deep-wave", label: "Deep Wave" },
-      { value: "kinky-straight", label: "Kinky Straight" },
-      { value: "kinky-curly", label: "Kinky Curly (4C)" },
-      { value: "jerry-curl", label: "Jerry Curl" },
-    ],
+    straight: "Straight",
+    "body-wave": "Body Wave",
+    "deep-wave": "Deep Wave",
+    curly: "Curly",
+    "kinky-straight": "Kinky Straight",
+    "kinky-curly": "Kinky Curly (4C)",
+    "water-wave": "Water Wave",
+    "jerry-curl": "Jerry Curl",
+    yaki: "Yaki",
   },
   lace: {
-    label: "Construction",
-    param: "lace",
-    field: "laceType",
-    options: [
-      { value: "hd-swiss-full", label: "Full Lace" },
-      { value: "hd-swiss-13x6", label: "13x6 Frontal" },
-      { value: "hd-swiss-13x4", label: "13x4 Frontal" },
-      { value: "hd-swiss-5x5", label: "5x5 Closure" },
-      { value: "closure-4x4", label: "4x4 Closure" },
-      { value: "silk-top", label: "Silk Top" },
-    ],
+    "hd-swiss-full": "Full Lace",
+    "hd-swiss-13x6": "13×6 Frontal",
+    "hd-swiss-13x4": "13×4 Frontal",
+    "hd-swiss-7x5": "7×5 Bye-Bye-Knots",
+    "hd-swiss-5x5": "5×5 Closure",
+    "closure-4x4": "4×4 Closure",
+    "silk-top": "Silk Top",
+    glueless: "Glueless",
   },
-  shade: {
-    label: "Shade",
-    param: "shade",
-    field: "shade",
-    options: [
-      { value: "natural-black", label: "Natural Black" },
-      { value: "espresso", label: "Espresso" },
-      { value: "brunette", label: "Brunette" },
-      { value: "auburn-copper", label: "Auburn Copper" },
-      { value: "burgundy-99j", label: "Burgundy 99J" },
-      { value: "honey-balayage", label: "Honey Balayage" },
-      { value: "blonde-613", label: "613 Blonde" },
-      { value: "platinum", label: "Platinum" },
-    ],
-  },
-  fit: {
-    label: "Fit",
-    param: "fit",
-    field: "capConstruction",
-    options: [
-      { value: "glueless-wear-go", label: "Wear & go" },
-      { value: "bye-bye-knots", label: "Bye-bye-knots" },
-      { value: "reinforced-trans-fit", label: "Reinforced cap" },
-      { value: "closure", label: "Closure" },
-    ],
+  cap: {
+    adjustable: "Adjustable (one size)",
+    petite: "Petite",
+    average: "Average",
+    large: "Large",
   },
 };
+
+interface LengthBucket {
+  value: string;
+  label: string;
+  min: number;
+  max: number;
+}
+const LENGTH_BUCKETS: LengthBucket[] = [
+  { value: "bob", label: 'Bob / Short (10–14")', min: 0, max: 14 },
+  { value: "shoulder", label: 'Shoulder (16–18")', min: 15, max: 18 },
+  { value: "medium", label: 'Medium (20–22")', min: 19, max: 22 },
+  { value: "long", label: 'Long (24–26")', min: 23, max: 26 },
+  { value: "xlong", label: 'Extra Long (28"+)', min: 27, max: 999 },
+];
+
+function lengthBucketsOf(lengths?: number[]): string[] {
+  if (!lengths?.length) return [];
+  return LENGTH_BUCKETS.filter((b) => lengths.some((l) => l >= b.min && l <= b.max)).map(
+    (b) => b.value,
+  );
+}
+
+const titleCase = (v: string) =>
+  v.replace(/(^|[-\s])(\w)/g, (_, s, c) => (s ? " " : "") + c.toUpperCase());
+
+interface FacetGroup {
+  key: string;
+  label: string;
+  valuesOf: (p: Product) => string[];
+  labelOf: (v: string) => string;
+  order?: string[];
+}
+
+const FACETS: FacetGroup[] = [
+  {
+    key: "color",
+    label: "Color",
+    valuesOf: (p) => (p.shade ? [p.shade] : []),
+    labelOf: (v) => LABELS.color[v] ?? titleCase(v),
+    order: Object.keys(LABELS.color),
+  },
+  {
+    key: "length",
+    label: "Length",
+    valuesOf: (p) => lengthBucketsOf(p.lengths),
+    labelOf: (v) => LENGTH_BUCKETS.find((b) => b.value === v)?.label ?? v,
+    order: LENGTH_BUCKETS.map((b) => b.value),
+  },
+  {
+    key: "texture",
+    label: "Texture",
+    valuesOf: (p) => (p.texture ? [p.texture] : []),
+    labelOf: (v) => LABELS.texture[v] ?? titleCase(v),
+    order: Object.keys(LABELS.texture),
+  },
+  {
+    key: "lace",
+    label: "Construction",
+    valuesOf: (p) => (p.laceType ? [p.laceType] : []),
+    labelOf: (v) => LABELS.lace[v] ?? titleCase(v),
+    order: Object.keys(LABELS.lace),
+  },
+  {
+    key: "cap",
+    label: "Cap size",
+    valuesOf: (p) => (p.capSizes?.length ? p.capSizes : ["adjustable"]),
+    labelOf: (v) => LABELS.cap[v] ?? titleCase(v),
+    order: Object.keys(LABELS.cap),
+  },
+  {
+    key: "density",
+    label: "Density",
+    valuesOf: (p) => (p.density ? [p.density] : []),
+    labelOf: (v) => v,
+    order: ["120%", "130%", "150%", "180%", "200%", "250%"],
+  },
+];
 
 const SORTS = [
   { value: "featured", label: "Featured" },
@@ -152,43 +211,88 @@ function one(v: string | string[] | undefined): string | undefined {
   return Array.isArray(v) ? v[0] : v;
 }
 
-/** Toggle a single refine value on the collection's own URL, preserving the rest. */
-function toggleHref(slug: string, params: SearchParams, key: string, value: string): string {
+function csv(params: SearchParams, key: string): string[] {
+  const v = one(params[key]);
+  return v ? v.split(",").filter(Boolean) : [];
+}
+
+/** Toggle a value inside a comma-list param, preserving every other param. */
+function toggleMultiHref(slug: string, params: SearchParams, key: string, value: string): string {
   const next = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
     const s = one(v);
     if (s && k !== key) next.set(k, s);
   }
-  if (one(params[key]) !== value) next.set(key, value);
+  const cur = csv(params, key);
+  const updated = cur.includes(value) ? cur.filter((x) => x !== value) : [...cur, value];
+  if (updated.length) next.set(key, updated.join(","));
   const qs = next.toString();
   return qs ? `/collections/${slug}?${qs}` : `/collections/${slug}`;
 }
 
-/** Base collection query merged with any active refine params + sort. */
-function buildQuery(collection: Collection, params: SearchParams): ProductQuery {
-  const q: ProductQuery = { ...(collection.query ?? {}) };
-  for (const key of collection.refine ?? []) {
-    const f = FILTERS[key];
-    const val = one(params[f.param]);
-    if (!val) continue;
-    // Refine groups never overlap the base filter, so a plain assign is safe.
-    (q as Record<string, unknown>)[f.field as string] = [val];
+/** Set a single-value param (sort), preserving the rest. */
+function sortHref(slug: string, params: SearchParams, value: string): string {
+  const next = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    const s = one(v);
+    if (s && k !== "sort") next.set(k, s);
   }
-  q.sort = (one(params.sort) as ProductQuery["sort"]) ?? "featured";
-  return q;
+  if (value !== "featured") next.set("sort", value);
+  const qs = next.toString();
+  return qs ? `/collections/${slug}?${qs}` : `/collections/${slug}`;
 }
 
-async function resolveProducts(collection: Collection, params: SearchParams): Promise<Product[]> {
-  const q = buildQuery(collection, params);
+/** The collection's product set before refine — drives the grid and the facets. */
+async function getBaseProducts(
+  collection: Collection,
+  sort: ProductQuery["sort"],
+): Promise<Product[]> {
   if (collection.select === "new") {
-    const all = await commerce.getProducts({ ...q, sort: q.sort ?? "newest" });
+    const all = await commerce.getProducts({ sort: sort ?? "newest" });
     return all.filter((p) => p.badges.includes("New") && p.price > 0);
   }
   if (collection.select === "bestsellers") {
-    const all = await commerce.getProducts({ ...q, sort: "rating" });
+    const all = await commerce.getProducts({ sort: "rating" });
     return all.filter((p) => p.price > 0).slice(0, 18);
   }
-  return commerce.getProducts(q);
+  return commerce.getProducts({ ...(collection.query ?? {}), sort: sort ?? "featured" });
+}
+
+/** Apply active facet + price refines in-page (multi-select, AND across groups). */
+function applyRefines(products: Product[], params: SearchParams): Product[] {
+  const min = one(params.min) ? Number(one(params.min)) : null;
+  const max = one(params.max) ? Number(one(params.max)) : null;
+  return products.filter((p) => {
+    for (const g of FACETS) {
+      const sel = csv(params, g.key);
+      if (!sel.length) continue;
+      const vals = g.valuesOf(p);
+      if (!sel.some((s) => vals.includes(s))) return false;
+    }
+    const dollars = p.price / 100;
+    if (min != null && dollars < min) return false;
+    if (max != null && dollars > max) return false;
+    return true;
+  });
+}
+
+interface FacetOption {
+  value: string;
+  label: string;
+  count: number;
+}
+function facetOptions(base: Product[], g: FacetGroup): FacetOption[] {
+  const counts = new Map<string, number>();
+  for (const p of base)
+    for (const v of g.valuesOf(p)) if (v) counts.set(v, (counts.get(v) ?? 0) + 1);
+  const opts = [...counts.entries()].map(([value, count]) => ({
+    value,
+    label: g.labelOf(value),
+    count,
+  }));
+  if (g.order) opts.sort((a, b) => g.order!.indexOf(a.value) - g.order!.indexOf(b.value));
+  else opts.sort((a, b) => b.count - a.count);
+  return opts;
 }
 
 export default async function CollectionPage({
@@ -203,17 +307,23 @@ export default async function CollectionPage({
   if (!collection) notFound();
 
   const sp = await searchParams;
-  const products = await resolveProducts(collection, sp);
-  const refineKeys = collection.refine ?? ["texture", "shade"];
-  const activeCount = refineKeys.filter((k) => one(sp[FILTERS[k].param])).length;
+  const sort = (one(sp.sort) as ProductQuery["sort"]) ?? "featured";
+  const base = await getBaseProducts(collection, sort);
+  const products = applyRefines(base, sp);
 
-  // Hot Picks — the six best-rated in the collection, ignoring active refines.
-  const hotPicks = (
-    collection.query
-      ? await commerce.getProducts({ ...collection.query, sort: "rating" })
-      : await resolveProducts(collection, {})
-  )
-    .filter((p) => p.price > 0)
+  // Facet groups with two or more options (a single-value group is redundant).
+  const facetGroups = FACETS.map((g) => ({ g, options: facetOptions(base, g) })).filter(
+    (x) => x.options.length >= 2,
+  );
+  const prices = base.map((p) => p.price / 100);
+  const priceFloor = prices.length ? Math.floor(Math.min(...prices)) : 0;
+  const priceCeil = prices.length ? Math.ceil(Math.max(...prices)) : 0;
+
+  const activeCount = [...FACETS.map((g) => g.key), "min", "max"].filter((k) => one(sp[k])).length;
+
+  // Hot Picks — best-rated in the collection, independent of active refines.
+  const hotPicks = [...base]
+    .sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount)
     .slice(0, 6);
 
   const jsonLd = {
@@ -262,7 +372,7 @@ export default async function CollectionPage({
 
       {/* Filters + grid */}
       <div className="mx-auto max-w-[1440px] px-[4vw] py-16">
-        <div className="grid gap-14 lg:grid-cols-[240px_1fr]">
+        <div className="grid gap-14 lg:grid-cols-[248px_1fr]">
           <aside aria-label="Refine">
             <div className="flex items-center justify-between border-b border-white/[0.07] pb-4">
               <p className="eyebrow">Refine</p>
@@ -276,37 +386,48 @@ export default async function CollectionPage({
               )}
             </div>
 
-            {refineKeys.map((key) => {
-              const group = FILTERS[key];
-              return (
-                <div key={key} className="border-b border-white/[0.07] py-6">
-                  <p className="eyebrow mb-4">{group.label}</p>
-                  <ul className="space-y-2.5">
-                    {group.options.map((opt) => {
-                      const active = one(sp[group.param]) === opt.value;
-                      return (
-                        <li key={opt.value}>
-                          <Link
-                            href={toggleHref(collection.slug, sp, group.param, opt.value)}
-                            aria-pressed={active}
-                            className={`flex items-center gap-2.5 text-[0.875rem] transition-colors ${
-                              active ? "text-gold" : "text-neutral-400 hover:text-paper"
-                            }`}
-                          >
+            {facetGroups.map(({ g, options }) => (
+              <div key={g.key} className="border-b border-white/[0.07] py-6">
+                <p className="eyebrow mb-4">{g.label}</p>
+                <ul className="space-y-2.5">
+                  {options.map((opt) => {
+                    const active = csv(sp, g.key).includes(opt.value);
+                    return (
+                      <li key={opt.value}>
+                        <Link
+                          href={toggleMultiHref(collection.slug, sp, g.key, opt.value)}
+                          aria-pressed={active}
+                          className={`flex items-center justify-between gap-2.5 text-[0.875rem] transition-colors ${
+                            active ? "text-gold" : "text-neutral-400 hover:text-paper"
+                          }`}
+                        >
+                          <span className="flex items-center gap-2.5">
                             <span
-                              className={`inline-block h-[7px] w-[7px] rotate-45 border transition-colors ${
-                                active ? "border-gold bg-gold" : "border-neutral-400"
+                              className={`grid h-[15px] w-[15px] shrink-0 place-items-center border transition-colors ${
+                                active ? "border-gold bg-gold/15" : "border-neutral-500"
                               }`}
-                            />
+                            >
+                              {active && <Check size={11} strokeWidth={3} className="text-gold" />}
+                            </span>
                             {opt.label}
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              );
-            })}
+                          </span>
+                          <span className="text-[0.6875rem] text-neutral-500 tabular-nums">
+                            {opt.count}
+                          </span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+
+            {priceCeil > priceFloor && (
+              <div className="border-b border-white/[0.07] py-6">
+                <p className="eyebrow mb-4">Price</p>
+                <PriceFilter floor={priceFloor} ceil={priceCeil} />
+              </div>
+            )}
 
             <div className="mt-8 border border-gold/25 p-6">
               <p className="eyebrow mb-3 text-gold">Unsure of your shade?</p>
@@ -333,7 +454,7 @@ export default async function CollectionPage({
                   return (
                     <Link
                       key={s.value}
-                      href={toggleHref(collection.slug, sp, "sort", s.value)}
+                      href={sortHref(collection.slug, sp, s.value)}
                       className={`text-[0.75rem] tracking-[0.08em] uppercase transition-colors ${
                         active ? "text-gold" : "text-neutral-400 hover:text-paper"
                       }`}
@@ -359,7 +480,7 @@ export default async function CollectionPage({
                 </Link>
               </div>
             ) : (
-              <div className="grid gap-x-6 gap-y-14 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {products.map((p) => (
                   <ProductCard key={p.id} product={p} />
                 ))}
