@@ -24,12 +24,32 @@ export async function POST(request: Request) {
     );
   }
 
-  // NOTE: the AmbassadorApplication table is defined in prisma/schema.prisma but
-  // its migration has NOT been applied yet, so this route deliberately does not
-  // call the model — doing so would 503 every applicant. Once
-  // `prisma migrate deploy` runs, swap this log for the db.ambassadorApplication
-  // .create() call; the validated payload shape already matches the model.
-  console.log("[ambassador-apply]", JSON.stringify(parsed.data));
+  // `consent` is a submit gate (not stored); `preferredTier` is the applicant's
+  // preference, whereas the model's tier is assigned by staff at review — so
+  // neither is persisted. Empty optional URLs are normalised to null.
+  const { consent: _consent, preferredTier: _preferredTier, ...rest } = parsed.data;
+  const record = {
+    ...rest,
+    tiktokUrl: rest.tiktokUrl || null,
+    youtubeUrl: rest.youtubeUrl || null,
+    portfolioUrl: rest.portfolioUrl || null,
+    message: rest.message || null,
+  };
+
+  if (process.env.DATABASE_URL) {
+    try {
+      const { db } = await import("@/lib/db");
+      await db.ambassadorApplication.create({ data: record });
+    } catch (err) {
+      console.error("[ambassador-apply] persistence failed:", err);
+      return NextResponse.json(
+        { ok: false, error: "We could not save your application. Please try again." },
+        { status: 503 },
+      );
+    }
+  } else {
+    console.log("[ambassador-apply]", JSON.stringify(record));
+  }
 
   return NextResponse.json({
     ok: true,
