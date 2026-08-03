@@ -15,6 +15,11 @@ import {
   Package,
   Microscope,
   BadgeCheck,
+  Factory,
+  Rocket,
+  Warehouse,
+  Globe,
+  Gem,
 } from "lucide-react";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { WholesaleApplyForm } from "@/components/forms/WholesaleApplyForm";
@@ -307,42 +312,42 @@ const SHOWCASE: Array<{ src: string; label: string; note: string }> = [
 /** Hero benefit tiles — the eight-card grid on the right of the hero. */
 const HERO_BENEFITS = [
   {
-    emoji: "🏭",
+    icon: Factory,
     title: "Factory-Direct Prices",
     body: "Skip every middleman. Buy direct from Xuchang manufacturing at source pricing.",
   },
   {
-    emoji: "🚀",
+    icon: Rocket,
     title: "Dropshipping Ready",
     body: "We ship to your customers under your brand. No warehouse needed to start.",
   },
   {
-    emoji: "🎨",
+    icon: Palette,
     title: "Full Customization",
     body: "Private label, custom packaging, custom lengths, densities and lace types.",
   },
   {
-    emoji: "🏢",
+    icon: Warehouse,
     title: "USA & China Warehouses",
     body: "Stock in both hemispheres for 3–5 day US delivery and fast global dispatch.",
   },
   {
-    emoji: "🧑🏾‍💼",
+    icon: UserRound,
     title: "1-on-1 Consultation",
     body: "Dedicated wholesale agent for every partner. Personalised guidance from day one.",
   },
   {
-    emoji: "📦",
+    icon: Package,
     title: "Low MOQ to Start",
     body: `Begin with as few as ${WHOLESALE_MOQ} units. Scale on your terms with no pressure.`,
   },
   {
-    emoji: "🌍",
+    icon: Globe,
     title: "Global Fast Delivery",
     body: "DHL, FedEx & EMS to 180+ countries. Express 3–7 days with full tracking.",
   },
   {
-    emoji: "💎",
+    icon: Gem,
     title: "Multi-Grade Stock",
     body: "12A, 10A, Virgin and Remy human hair for every market segment.",
   },
@@ -519,20 +524,25 @@ export default async function WholesalePage({
             {/* Right — benefit tiles */}
             <div className="rounded-2xl border border-plum-900/10 bg-white/70 p-2 shadow-[0_40px_80px_-40px_rgba(90,45,103,0.4)] backdrop-blur-sm">
               <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl bg-plum-900/[0.08] sm:grid-cols-2">
-                {HERO_BENEFITS.map((b) => (
-                  <div
-                    key={b.title}
-                    className="group bg-white/85 p-5 transition-colors duration-300 hover:bg-white"
-                  >
-                    <div className="text-2xl transition-transform duration-300 group-hover:scale-110">
-                      <span aria-hidden>{b.emoji}</span>
+                {HERO_BENEFITS.map((b) => {
+                  const Icon = b.icon;
+                  return (
+                    <div
+                      key={b.title}
+                      className="group bg-white/85 p-5 transition-colors duration-300 hover:bg-white"
+                    >
+                      <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-plum-700/[0.08] text-plum-700 transition-all duration-300 group-hover:bg-plum-700 group-hover:text-white">
+                        <Icon size={18} strokeWidth={1.6} aria-hidden />
+                      </span>
+                      <h3 className="mt-3.5 text-[0.9375rem] font-semibold text-plum-900">
+                        {b.title}
+                      </h3>
+                      <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-plum-900/60">
+                        {b.body}
+                      </p>
                     </div>
-                    <h3 className="mt-3 text-[0.9375rem] font-semibold text-plum-900">{b.title}</h3>
-                    <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-plum-900/60">
-                      {b.body}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
