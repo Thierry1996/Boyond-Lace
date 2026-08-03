@@ -423,6 +423,7 @@ export const primaryNav: PrimaryNavItem[] = [
         heading: "Answers",
         links: [
           { label: "FAQ", href: "/faq" },
+          { label: "Blog — Latest News", href: "/blog" },
           { label: "FAQ Library", href: "/learn#faq" },
         ],
       },
