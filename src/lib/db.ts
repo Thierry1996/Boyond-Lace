@@ -1,13 +1,13 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaNeon } from "@prisma/adapter-neon";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 /**
- * Prisma 7 client over the Neon serverless driver adapter — the correct
- * pairing for Vercel + Neon (HTTP/WebSocket, no TCP pool exhaustion).
+ * Prisma 7 client over the node-postgres (pg) driver adapter, pointed at the
+ * Prisma Postgres database (DATABASE_URL, written by `prisma postgres link`
+ * into .env). This is the app's single relational client.
  *
- * Requires DATABASE_URL (pooled Neon connection string). The Neon Data API
- * REST endpoint is NOT a connection string — use dashboard → Connect.
- * Import { db } from "@/lib/db" only in server code.
+ * Import { db } from "@/lib/db" (or { prisma } from "@/lib/prisma") only in
+ * server code — never in a client component.
  */
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
@@ -16,10 +16,10 @@ function createClient(): PrismaClient {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error(
-      "DATABASE_URL is not set. Paste the pooled Neon connection string into .env.local — see .env.example.",
+      "DATABASE_URL is not set. Run `npx prisma postgres link` to write it into .env — see .env.example.",
     );
   }
-  const adapter = new PrismaNeon({ connectionString });
+  const adapter = new PrismaPg({ connectionString });
   return new PrismaClient({
     adapter,
     log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
