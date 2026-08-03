@@ -304,6 +304,61 @@ const SHOWCASE: Array<{ src: string; label: string; note: string }> = [
   { src: "mono-2", label: "Custom colour run", note: "Highlights to spec · batch matched" },
 ];
 
+/** Hero benefit tiles — the eight-card grid on the right of the hero. */
+const HERO_BENEFITS = [
+  {
+    emoji: "🏭",
+    title: "Factory-Direct Prices",
+    body: "Skip every middleman. Buy direct from Xuchang manufacturing at source pricing.",
+  },
+  {
+    emoji: "🚀",
+    title: "Dropshipping Ready",
+    body: "We ship to your customers under your brand. No warehouse needed to start.",
+  },
+  {
+    emoji: "🎨",
+    title: "Full Customization",
+    body: "Private label, custom packaging, custom lengths, densities and lace types.",
+  },
+  {
+    emoji: "🏢",
+    title: "USA & China Warehouses",
+    body: "Stock in both hemispheres for 3–5 day US delivery and fast global dispatch.",
+  },
+  {
+    emoji: "🧑🏾‍💼",
+    title: "1-on-1 Consultation",
+    body: "Dedicated wholesale agent for every partner. Personalised guidance from day one.",
+  },
+  {
+    emoji: "📦",
+    title: "Low MOQ to Start",
+    body: `Begin with as few as ${WHOLESALE_MOQ} units. Scale on your terms with no pressure.`,
+  },
+  {
+    emoji: "🌍",
+    title: "Global Fast Delivery",
+    body: "DHL, FedEx & EMS to 180+ countries. Express 3–7 days with full tracking.",
+  },
+  {
+    emoji: "💎",
+    title: "Multi-Grade Stock",
+    body: "12A, 10A, Virgin and Remy human hair for every market segment.",
+  },
+];
+
+/** Hero credibility bar — the seven figures beneath the fold. */
+const HERO_STATS = [
+  { h: "10K+", p: "Active Partners" },
+  { h: "180+", p: "Countries Served" },
+  { h: "500+", p: "SKUs in Catalog" },
+  { h: "12A", p: "Top Grade" },
+  { h: "3–7", p: "Days Express" },
+  { h: "$0", p: "Application Fee" },
+  { h: "24h", p: "Quote Turnaround" },
+];
+
 /** Maps an order quantity to the application's volume-tier options. */
 function volumeTierFor(qty: number): QuotePrefill["volume"] {
   if (qty >= 200) return "200-500";
@@ -410,54 +465,90 @@ export default async function WholesalePage({
   return (
     <>
       {/* 1 — Hero */}
-      <section className="surface-velvet border-b border-white/[0.07] pt-20 pb-24">
-        <div className="mx-auto max-w-[1440px] px-[4vw]">
-          <div className="flex items-center justify-between border-t border-white/[0.07] pt-4">
-            <span className="eyebrow">Wholesale</span>
-            <span className="eyebrow hidden md:block">Salon & Private Label</span>
-            <span className="eyebrow">MOQ {WHOLESALE_MOQ}</span>
+      <section className="relative overflow-hidden border-b border-plum-900/10 bg-gradient-to-br from-[#f3ecfa] via-[#efe6f7] to-[#f7f0f9] py-20 text-plum-900">
+        {/* Faint grid + glow, echoing the reference's lavender field. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.5] [background-image:linear-gradient(rgba(90,45,103,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(90,45,103,0.05)_1px,transparent_1px)] [background-size:54px_54px]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-24 right-0 h-[32rem] w-[32rem] rounded-full bg-[radial-gradient(circle,rgba(137,88,152,0.18),transparent_70%)]"
+        />
+        <div className="relative mx-auto max-w-[1440px] px-[4vw]">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+            {/* Left — pitch + CTAs */}
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full border border-plum-700/25 bg-white/60 px-4 py-1.5 text-[0.6875rem] font-medium tracking-[0.14em] text-plum-700 uppercase">
+                <span aria-hidden className="wa-pop h-1.5 w-1.5 rounded-full bg-plum-600" />
+                Wholesale Program — Now Open
+              </span>
+              <h1 className="mt-8 font-[family-name:var(--font-display)] text-[clamp(2.75rem,6.5vw,5.25rem)] leading-[0.95] text-plum-900">
+                Build Your
+                <br />
+                Hair Empire
+                <br />
+                <span className="italic text-plum-600">With Beyond Lace.</span>
+              </h1>
+              <p className="mt-8 max-w-md text-[1rem] leading-relaxed text-plum-900/65">
+                Source directly from Xuchang — China&rsquo;s hair manufacturing capital. Factory
+                prices, global logistics, 1-on-1 support, and everything you need to launch or scale
+                your own wig, hair and accessories business.
+              </p>
+              <div className="mt-10 flex flex-wrap items-center gap-4">
+                <Link
+                  href="#apply"
+                  className="group inline-flex items-center gap-2 rounded-md bg-plum-900 px-8 py-4 text-[0.8125rem] font-medium tracking-[0.14em] text-blush-200 uppercase shadow-[0_10px_30px_-12px_rgba(50,21,40,0.7)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-plum-800 active:translate-y-0 active:scale-[0.98]"
+                >
+                  Start Wholesale Inquiry
+                  <ArrowRight
+                    size={15}
+                    strokeWidth={1.75}
+                    className="transition-transform duration-300 group-hover:translate-x-1"
+                  />
+                </Link>
+                <Link
+                  href="#catalog"
+                  className="inline-flex items-center rounded-md border border-plum-900/25 px-8 py-4 text-[0.8125rem] font-medium tracking-[0.14em] text-plum-900 uppercase transition-all duration-300 hover:-translate-y-0.5 hover:border-plum-700 hover:bg-plum-900/[0.04]"
+                >
+                  View Full Catalog
+                </Link>
+              </div>
+            </div>
+
+            {/* Right — benefit tiles */}
+            <div className="rounded-2xl border border-plum-900/10 bg-white/70 p-2 shadow-[0_40px_80px_-40px_rgba(90,45,103,0.4)] backdrop-blur-sm">
+              <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl bg-plum-900/[0.08] sm:grid-cols-2">
+                {HERO_BENEFITS.map((b) => (
+                  <div
+                    key={b.title}
+                    className="group bg-white/85 p-5 transition-colors duration-300 hover:bg-white"
+                  >
+                    <div className="text-2xl transition-transform duration-300 group-hover:scale-110">
+                      <span aria-hidden>{b.emoji}</span>
+                    </div>
+                    <h3 className="mt-3 text-[0.9375rem] font-semibold text-plum-900">{b.title}</h3>
+                    <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-plum-900/60">
+                      {b.body}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="mt-20 max-w-4xl">
-            <p className="eyebrow mb-8 text-gold">For salons, stylists & resellers</p>
-            <h1 className="text-[clamp(2.5rem,7vw,6rem)] leading-[0.95] text-paper">
-              Build your hair business
-              <span className="block italic">on our manufacturing floor.</span>
-            </h1>
-            <p className="mt-9 max-w-2xl text-lg leading-relaxed text-neutral-400">
-              Start with as few as five units on your first trial. You get the cap construction, the
-              batch guarantee and the asset kit — and a margin we defend contractually rather than
-              hope you can hold. Trusted by small salons and new wig businesses from Lagos and
-              Johannesburg to London, Berlin and New York.
-            </p>
-            <div className="mt-11 flex flex-wrap gap-6">
-              <Link
-                href="#apply"
-                className="border border-gold px-9 py-4 text-[0.8125rem] tracking-[0.14em] text-gold uppercase transition-all duration-500 hover:bg-gold hover:text-ink"
-              >
-                Apply as a partner
-              </Link>
-              <Link
-                href="#survey"
-                className="border-b border-white/25 pb-1 text-[0.8125rem] tracking-[0.1em] text-neutral-200 uppercase transition-colors hover:border-gold hover:text-gold"
-              >
-                Not sure yet? Take the survey
-              </Link>
-            </div>
-            <div className="mt-16 grid max-w-3xl grid-cols-2 gap-px overflow-hidden rounded-lg border border-white/[0.07] bg-white/[0.07] sm:grid-cols-4">
-              {[
-                { h: "5", p: "First-trial minimum" },
-                { h: "24h", p: "Quote turnaround" },
-                { h: "180+", p: "Countries served" },
-                { h: "100%", p: "Batch guarantee" },
-              ].map((s) => (
-                <div key={s.p} className="bg-plum-900 p-5">
-                  <p className="font-[family-name:var(--font-display)] text-3xl text-gold tabular-nums">
-                    {s.h}
-                  </p>
-                  <p className="mt-1 text-[0.75rem] leading-snug text-blush-200/60">{s.p}</p>
-                </div>
-              ))}
-            </div>
+
+          {/* Credibility bar */}
+          <div className="mt-16 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-plum-900/10 bg-plum-900/10 sm:grid-cols-4 lg:grid-cols-7">
+            {HERO_STATS.map((s) => (
+              <div key={s.p} className="bg-[#f7f0f9] px-5 py-6">
+                <p className="font-[family-name:var(--font-display)] text-[1.75rem] text-plum-600 italic tabular-nums">
+                  {s.h}
+                </p>
+                <p className="mt-1 text-[0.625rem] tracking-[0.12em] text-plum-900/50 uppercase">
+                  {s.p}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
