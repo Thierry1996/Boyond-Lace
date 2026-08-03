@@ -59,6 +59,50 @@ export const contactSchema = z.object({
 export type ContactMessage = z.infer<typeof contactSchema>;
 
 /**
+ * "Get in Touch" enquiry from the /contact page — the fuller, higher-intent
+ * form. Shares the ContactMessage table (name/topic/body are derived on the
+ * server) but captures the buyer profile the care and partner desks triage on.
+ */
+export const CUSTOMER_TYPES = [
+  { value: "retail", label: "Retail customer" },
+  { value: "salon", label: "Salon owner" },
+  { value: "wholesale", label: "Wholesale / bulk buyer" },
+  { value: "stylist", label: "Stylist" },
+  { value: "distributor", label: "Distributor" },
+  { value: "press", label: "Press / media" },
+  { value: "other", label: "Something else" },
+] as const;
+
+export const CONTACT_SUBJECTS = [
+  { value: "wholesale", label: "Wholesale pricing & quotes" },
+  { value: "order", label: "Order status & tracking" },
+  { value: "product", label: "Product & shade questions" },
+  { value: "returns", label: "Returns & exchanges" },
+  { value: "partnership", label: "Partnership & ambassadors" },
+  { value: "press", label: "Press & media" },
+  { value: "other", label: "Something else" },
+] as const;
+
+export const contactInquirySchema = z.object({
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
+  email: z.string().email("A valid email is required"),
+  phone: z.string().max(40).optional().or(z.literal("")),
+  country: z.string().min(2, "Country is required"),
+  customerType: z.enum(CUSTOMER_TYPES.map((t) => t.value) as [string, ...string[]], {
+    message: "Select what best describes you",
+  }),
+  subject: z.enum(CONTACT_SUBJECTS.map((s) => s.value) as [string, ...string[]], {
+    message: "Select a subject",
+  }),
+  message: z.string().min(10, "Tell us a little more — ten characters minimum"),
+  consent: z.boolean().refine((v) => v, {
+    message: "Please consent before sending your message",
+  }),
+});
+export type ContactInquiry = z.infer<typeof contactInquirySchema>;
+
+/**
  * Spin-wheel marketing capture. Email is required; phone is optional. Both
  * consents must be true (the box is the marketing/SMS opt-in; the terms/privacy
  * acknowledgment is the act of submitting). The rest is provenance stored with
@@ -79,6 +123,28 @@ export const emailCaptureSchema = z.object({
   pagePath: z.string().max(300).optional(),
 });
 export type EmailCapture = z.infer<typeof emailCaptureSchema>;
+
+/**
+ * "Join the Beyond Circle" newsletter subscription from the /contact page.
+ * Writes to the same Supabase marketing table as the spin-wheel capture, with
+ * source="inner-circle". Marketing preferences are per-channel opt-ins; the act
+ * of subscribing is the terms acknowledgement.
+ */
+export const newsletterSchema = z.object({
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
+  email: z.string().email("A valid email is required"),
+  phone: z.string().max(40).optional().or(z.literal("")),
+  country: z.string().max(80).optional().or(z.literal("")),
+  role: z.enum(CUSTOMER_TYPES.map((t) => t.value) as [string, ...string[]], {
+    message: "Tell us what best describes you",
+  }),
+  prefEmail: z.boolean().optional(),
+  prefWhatsapp: z.boolean().optional(),
+  prefPhone: z.boolean().optional(),
+  prefInstagram: z.boolean().optional(),
+});
+export type NewsletterSignup = z.infer<typeof newsletterSchema>;
 
 export const quizLeadSchema = z.object({
   email: z.string().email("A valid email is required"),

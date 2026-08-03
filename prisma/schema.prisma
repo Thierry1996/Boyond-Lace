@@ -500,6 +500,14 @@ model ContactMessage {
   topic       String
   orderNumber String?
   body        String
+  // Richer fields captured by the /contact "Get in Touch" form. Optional so the
+  // legacy contact-hq form (name/topic/body only) keeps writing to this table.
+  firstName    String?
+  lastName     String?
+  phone        String?
+  country      String?
+  customerType String?
+  subject      String?
   resolvedAt  DateTime?
   createdAt   DateTime @default(now())
 }

@@ -494,6 +494,7 @@ export const primaryNav: PrimaryNavItem[] = [
         image: "company",
         blurb: "Who we are, how we hire, and how to reach us.",
         links: [
+          { label: "Contact Us", href: "/contact" },
           { label: "Accessibility Statement", href: "/legal/accessibility" },
           { label: "Careers", href: "/careers" },
           { label: "Contact Headquarters", href: "/support/contact-hq" },
