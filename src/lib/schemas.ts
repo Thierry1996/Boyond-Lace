@@ -132,17 +132,23 @@ export type EmailCapture = z.infer<typeof emailCaptureSchema>;
  */
 export const newsletterSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
-  lastName: z.string().min(2, "Last name is required"),
+  // Optional so a lightweight one-field newsletter (blog band) can subscribe on
+  // an email + first name alone; the full Inner Circle form still collects them.
+  lastName: z.string().min(2).optional().or(z.literal("")),
   email: z.string().email("A valid email is required"),
   phone: z.string().max(40).optional().or(z.literal("")),
   country: z.string().max(80).optional().or(z.literal("")),
-  role: z.enum(CUSTOMER_TYPES.map((t) => t.value) as [string, ...string[]], {
-    message: "Tell us what best describes you",
-  }),
+  role: z
+    .enum(CUSTOMER_TYPES.map((t) => t.value) as [string, ...string[]])
+    .optional()
+    .or(z.literal("")),
   prefEmail: z.boolean().optional(),
   prefWhatsapp: z.boolean().optional(),
   prefPhone: z.boolean().optional(),
   prefInstagram: z.boolean().optional(),
+  /** Provenance so the marketing desk knows which surface a lead came from. */
+  source: z.string().max(60).optional(),
+  pagePath: z.string().max(300).optional(),
 });
 export type NewsletterSignup = z.infer<typeof newsletterSchema>;
 

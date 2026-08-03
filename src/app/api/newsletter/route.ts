@@ -48,8 +48,8 @@ export async function POST(request: Request) {
     // Subscribing is the opt-in; the submit line is the terms acknowledgement.
     consent_marketing: true,
     consent_terms: true,
-    source: "inner-circle",
-    page_path: "/contact",
+    source: d.source || "inner-circle",
+    page_path: d.pagePath || "/contact",
     user_agent: request.headers.get("user-agent")?.slice(0, 400) ?? null,
   };
 
