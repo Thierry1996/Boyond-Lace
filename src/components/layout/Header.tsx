@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Search, Heart, ShoppingBag, Menu, X } from "lucide-react";
 import { primaryNav } from "@/lib/navigation";
 import { useCart } from "@/lib/stores/cart";
+import { useWishlist } from "@/lib/stores/wishlist";
 import { AuthControls } from "@/components/auth/AuthControls";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { CurrencySelector } from "@/components/ui/CurrencySelector";
@@ -38,6 +39,8 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [condensed, setCondensed] = useState(false);
   const { count, hydrated, setOpen: setCartOpen } = useCart();
+  const wishCount = useWishlist((s) => s.slugs.length);
+  const wishHydrated = useWishlist((s) => s.hydrated);
 
   useEffect(() => {
     // Hysteresis, not a single threshold. Rows 1–2 collapse only after scrolling
@@ -148,10 +151,19 @@ export function Header() {
               </Link>
               <Link
                 href="/wishlist"
-                aria-label="Wishlist"
-                className="hidden text-neutral-400 transition-colors duration-300 hover:text-gold sm:block"
+                aria-label={`Wishlist${wishHydrated && wishCount ? `, ${wishCount} saved` : ""}`}
+                className="group relative hidden h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-neutral-300 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/50 hover:bg-white/[0.09] hover:text-gold active:translate-y-0 active:scale-95 sm:flex"
               >
-                <Heart size={16} strokeWidth={1.5} />
+                <Heart
+                  size={16}
+                  strokeWidth={1.6}
+                  className="transition-transform duration-300 group-hover:scale-110"
+                />
+                {wishHydrated && wishCount > 0 && (
+                  <span className="pop-badge absolute -top-1.5 -right-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-blush-400 px-1 text-[0.625rem] font-semibold text-plum-900 tabular-nums ring-2 ring-ink transition-transform duration-300 group-hover:scale-110">
+                    {wishCount}
+                  </span>
+                )}
               </Link>
               <div className="hidden sm:block">
                 <AuthControls />
@@ -160,15 +172,21 @@ export function Header() {
                 type="button"
                 onClick={() => setCartOpen(true)}
                 aria-label={`Bag, ${hydrated ? count : 0} item${count === 1 ? "" : "s"}`}
-                className="group relative text-neutral-400 transition-colors duration-300 hover:text-gold"
+                className="group relative flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-neutral-300 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/50 hover:bg-white/[0.09] hover:text-gold active:translate-y-0 active:scale-95"
               >
-                <ShoppingBag size={16} strokeWidth={1.5} />
-                <span
-                  suppressHydrationWarning
-                  className="count-badge absolute -top-2 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[0.625rem] font-medium tabular-nums"
-                >
-                  {hydrated ? count : 0}
-                </span>
+                <ShoppingBag
+                  size={16}
+                  strokeWidth={1.6}
+                  className="transition-transform duration-300 group-hover:scale-110"
+                />
+                {hydrated && count > 0 && (
+                  <span
+                    suppressHydrationWarning
+                    className="pop-badge absolute -top-1.5 -right-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-blush-400 px-1 text-[0.625rem] font-semibold text-plum-900 tabular-nums ring-2 ring-ink transition-transform duration-300 group-hover:scale-110"
+                  >
+                    {count}
+                  </span>
+                )}
               </button>
               {/* Mobile menu trigger */}
               <button
