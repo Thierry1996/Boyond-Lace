@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
 import { AuthGate } from "@/components/ambassador/AuthGate";
 import { PayoutSettings } from "@/components/ambassador/PayoutSettings";
+import { getCurrentAmbassador, getDefaultPayoutMethod } from "@/lib/ambassador-server";
 
 export const metadata: Metadata = { title: "Payouts" };
 
-export default function PayoutsPage() {
+export default async function PayoutsPage() {
+  const amb = await getCurrentAmbassador();
+  const method = amb ? await getDefaultPayoutMethod(amb.id) : null;
+  const initialMethod = method
+    ? { channel: method.channel, destination: method.destination }
+    : null;
   return (
     <AuthGate>
       <p className="eyebrow mb-2 text-gold">Getting paid</p>
@@ -17,7 +23,7 @@ export default function PayoutsPage() {
       </p>
 
       <div className="mt-10">
-        <PayoutSettings />
+        <PayoutSettings initialMethod={initialMethod} />
       </div>
     </AuthGate>
   );

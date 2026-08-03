@@ -141,6 +141,13 @@ export const campaignLogSchema = z.object({
 });
 export type CampaignLog = z.infer<typeof campaignLogSchema>;
 
+/** A custom affiliate link an ambassador saves for tracking. */
+export const affiliateLinkSchema = z.object({
+  label: z.string().min(2, "Give the link a label").max(80),
+  targetPath: z.string().min(1, "Enter a destination path").max(300),
+});
+export type AffiliateLinkInput = z.infer<typeof affiliateLinkSchema>;
+
 /** Ambassador payout destination. Validation is per-channel. */
 export const payoutMethodSchema = z
   .object({

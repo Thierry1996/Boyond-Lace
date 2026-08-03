@@ -39,8 +39,12 @@ const HISTORY = [
   { date: "2026-04-30", amount: 61400, channel: "USDC wallet", status: "Paid" },
 ];
 
-export function PayoutSettings() {
-  const [saved, setSaved] = useState<PayoutMethodInput | null>(null);
+export function PayoutSettings({
+  initialMethod = null,
+}: {
+  initialMethod?: { channel: PayoutMethodInput["channel"]; destination: string } | null;
+}) {
+  const [saved, setSaved] = useState<PayoutMethodInput | null>(initialMethod);
   const [requested, setRequested] = useState(false);
 
   const {
@@ -121,7 +125,14 @@ export function PayoutSettings() {
           </div>
         ) : (
           <form
-            onSubmit={handleSubmit((data) => setSaved(data))}
+            onSubmit={handleSubmit(async (data) => {
+              const res = await fetch("/api/ambassador/payout", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+              });
+              if (res.ok) setSaved(data);
+            })}
             className="grid gap-6 rounded-xl border border-white/[0.07] p-7 sm:grid-cols-2"
             noValidate
           >

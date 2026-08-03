@@ -1,10 +1,21 @@
 import type { Metadata } from "next";
 import { AuthGate } from "@/components/ambassador/AuthGate";
 import { AffiliateLinkBuilder } from "@/components/ambassador/AffiliateLinkBuilder";
+import { getCurrentAmbassador, listLinks } from "@/lib/ambassador-server";
 
 export const metadata: Metadata = { title: "Affiliate Links" };
 
-export default function LinksPage() {
+export default async function LinksPage() {
+  const amb = await getCurrentAmbassador();
+  const links = amb ? await listLinks(amb.id) : [];
+  const initialLinks = links.map((l) => ({
+    id: l.id,
+    label: l.label,
+    code: l.code,
+    targetPath: l.targetPath,
+    clicks: l.clicks,
+    conversions: l.conversions,
+  }));
   return (
     <AuthGate>
       <p className="eyebrow mb-2 text-gold">Tracking</p>
@@ -17,7 +28,10 @@ export default function LinksPage() {
       </p>
 
       <div className="mt-10">
-        <AffiliateLinkBuilder />
+        <AffiliateLinkBuilder
+          referralCode={amb?.referralCode ?? "BL-DEMO24"}
+          initialLinks={initialLinks}
+        />
       </div>
     </AuthGate>
   );

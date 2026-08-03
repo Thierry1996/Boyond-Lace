@@ -1,14 +1,26 @@
 import { NextResponse } from "next/server";
 import { campaignLogSchema } from "@/lib/schemas";
+import { getCurrentAmbassador, listCampaigns, createCampaign } from "@/lib/ambassador-server";
 
 export const runtime = "nodejs";
 
 /**
- * Campaign / ad log intake. Validated here and persisted once an approved
- * Ambassador record exists to attach it to — until then, logged server-side so
- * nothing a creator submits is silently discarded.
+ * Campaign / ad log for the signed-in ambassador. Persisted to Prisma Postgres
+ * and attached to the resolved Ambassador record — the transparency log tier
+ * reviews read from. GET lists the ambassador's campaigns; POST logs one.
  */
+export async function GET() {
+  const amb = await getCurrentAmbassador();
+  if (!amb) return NextResponse.json({ ok: false, campaigns: [] }, { status: 401 });
+  return NextResponse.json({ ok: true, campaigns: await listCampaigns(amb.id) });
+}
+
 export async function POST(request: Request) {
+  const amb = await getCurrentAmbassador();
+  if (!amb) {
+    return NextResponse.json({ ok: false, error: "Sign in required." }, { status: 401 });
+  }
+
   let body: unknown;
   try {
     body = await request.json();
@@ -24,7 +36,14 @@ export async function POST(request: Request) {
     );
   }
 
-  console.log("[ambassador-campaign]", JSON.stringify(parsed.data));
-
-  return NextResponse.json({ ok: true, message: "Campaign logged." });
+  try {
+    const campaign = await createCampaign(amb.id, parsed.data);
+    return NextResponse.json({ ok: true, campaign, message: "Campaign logged." });
+  } catch (err) {
+    console.error("[ambassador-campaign] persistence failed:", err);
+    return NextResponse.json(
+      { ok: false, error: "We could not save your campaign. Please try again." },
+      { status: 503 },
+    );
+  }
 }

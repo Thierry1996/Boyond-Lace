@@ -9,8 +9,10 @@ import { Field, SubmitButton, inputClass } from "@/components/forms/fields";
 import { TikTokGlyph, InstagramGlyph } from "@/components/brand/SocialIcons";
 
 /**
- * Self-reported campaign log. Numbers here are reconciled against affiliate
- * link clicks and conversions — the two together are what tier reviews use.
+ * Self-reported campaign log. Rows are loaded from the ambassador's record and
+ * new ones are validated and persisted to /api/ambassador/campaigns. Numbers
+ * here are reconciled against affiliate link data — the two together are what
+ * tier reviews use.
  */
 
 const AD_FORMATS = [
@@ -23,35 +25,17 @@ const AD_FORMATS = [
   { value: "PAID_BOOST", label: "Paid boost" },
 ];
 
-const SEED_CAMPAIGNS = [
-  {
-    title: "Glueless install, 4-minute morning",
-    platform: "TIKTOK",
-    format: "UGC reel",
-    start: "2026-07-02",
-    impressions: 142000,
-    reactions: 9800,
-    clicks: 1240,
-  },
-  {
-    title: "Lace melt — the daylight test",
-    platform: "INSTAGRAM",
-    format: "Before / after transformation",
-    start: "2026-06-24",
-    impressions: 88400,
-    reactions: 6120,
-    clicks: 940,
-  },
-  {
-    title: "Coily 4A leave-out blend tutorial",
-    platform: "TIKTOK",
-    format: "Long-form tutorial",
-    start: "2026-06-11",
-    impressions: 61300,
-    reactions: 4410,
-    clicks: 655,
-  },
-];
+const formatLabel = (v: string) => AD_FORMATS.find((f) => f.value === v)?.label ?? v;
+
+export interface CampaignRow {
+  title: string;
+  platform: string;
+  format: string;
+  start: string;
+  impressions: number;
+  reactions: number;
+  clicks: number;
+}
 
 function PlatformMark({ platform }: { platform: string }) {
   if (platform === "TIKTOK") return <TikTokGlyph size={14} className="text-gold" />;
@@ -59,9 +43,9 @@ function PlatformMark({ platform }: { platform: string }) {
   return <Play size={14} strokeWidth={1.6} className="text-gold" />;
 }
 
-export function CampaignLogger() {
+export function CampaignLogger({ initialCampaigns = [] }: { initialCampaigns?: CampaignRow[] }) {
   const [open, setOpen] = useState(false);
-  const [logged, setLogged] = useState<CampaignLog[]>([]);
+  const [rows, setRows] = useState<CampaignRow[]>(initialCampaigns);
   const {
     register,
     handleSubmit,
@@ -72,9 +56,7 @@ export function CampaignLogger() {
   return (
     <div className="space-y-10">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <p className="eyebrow text-gold">
-          {SEED_CAMPAIGNS.length + logged.length} campaigns on record
-        </p>
+        <p className="eyebrow text-gold">{rows.length} campaigns on record</p>
         <button
           onClick={() => setOpen((v) => !v)}
           className="flex items-center gap-2 border border-gold px-6 py-3 text-[0.75rem] tracking-[0.12em] text-gold uppercase transition-all duration-300 hover:bg-gold hover:text-ink"
@@ -97,7 +79,18 @@ export function CampaignLogger() {
               body: JSON.stringify(data),
             });
             if (res.ok) {
-              setLogged((l) => [data, ...l]);
+              setRows((r) => [
+                {
+                  title: data.title,
+                  platform: data.platform,
+                  format: formatLabel(data.format),
+                  start: data.startDate,
+                  impressions: data.impressions ?? 0,
+                  reactions: data.reactions ?? 0,
+                  clicks: data.clicks ?? 0,
+                },
+                ...r,
+              ]);
               reset();
               setOpen(false);
             }
@@ -188,68 +181,58 @@ export function CampaignLogger() {
       )}
 
       {/* Record */}
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[46rem] border-collapse text-left">
-          <thead>
-            <tr className="border-b border-gold/25">
-              {["Campaign", "Format", "Started", "Impressions", "Reactions", "Clicks"].map((h) => (
-                <th key={h} className="eyebrow py-3 pr-6 text-gold">
-                  {h}
-                </th>
+      {rows.length === 0 ? (
+        <div className="rounded-xl border border-white/[0.07] px-6 py-14 text-center">
+          <p className="text-[0.9375rem] text-neutral-400">
+            No campaigns logged yet. Log your first above — it saves to your record and counts toward
+            your next tier review.
+          </p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[46rem] border-collapse text-left">
+            <thead>
+              <tr className="border-b border-gold/25">
+                {["Campaign", "Format", "Started", "Impressions", "Reactions", "Clicks"].map((h) => (
+                  <th key={h} className="eyebrow py-3 pr-6 text-gold">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((c, i) => (
+                <tr
+                  key={`${c.title}-${i}`}
+                  className="border-b border-white/[0.07] transition-colors duration-300 hover:bg-white/[0.02]"
+                >
+                  <td className="py-4 pr-6">
+                    <span className="flex items-center gap-2.5 text-[0.9375rem] text-paper">
+                      <PlatformMark platform={c.platform} />
+                      {c.title}
+                    </span>
+                  </td>
+                  <td className="py-4 pr-6 text-[0.8125rem] text-neutral-400">{c.format}</td>
+                  <td className="py-4 pr-6 text-[0.8125rem] text-neutral-400 tabular-nums">
+                    {c.start}
+                  </td>
+                  <td className="py-4 pr-6 text-[0.8125rem] text-neutral-200 tabular-nums">
+                    {c.impressions.toLocaleString()}
+                  </td>
+                  <td className="py-4 pr-6 text-[0.8125rem] text-neutral-200 tabular-nums">
+                    {c.reactions.toLocaleString()}
+                  </td>
+                  <td className="py-4 pr-6 text-[0.8125rem] text-gold tabular-nums">
+                    {c.clicks.toLocaleString()}
+                  </td>
+                </tr>
               ))}
-            </tr>
-          </thead>
-          <tbody>
-            {logged.map((c, i) => (
-              <tr key={`new-${i}`} className="border-b border-white/[0.07] bg-gold/[0.04]">
-                <td className="py-4 pr-6 text-[0.9375rem] text-paper">{c.title}</td>
-                <td className="py-4 pr-6 text-[0.8125rem] text-neutral-400">{c.format}</td>
-                <td className="py-4 pr-6 text-[0.8125rem] text-neutral-400 tabular-nums">
-                  {c.startDate}
-                </td>
-                <td className="py-4 pr-6 text-[0.8125rem] text-neutral-200 tabular-nums">
-                  {(c.impressions ?? 0).toLocaleString()}
-                </td>
-                <td className="py-4 pr-6 text-[0.8125rem] text-neutral-200 tabular-nums">
-                  {(c.reactions ?? 0).toLocaleString()}
-                </td>
-                <td className="py-4 pr-6 text-[0.8125rem] text-gold tabular-nums">
-                  {(c.clicks ?? 0).toLocaleString()}
-                </td>
-              </tr>
-            ))}
-            {SEED_CAMPAIGNS.map((c) => (
-              <tr
-                key={c.title}
-                className="border-b border-white/[0.07] transition-colors duration-300 hover:bg-white/[0.02]"
-              >
-                <td className="py-4 pr-6">
-                  <span className="flex items-center gap-2.5 text-[0.9375rem] text-paper">
-                    <PlatformMark platform={c.platform} />
-                    {c.title}
-                  </span>
-                </td>
-                <td className="py-4 pr-6 text-[0.8125rem] text-neutral-400">{c.format}</td>
-                <td className="py-4 pr-6 text-[0.8125rem] text-neutral-400 tabular-nums">
-                  {c.start}
-                </td>
-                <td className="py-4 pr-6 text-[0.8125rem] text-neutral-200 tabular-nums">
-                  {c.impressions.toLocaleString()}
-                </td>
-                <td className="py-4 pr-6 text-[0.8125rem] text-neutral-200 tabular-nums">
-                  {c.reactions.toLocaleString()}
-                </td>
-                <td className="py-4 pr-6 text-[0.8125rem] text-gold tabular-nums">
-                  {c.clicks.toLocaleString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </tbody>
+          </table>
+        </div>
+      )}
       <p className="text-[0.75rem] text-neutral-400">
-        Existing rows are demonstration data. Campaigns you log are validated and saved to your
-        record.
+        Campaigns you log are validated and saved to your ambassador record.
       </p>
     </div>
   );

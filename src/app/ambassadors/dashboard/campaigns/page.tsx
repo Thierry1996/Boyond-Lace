@@ -1,10 +1,32 @@
 import type { Metadata } from "next";
 import { AuthGate } from "@/components/ambassador/AuthGate";
 import { CampaignLogger } from "@/components/ambassador/CampaignLogger";
+import { getCurrentAmbassador, listCampaigns } from "@/lib/ambassador-server";
 
 export const metadata: Metadata = { title: "Campaigns & Ads" };
 
-export default function CampaignsPage() {
+const FORMAT_LABEL: Record<string, string> = {
+  UGC_REEL: "UGC reel",
+  TRANSFORMATION_BEFORE_AFTER: "Before / after transformation",
+  LONG_FORM_TUTORIAL: "Long-form tutorial",
+  STORY: "Story",
+  LIVE: "Live",
+  STATIC_POST: "Static post",
+  PAID_BOOST: "Paid boost",
+};
+
+export default async function CampaignsPage() {
+  const amb = await getCurrentAmbassador();
+  const campaigns = amb ? await listCampaigns(amb.id) : [];
+  const initialCampaigns = campaigns.map((c) => ({
+    title: c.title,
+    platform: c.platform,
+    format: FORMAT_LABEL[c.format] ?? c.format,
+    start: c.startDate.toISOString().slice(0, 10),
+    impressions: c.impressions,
+    reactions: c.reactions,
+    clicks: c.clicks,
+  }));
   return (
     <AuthGate>
       <p className="eyebrow mb-2 text-gold">Transparency record</p>
@@ -18,7 +40,7 @@ export default function CampaignsPage() {
       </p>
 
       <div className="mt-10">
-        <CampaignLogger />
+        <CampaignLogger initialCampaigns={initialCampaigns} />
       </div>
     </AuthGate>
   );
