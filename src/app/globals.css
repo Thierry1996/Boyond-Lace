@@ -640,6 +640,30 @@
     }
   }
 
+  /* WhatsApp affordance — a soft green halo pulses out to draw the eye. */
+  @keyframes blHalo {
+    0% {
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+    }
+    70% {
+      box-shadow: 0 0 0 7px rgba(16, 185, 129, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+  }
+  .wa-pop {
+    animation: blHalo 2.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+  .wa-pop:hover {
+    animation-play-state: paused;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .wa-pop {
+      animation: none;
+    }
+  }
+
   /* Card surface with an interior gold edge that lights on hover. */
   .card-lift {
     position: relative;

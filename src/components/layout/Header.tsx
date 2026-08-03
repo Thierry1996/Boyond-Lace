@@ -133,10 +133,14 @@ export function Header() {
                 href={URLS.whatsappPrefilled}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="WhatsApp"
-                className="text-neutral-400 transition-colors duration-300 hover:text-gold"
+                aria-label="Chat with us on WhatsApp"
+                title="Chat with us on WhatsApp"
+                className="wa-pop group flex h-8 w-8 items-center justify-center rounded-full border border-emerald-500/40 bg-emerald-500/12 text-emerald-400 transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-400 hover:bg-emerald-500/25 hover:text-emerald-300 active:translate-y-0 active:scale-95"
               >
-                <WhatsAppGlyph size={15} />
+                <WhatsAppGlyph
+                  size={15}
+                  className="transition-transform duration-300 group-hover:scale-110"
+                />
               </a>
             </nav>
 
