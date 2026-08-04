@@ -9,6 +9,7 @@ import { CollectionRail } from "@/components/home/CollectionRail";
 import { NewArrivals } from "@/components/home/NewArrivals";
 import { BestSellers } from "@/components/home/BestSellers";
 import { FlashSale } from "@/components/home/FlashSale";
+import { ReachCarousel, type ReachItem } from "@/components/home/ReachCarousel";
 import { BrandMarquee, ProofBand, EditorialSplit, PillarBento } from "@/components/home/Sections";
 
 export default async function HomePage() {
@@ -16,19 +17,54 @@ export default async function HomePage() {
   // by review volume, which floats the $5 test kit and the $34 adhesive to the
   // top — accessories always out-review units. That is the wrong first
   // impression for a brand justifying $600.
-  const [bestsellers, capsule, newArrivals, topRated] = await Promise.all([
+  const [bestsellers, capsule, newArrivals, topRated, premium] = await Promise.all([
     commerce.getProducts({ line: "luxe", sort: "featured", limit: 4 }),
     commerce.getProducts({ avatar: "editorial", limit: 2 }),
     commerce.getProducts({ sort: "newest", limit: 12 }),
     commerce.getProducts({ sort: "rating", limit: 40 }),
+    commerce.getProducts({ sort: "price-desc", limit: 24 }),
   ]);
   // Ten priced, in-stock units for the drop — accessories/by-application skip.
   const drop = newArrivals.filter((p) => p.price > 0).slice(0, 10);
   // Best Sale: wig units only (no $5 test kit / care accessories), discounted
   // first, then filled with the top-rated remainder.
-  const priced = topRated.filter((p) => p.price > 0 && !["care", "kit", "try-on"].includes(p.line));
+  const isWig = (p: (typeof topRated)[number]) =>
+    p.price > 0 && !["care", "kit", "try-on"].includes(p.line);
+  const priced = topRated.filter(isWig);
   const discounted = priced.filter((p) => p.compareAtPrice && p.compareAtPrice > p.price);
   const bestSale = [...discounted, ...priced.filter((p) => !discounted.includes(p))].slice(0, 10);
+
+  // Two teaser catalogues. Ready-to-wear reads from the top-rated wigs; the
+  // fashion-colour rail from the premium (price-desc) wigs, so the two rails
+  // show different units. Both map to the lean ReachItem shape.
+  const RTW_TAGS = [
+    "Yaki Body",
+    "Layer Cut",
+    "Silky Blunt",
+    "Body Wave",
+    "Deep Wave",
+    "Loose Wave",
+    "Curtain Bangs",
+    "Bob Cut",
+    "Kinky Straight",
+    "Flip Over",
+  ];
+  const toReach = (p: (typeof topRated)[number], i: number, tag: boolean): ReachItem => ({
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    image: p.images[0].src,
+    price: p.price,
+    compareAtPrice: p.compareAtPrice,
+    rating: p.rating || 5,
+    reviewCount: p.reviewCount,
+    tag: tag ? RTW_TAGS[i % RTW_TAGS.length] : undefined,
+  });
+  const readyToWear = priced.slice(0, 12).map((p, i) => toReach(p, i, true));
+  const fashionColor = premium
+    .filter(isWig)
+    .slice(0, 12)
+    .map((p, i) => toReach(p, i, false));
 
   return (
     <>
@@ -64,6 +100,24 @@ export default async function HomePage() {
           Panels auto-cycle every 6s and route to real collections; the BUY
           button and card both link to the category. */}
       <FlashSale />
+
+      {/* Reach-catalogue teasers — two auto-sliding carousels, stacked. Cards
+          link to the PDP; heart -> wishlist, bag -> cart; View all -> collection. */}
+      <ReachCarousel
+        title="Ready to Wear Wig"
+        subtitle="Pre-everything · 3D Snug Fit · 100% Glueless"
+        items={readyToWear}
+        variant="rtw"
+        viewAllHref="/collections/glueless-wigs"
+        dots
+      />
+      <ReachCarousel
+        title="HD Lace Glueless — Fashion Colour"
+        subtitle="Celebrity-worn · Talked about · Ready to ship"
+        items={fashionColor}
+        variant="color"
+        viewAllHref="/collections/coloured-wigs"
+      />
 
       {/* Asymmetric editorial split, replacing the old equal-halves layout. */}
       <EditorialSplit />
