@@ -7,6 +7,7 @@ import { MonogramAurora, CrownWave } from "@/components/brand/Logo";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { CollectionRail } from "@/components/home/CollectionRail";
 import { NewArrivals } from "@/components/home/NewArrivals";
+import { BestSellers } from "@/components/home/BestSellers";
 import { FlashSale } from "@/components/home/FlashSale";
 import { BrandMarquee, ProofBand, EditorialSplit, PillarBento } from "@/components/home/Sections";
 
@@ -15,13 +16,19 @@ export default async function HomePage() {
   // by review volume, which floats the $5 test kit and the $34 adhesive to the
   // top — accessories always out-review units. That is the wrong first
   // impression for a brand justifying $600.
-  const [bestsellers, capsule, newArrivals] = await Promise.all([
+  const [bestsellers, capsule, newArrivals, topRated] = await Promise.all([
     commerce.getProducts({ line: "luxe", sort: "featured", limit: 4 }),
     commerce.getProducts({ avatar: "editorial", limit: 2 }),
     commerce.getProducts({ sort: "newest", limit: 12 }),
+    commerce.getProducts({ sort: "rating", limit: 40 }),
   ]);
   // Ten priced, in-stock units for the drop — accessories/by-application skip.
   const drop = newArrivals.filter((p) => p.price > 0).slice(0, 10);
+  // Best Sale: wig units only (no $5 test kit / care accessories), discounted
+  // first, then filled with the top-rated remainder.
+  const priced = topRated.filter((p) => p.price > 0 && !["care", "kit", "try-on"].includes(p.line));
+  const discounted = priced.filter((p) => p.compareAtPrice && p.compareAtPrice > p.price);
+  const bestSale = [...discounted, ...priced.filter((p) => !discounted.includes(p))].slice(0, 10);
 
   return (
     <>
@@ -48,6 +55,10 @@ export default async function HomePage() {
 
       {/* Figures that resolve on scroll, before any sales copy. */}
       <ProofBand />
+
+      {/* Best Sale grid — bestseller drop, immediately above the flash sale.
+          Cards, prices, ratings and cart all wired to real product data. */}
+      <BestSellers products={bestSale} />
 
       {/* Flash-sale image accordion — the FOMO drop, just below the proof stats.
           Panels auto-cycle every 6s and route to real collections; the BUY
