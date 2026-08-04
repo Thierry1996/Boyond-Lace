@@ -335,9 +335,7 @@ export default function ContactPage() {
             <WhatsAppGlyph size={16} className="text-white" />
             Open WhatsApp Chat
           </Link>
-          <p className="mt-4 text-[0.75rem] text-emerald-100/50">
-            {PHONE_DISPLAY} · Mon–Sat, CST
-          </p>
+          <p className="mt-4 text-[0.75rem] text-emerald-100/50">{PHONE_DISPLAY} · Mon–Sat, CST</p>
         </div>
       </section>
 

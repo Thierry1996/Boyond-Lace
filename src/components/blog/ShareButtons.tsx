@@ -54,7 +54,9 @@ export function ShareButtons({ title }: { title: string }) {
         <button
           type="button"
           aria-label="Share on X"
-          onClick={() => open(`https://twitter.com/intent/tweet?url=${enc(url())}&text=${enc(title)}`)}
+          onClick={() =>
+            open(`https://twitter.com/intent/tweet?url=${enc(url())}&text=${enc(title)}`)
+          }
           className={`${btn} bg-black text-[0.8125rem] font-bold`}
         >
           X
@@ -63,7 +65,9 @@ export function ShareButtons({ title }: { title: string }) {
           type="button"
           aria-label="Share on Pinterest"
           onClick={() =>
-            open(`https://pinterest.com/pin/create/button/?url=${enc(url())}&description=${enc(title)}`)
+            open(
+              `https://pinterest.com/pin/create/button/?url=${enc(url())}&description=${enc(title)}`,
+            )
           }
           className={`${btn} bg-[#E60023]`}
         >

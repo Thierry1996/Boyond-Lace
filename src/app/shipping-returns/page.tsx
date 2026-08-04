@@ -35,7 +35,11 @@ function Callout({
   children: React.ReactNode;
 }) {
   const bar =
-    tone === "warn" ? "border-amber-500" : tone === "brand" ? "border-plum-600" : "border-blush-400";
+    tone === "warn"
+      ? "border-amber-500"
+      : tone === "brand"
+        ? "border-plum-600"
+        : "border-blush-400";
   const bg =
     tone === "warn" ? "bg-amber-50" : tone === "brand" ? "bg-plum-700/[0.05]" : "bg-blush-200/25";
   return (
@@ -58,11 +62,7 @@ function Bullets({ items }: { items: React.ReactNode[] }) {
   );
 }
 
-function Steps({
-  steps,
-}: {
-  steps: { n: string; t: string; b: string }[];
-}) {
+function Steps({ steps }: { steps: { n: string; t: string; b: string }[] }) {
   return (
     <div className="mt-6 grid gap-4 sm:grid-cols-2">
       {steps.map((s) => (
@@ -123,9 +123,9 @@ const SECTIONS: PolicySection[] = [
           period — this will be communicated to you individually at the time of ordering.
         </Prose>
         <Callout tone="note">
-          <strong className="font-semibold">⏰ Please note:</strong> Orders placed on Saturdays after
-          4:00 PM CST, on Sundays, or on Chinese public holidays will begin processing on the next
-          available business day.
+          <strong className="font-semibold">⏰ Please note:</strong> Orders placed on Saturdays
+          after 4:00 PM CST, on Sundays, or on Chinese public holidays will begin processing on the
+          next available business day.
         </Callout>
 
         <SubHeading>Delivery Options &amp; Timeframes</SubHeading>
@@ -167,14 +167,14 @@ const SECTIONS: PolicySection[] = [
         <Callout tone="warn">
           <strong className="font-semibold">⚠️ Seasonal note:</strong> During Chinese national
           holidays (including Spring Festival / Chinese New Year, National Day Week, and Golden
-          Week), shipping timelines may extend by 5–10 additional business days. We recommend placing
-          time-sensitive orders well in advance of these periods.
+          Week), shipping timelines may extend by 5–10 additional business days. We recommend
+          placing time-sensitive orders well in advance of these periods.
         </Callout>
 
         <SubHeading>Shipping Rates</SubHeading>
         <Prose>
-          Shipping rates are calculated at checkout based on destination country, package weight, and
-          chosen delivery method. Wholesale orders with high volume may be eligible for{" "}
+          Shipping rates are calculated at checkout based on destination country, package weight,
+          and chosen delivery method. Wholesale orders with high volume may be eligible for{" "}
           <strong className="font-semibold text-plum-900">negotiated freight rates</strong> —{" "}
           <Link href="/contact" className="text-plum-700 underline underline-offset-2">
             contact us
@@ -205,7 +205,12 @@ const SECTIONS: PolicySection[] = [
                 ["Southern Africa", "South Africa, Kenya, Tanzania, Zimbabwe", YES, LIMITED],
                 ["Middle East", "UAE, Saudi Arabia, Qatar, Kuwait", YES, YES],
                 ["Asia Pacific", "Australia, New Zealand, Singapore, Malaysia", YES, YES],
-                ["Caribbean & Latin America", "Jamaica, Trinidad, Brazil, Colombia", LIMITED, LIMITED],
+                [
+                  "Caribbean & Latin America",
+                  "Jamaica, Trinidad, Brazil, Colombia",
+                  LIMITED,
+                  LIMITED,
+                ],
               ].map((row, i) => (
                 <tr key={i} className="border-b border-plum-900/10">
                   <td className="px-5 py-4 text-[0.875rem] font-medium text-plum-900">{row[0]}</td>
@@ -272,9 +277,9 @@ const SECTIONS: PolicySection[] = [
         />
         <Callout tone="brand">
           <strong className="font-semibold">☕ No tracking update for a few days?</strong> This is
-          common during international customs clearance — packages can sit at customs for 2–5 business
-          days without visible movement. This is completely normal and does not indicate a problem
-          with your shipment.
+          common during international customs clearance — packages can sit at customs for 2–5
+          business days without visible movement. This is completely normal and does not indicate a
+          problem with your shipment.
         </Callout>
       </>
     ),
@@ -317,8 +322,8 @@ const SECTIONS: PolicySection[] = [
         <Callout tone="warn">
           <strong className="font-semibold">⚠️ High-duty regions:</strong> Buyers in the UK, EU,
           Brazil, and India should be particularly aware of import threshold rules that may trigger
-          duty payments. For large wholesale orders entering these regions, we recommend consulting a
-          local customs broker in advance.
+          duty payments. For large wholesale orders entering these regions, we recommend consulting
+          a local customs broker in advance.
         </Callout>
       </>
     ),
@@ -333,8 +338,8 @@ const SECTIONS: PolicySection[] = [
     body: (
       <>
         <Prose>
-          We want every customer to feel completely confident purchasing from Beyond Lace. If for any
-          reason you are not satisfied with your order, we operate a{" "}
+          We want every customer to feel completely confident purchasing from Beyond Lace. If for
+          any reason you are not satisfied with your order, we operate a{" "}
           <strong className="font-semibold text-plum-900">30-day return window</strong> from the
           confirmed date of delivery.
         </Prose>
@@ -351,8 +356,8 @@ const SECTIONS: PolicySection[] = [
             </>,
             <>
               Item is in its{" "}
-              <strong className="font-semibold text-plum-900">original, unaltered state</strong> — no
-              cutting, dyeing, bleaching, perming, or heat styling, and the lace must be uncut
+              <strong className="font-semibold text-plum-900">original, unaltered state</strong> —
+              no cutting, dyeing, bleaching, perming, or heat styling, and the lace must be uncut
             </>,
             <>
               Item is in its{" "}
@@ -365,8 +370,9 @@ const SECTIONS: PolicySection[] = [
               confirmed delivery date
             </>,
             <>
-              You have <strong className="font-semibold text-plum-900">photographic evidence</strong>{" "}
-              of the item&rsquo;s condition at the time of return initiation
+              You have{" "}
+              <strong className="font-semibold text-plum-900">photographic evidence</strong> of the
+              item&rsquo;s condition at the time of return initiation
             </>,
           ]}
         />
@@ -386,10 +392,10 @@ const SECTIONS: PolicySection[] = [
           ]}
         />
         <Callout tone="note">
-          <strong className="font-semibold">💡 Unsure if your item qualifies?</strong> Contact us via
-          email or WhatsApp with photos before initiating a return. Our team will assess your case
-          within 24 hours and advise you on the best resolution — we would rather resolve things
-          fairly than leave you frustrated.
+          <strong className="font-semibold">💡 Unsure if your item qualifies?</strong> Contact us
+          via email or WhatsApp with photos before initiating a return. Our team will assess your
+          case within 24 hours and advise you on the best resolution — we would rather resolve
+          things fairly than leave you frustrated.
         </Callout>
         <SubHeading>How to Initiate a Return</SubHeading>
         <Steps
@@ -497,8 +503,8 @@ const SECTIONS: PolicySection[] = [
           </strong>
           , please contact us within{" "}
           <strong className="font-semibold text-plum-900">48 hours of delivery</strong> with clear
-          photographs of the issue. In all such cases, we will offer one of the following at no extra
-          cost to you:
+          photographs of the issue. In all such cases, we will offer one of the following at no
+          extra cost to you:
         </Prose>
         <Bullets
           items={[
@@ -509,8 +515,8 @@ const SECTIONS: PolicySection[] = [
         />
         <Callout tone="brand">
           <strong className="font-semibold">🤝 Our commitment to you:</strong> We are a
-          relationship-first business. We will always work to find the fairest resolution — because a
-          customer treated well is a customer for life, and word travels.
+          relationship-first business. We will always work to find the fairest resolution — because
+          a customer treated well is a customer for life, and word travels.
         </Callout>
       </>
     ),

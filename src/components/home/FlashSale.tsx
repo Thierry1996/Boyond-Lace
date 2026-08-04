@@ -48,7 +48,10 @@ export function FlashSale() {
       : [pad(Math.floor(left / 3600)), pad(Math.floor((left % 3600) / 60)), pad(left % 60)];
 
   const expandedIndex = hovered ?? 0;
-  const visible = Array.from({ length: PANELS }, (_, i) => FLASH_SALE[(base + i) % FLASH_SALE.length]);
+  const visible = Array.from(
+    { length: PANELS },
+    (_, i) => FLASH_SALE[(base + i) % FLASH_SALE.length],
+  );
 
   return (
     <section className="bg-gradient-to-b from-[#fdeef6] to-[#fbe3ef] py-16">
@@ -90,81 +93,80 @@ export function FlashSale() {
 
           <div className="flex h-[380px] flex-1 gap-2 overflow-hidden sm:h-[460px] sm:gap-3">
             <AnimatePresence initial={false} mode="popLayout">
-            {visible.map((p, i) => {
-              const expanded = i === expandedIndex;
-              return (
-                <motion.div
-                  key={p.slug}
-                  layout
-                  onMouseEnter={() => setHovered(i)}
-                  onMouseLeave={() => setHovered(null)}
-                  initial={reduced ? { opacity: 0 } : { opacity: 0, x: 70 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={reduced ? { opacity: 0 } : { opacity: 0, x: -70 }}
-                  transition={{
-                    layout: { duration: reduced ? 0.2 : 0.6, ease: [0.16, 1, 0.3, 1] },
-                    duration: reduced ? 0.2 : 0.55,
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
-                  style={{ flexGrow: expanded ? 5 : 1, flexBasis: 0 }}
-                  className="group relative min-w-[2.5rem] overflow-hidden rounded-2xl shadow-[0_18px_40px_-24px_rgba(190,24,93,0.5)]"
-                >
-                  {/* Image (also the link target) */}
-                  <Link href={p.href} aria-label={p.name} className="absolute inset-0 z-0 block">
-                    <ProductImage
-                      src={p.image}
-                      alt={p.name}
-                      className="!absolute inset-0 !h-full !w-full transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
-                    />
-                    <span
-                      aria-hidden
-                      className="absolute inset-0 bg-gradient-to-t from-plum-900/85 via-plum-900/20 to-transparent"
-                    />
-                  </Link>
+              {visible.map((p, i) => {
+                const expanded = i === expandedIndex;
+                return (
+                  <motion.div
+                    key={p.slug}
+                    layout
+                    onMouseEnter={() => setHovered(i)}
+                    onMouseLeave={() => setHovered(null)}
+                    initial={reduced ? { opacity: 0 } : { opacity: 0, x: 70 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={reduced ? { opacity: 0 } : { opacity: 0, x: -70 }}
+                    transition={{
+                      layout: { duration: reduced ? 0.2 : 0.6, ease: [0.16, 1, 0.3, 1] },
+                      duration: reduced ? 0.2 : 0.55,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    style={{ flexGrow: expanded ? 5 : 1, flexBasis: 0 }}
+                    className="group relative min-w-[2.5rem] overflow-hidden rounded-2xl shadow-[0_18px_40px_-24px_rgba(190,24,93,0.5)]"
+                  >
+                    {/* Image (also the link target) */}
+                    <Link href={p.href} aria-label={p.name} className="absolute inset-0 z-0 block">
+                      <ProductImage
+                        src={p.image}
+                        alt={p.name}
+                        className="!absolute inset-0 !h-full !w-full transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+                      />
+                      <span
+                        aria-hidden
+                        className="absolute inset-0 bg-gradient-to-t from-plum-900/85 via-plum-900/20 to-transparent"
+                      />
+                    </Link>
 
-                  {/* Discount badge */}
-                  <span className="pointer-events-none absolute top-3 left-3 z-10 flex items-center gap-1 rounded-full bg-pink-600 px-2.5 py-1 text-[0.625rem] font-bold text-white shadow">
-                    <Zap size={11} strokeWidth={2.5} className="fill-white" />
-                    -{p.discountPct}%
-                  </span>
-                  {p.presale && (
-                    <span className="pointer-events-none absolute top-3 right-3 z-10 rounded-full bg-plum-900/85 px-2.5 py-1 text-[0.5625rem] font-semibold tracking-[0.1em] text-blush-200 uppercase">
-                      Pre-Sale
+                    {/* Discount badge */}
+                    <span className="pointer-events-none absolute top-3 left-3 z-10 flex items-center gap-1 rounded-full bg-pink-600 px-2.5 py-1 text-[0.625rem] font-bold text-white shadow">
+                      <Zap size={11} strokeWidth={2.5} className="fill-white" />-{p.discountPct}%
                     </span>
-                  )}
+                    {p.presale && (
+                      <span className="pointer-events-none absolute top-3 right-3 z-10 rounded-full bg-plum-900/85 px-2.5 py-1 text-[0.5625rem] font-semibold tracking-[0.1em] text-blush-200 uppercase">
+                        Pre-Sale
+                      </span>
+                    )}
 
-                  {/* Expanded detail */}
-                  {expanded && (
-                    <div
-                      key={p.slug}
-                      className="absolute inset-x-0 bottom-0 z-10 p-4 sm:p-5"
-                      style={{ animation: "blFade 500ms var(--ease-editorial)" }}
-                    >
-                      <h3 className="line-clamp-2 text-[0.9375rem] font-semibold text-white sm:text-[1.0625rem]">
-                        {p.name}
-                      </h3>
-                      <div className="mt-2 flex items-baseline gap-2">
-                        <Money
-                          usd={p.priceUsd}
-                          className="text-lg font-bold text-white tabular-nums sm:text-xl"
-                        />
-                        <Money
-                          usd={p.compareUsd}
-                          className="text-[0.8125rem] text-white/50 line-through tabular-nums"
-                        />
-                      </div>
-                      <Link
-                        href={p.href}
-                        className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-pink-600 px-5 py-2 text-[0.75rem] font-bold tracking-[0.1em] text-white uppercase transition-all duration-300 hover:-translate-y-0.5 hover:bg-pink-500"
+                    {/* Expanded detail */}
+                    {expanded && (
+                      <div
+                        key={p.slug}
+                        className="absolute inset-x-0 bottom-0 z-10 p-4 sm:p-5"
+                        style={{ animation: "blFade 500ms var(--ease-editorial)" }}
                       >
-                        <Zap size={13} strokeWidth={2.5} className="fill-white" />
-                        Buy
-                      </Link>
-                    </div>
-                  )}
-                </motion.div>
-              );
-            })}
+                        <h3 className="line-clamp-2 text-[0.9375rem] font-semibold text-white sm:text-[1.0625rem]">
+                          {p.name}
+                        </h3>
+                        <div className="mt-2 flex items-baseline gap-2">
+                          <Money
+                            usd={p.priceUsd}
+                            className="text-lg font-bold text-white tabular-nums sm:text-xl"
+                          />
+                          <Money
+                            usd={p.compareUsd}
+                            className="text-[0.8125rem] text-white/50 line-through tabular-nums"
+                          />
+                        </div>
+                        <Link
+                          href={p.href}
+                          className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-pink-600 px-5 py-2 text-[0.75rem] font-bold tracking-[0.1em] text-white uppercase transition-all duration-300 hover:-translate-y-0.5 hover:bg-pink-500"
+                        >
+                          <Zap size={13} strokeWidth={2.5} className="fill-white" />
+                          Buy
+                        </Link>
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
             </AnimatePresence>
           </div>
 

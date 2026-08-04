@@ -39,7 +39,11 @@ export function QuickAddButton({
       }}
       className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-plum-900 text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-plum-700 active:scale-90"
     >
-      {added ? <Check size={16} strokeWidth={2.25} /> : <ShoppingCart size={16} strokeWidth={1.75} />}
+      {added ? (
+        <Check size={16} strokeWidth={2.25} />
+      ) : (
+        <ShoppingCart size={16} strokeWidth={1.75} />
+      )}
     </button>
   );
 }

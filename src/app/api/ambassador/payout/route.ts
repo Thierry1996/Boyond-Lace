@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { payoutMethodSchema } from "@/lib/schemas";
-import { getCurrentAmbassador, getDefaultPayoutMethod, setPayoutMethod } from "@/lib/ambassador-server";
+import {
+  getCurrentAmbassador,
+  getDefaultPayoutMethod,
+  setPayoutMethod,
+} from "@/lib/ambassador-server";
 
 export const runtime = "nodejs";
 

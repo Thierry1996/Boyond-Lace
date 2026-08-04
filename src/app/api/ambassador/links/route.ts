@@ -12,7 +12,11 @@ export const runtime = "nodejs";
 export async function GET() {
   const amb = await getCurrentAmbassador();
   if (!amb) return NextResponse.json({ ok: false, links: [] }, { status: 401 });
-  return NextResponse.json({ ok: true, referralCode: amb.referralCode, links: await listLinks(amb.id) });
+  return NextResponse.json({
+    ok: true,
+    referralCode: amb.referralCode,
+    links: await listLinks(amb.id),
+  });
 }
 
 export async function POST(request: Request) {

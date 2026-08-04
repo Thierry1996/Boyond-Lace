@@ -73,9 +73,16 @@ export function ProfitCalculator() {
             { label: "Net Profit", value: usd(netProfit) },
             { label: "Net Margin", value: `${margin}%` },
           ].map((r) => (
-            <div key={r.label} className="rounded-xl border border-plum-900/10 bg-white/80 p-4 text-center">
-              <p className="font-[family-name:var(--font-display)] text-xl text-plum-600">{r.value}</p>
-              <p className="mt-1 text-[0.625rem] tracking-wide text-plum-900/50 uppercase">{r.label}</p>
+            <div
+              key={r.label}
+              className="rounded-xl border border-plum-900/10 bg-white/80 p-4 text-center"
+            >
+              <p className="font-[family-name:var(--font-display)] text-xl text-plum-600">
+                {r.value}
+              </p>
+              <p className="mt-1 text-[0.625rem] tracking-wide text-plum-900/50 uppercase">
+                {r.label}
+              </p>
             </div>
           ))}
         </div>

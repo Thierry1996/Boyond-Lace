@@ -6,12 +6,7 @@ import { BrandImage } from "@/components/ui/BrandImage";
 import { BlogArticleBody } from "@/components/blog/BlogArticleBody";
 import { ShareButtons } from "@/components/blog/ShareButtons";
 import { BlogNewsletter } from "@/components/blog/BlogNewsletter";
-import {
-  BLOG_POSTS,
-  getBlogPost,
-  formatBlogDate,
-  tableOfContents,
-} from "@/lib/blog";
+import { BLOG_POSTS, getBlogPost, formatBlogDate, tableOfContents } from "@/lib/blog";
 import { URLS } from "@/lib/contact";
 
 const SITE = "https://beyondlace.com";
@@ -51,11 +46,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function BlogArticlePage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function BlogArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const post = getBlogPost((await params).slug);
   if (!post) notFound();
 
@@ -130,9 +121,13 @@ export default async function BlogArticlePage({
             <p className="text-[0.8125rem] text-plum-900/55">{post.author.role}</p>
           </div>
           <nav className="mt-4 flex items-center gap-1.5 text-[0.75rem] text-plum-900/45">
-            <Link href="/" className="hover:text-plum-700">Home</Link>
+            <Link href="/" className="hover:text-plum-700">
+              Home
+            </Link>
             <span>/</span>
-            <Link href="/blog" className="hover:text-plum-700">Blog</Link>
+            <Link href="/blog" className="hover:text-plum-700">
+              Blog
+            </Link>
             <span>/</span>
             <span className="text-plum-900/70">{post.category}</span>
           </nav>
@@ -249,7 +244,8 @@ export default async function BlogArticlePage({
       <section className="bg-gradient-to-r from-plum-900 to-plum-800 py-16">
         <div className="mx-auto max-w-2xl px-[4vw] text-center">
           <h2 className="font-[family-name:var(--font-display)] text-[clamp(1.5rem,3.5vw,2.25rem)] text-paper">
-            Get the Latest <span className="italic text-blush-300">Business Tips</span> in Your Inbox
+            Get the Latest <span className="italic text-blush-300">Business Tips</span> in Your
+            Inbox
           </h2>
           <p className="mx-auto mt-3 mb-7 max-w-md text-[0.9375rem] leading-relaxed text-blush-200/70">
             Guides, trends, and playbooks for building your hair business — no spam, unsubscribe

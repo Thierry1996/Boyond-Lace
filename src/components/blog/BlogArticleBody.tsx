@@ -50,8 +50,18 @@ function bold(text: string, keyBase: string): ReactNode[] {
 
 const CALLOUT = {
   tip: { Icon: Lightbulb, ring: "border-plum-600", bg: "bg-plum-700/[0.05]", ic: "text-plum-600" },
-  insight: { Icon: Lightbulb, ring: "border-blush-400", bg: "bg-blush-400/[0.12]", ic: "text-plum-600" },
-  success: { Icon: Trophy, ring: "border-emerald-500", bg: "bg-emerald-500/[0.08]", ic: "text-emerald-600" },
+  insight: {
+    Icon: Lightbulb,
+    ring: "border-blush-400",
+    bg: "bg-blush-400/[0.12]",
+    ic: "text-plum-600",
+  },
+  success: {
+    Icon: Trophy,
+    ring: "border-emerald-500",
+    bg: "bg-emerald-500/[0.08]",
+    ic: "text-emerald-600",
+  },
   note: { Icon: Info, ring: "border-plum-900/25", bg: "bg-plum-900/[0.04]", ic: "text-plum-700" },
 } as const;
 
@@ -93,7 +103,12 @@ function BlockView({ block: b }: { block: Block }) {
       return (
         <figure className="overflow-hidden">
           <div className="overflow-hidden rounded-2xl border border-plum-900/10">
-            <BrandImage name={b.image} ratio={b.ratio ?? "16 / 9"} overlay={false} sizes="(max-width:768px) 100vw, 720px" />
+            <BrandImage
+              name={b.image}
+              ratio={b.ratio ?? "16 / 9"}
+              overlay={false}
+              sizes="(max-width:768px) 100vw, 720px"
+            />
           </div>
           {b.caption && (
             <figcaption className="mt-3 text-center text-[0.8125rem] text-plum-900/50 italic">
@@ -124,7 +139,11 @@ function BlockView({ block: b }: { block: Block }) {
           <p className="text-[1.0625rem] leading-relaxed text-plum-900/85 italic">
             “{rich(b.text)}”
           </p>
-          {b.cite && <cite className="mt-3 block text-[0.8125rem] text-plum-900/55 not-italic">— {b.cite}</cite>}
+          {b.cite && (
+            <cite className="mt-3 block text-[0.8125rem] text-plum-900/55 not-italic">
+              — {b.cite}
+            </cite>
+          )}
         </blockquote>
       );
 
@@ -135,7 +154,10 @@ function BlockView({ block: b }: { block: Block }) {
             <thead>
               <tr className="bg-plum-900 text-blush-200">
                 {b.headers.map((h) => (
-                  <th key={h} className="px-4 py-3 text-[0.6875rem] font-semibold tracking-[0.08em] uppercase">
+                  <th
+                    key={h}
+                    className="px-4 py-3 text-[0.6875rem] font-semibold tracking-[0.08em] uppercase"
+                  >
                     {h}
                   </th>
                 ))}
@@ -164,8 +186,12 @@ function BlockView({ block: b }: { block: Block }) {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {b.cards.map((s) => (
             <div key={s.label} className="rounded-xl border border-plum-900/10 bg-white/70 p-4">
-              <p className="font-[family-name:var(--font-display)] text-2xl text-plum-600">{s.value}</p>
-              <p className="mt-1 text-[0.6875rem] tracking-wide text-plum-900/50 uppercase">{s.label}</p>
+              <p className="font-[family-name:var(--font-display)] text-2xl text-plum-600">
+                {s.value}
+              </p>
+              <p className="mt-1 text-[0.6875rem] tracking-wide text-plum-900/50 uppercase">
+                {s.label}
+              </p>
             </div>
           ))}
         </div>
@@ -176,7 +202,12 @@ function BlockView({ block: b }: { block: Block }) {
         <ul className="space-y-3">
           {b.items.map((it, i) => (
             <li key={i} className="flex gap-3 text-[0.9375rem] leading-relaxed text-plum-900/80">
-              <Check size={18} strokeWidth={2.25} className="mt-0.5 shrink-0 text-emerald-600" aria-hidden />
+              <Check
+                size={18}
+                strokeWidth={2.25}
+                className="mt-0.5 shrink-0 text-emerald-600"
+                aria-hidden
+              />
               <span>{rich(it)}</span>
             </li>
           ))}
@@ -187,22 +218,36 @@ function BlockView({ block: b }: { block: Block }) {
       return (
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/[0.06] p-5">
-            <p className="mb-3 text-[0.6875rem] font-semibold tracking-[0.12em] text-emerald-700 uppercase">Do</p>
+            <p className="mb-3 text-[0.6875rem] font-semibold tracking-[0.12em] text-emerald-700 uppercase">
+              Do
+            </p>
             <ul className="space-y-2.5">
               {b.dos.map((d, i) => (
                 <li key={i} className="flex gap-2.5 text-[0.875rem] text-plum-900/80">
-                  <Check size={16} strokeWidth={2.25} className="mt-0.5 shrink-0 text-emerald-600" aria-hidden />
+                  <Check
+                    size={16}
+                    strokeWidth={2.25}
+                    className="mt-0.5 shrink-0 text-emerald-600"
+                    aria-hidden
+                  />
                   <span>{rich(d)}</span>
                 </li>
               ))}
             </ul>
           </div>
           <div className="rounded-xl border border-rose-400/30 bg-rose-400/[0.06] p-5">
-            <p className="mb-3 text-[0.6875rem] font-semibold tracking-[0.12em] text-rose-600 uppercase">Don’t</p>
+            <p className="mb-3 text-[0.6875rem] font-semibold tracking-[0.12em] text-rose-600 uppercase">
+              Don’t
+            </p>
             <ul className="space-y-2.5">
               {b.donts.map((d, i) => (
                 <li key={i} className="flex gap-2.5 text-[0.875rem] text-plum-900/80">
-                  <X size={16} strokeWidth={2.25} className="mt-0.5 shrink-0 text-rose-500" aria-hidden />
+                  <X
+                    size={16}
+                    strokeWidth={2.25}
+                    className="mt-0.5 shrink-0 text-rose-500"
+                    aria-hidden
+                  />
                   <span>{rich(d)}</span>
                 </li>
               ))}
@@ -232,7 +277,10 @@ function BlockView({ block: b }: { block: Block }) {
       return (
         <div className="grid gap-5 sm:grid-cols-2">
           {b.cards.map((card) => (
-            <div key={card.name} className="overflow-hidden rounded-2xl border border-plum-900/10 bg-white/70">
+            <div
+              key={card.name}
+              className="overflow-hidden rounded-2xl border border-plum-900/10 bg-white/70"
+            >
               <div
                 className={`px-6 py-5 ${
                   card.tone === "tiktok"
@@ -245,8 +293,12 @@ function BlockView({ block: b }: { block: Block }) {
               <div className="grid grid-cols-2 gap-3 p-5">
                 {card.stats.map((s) => (
                   <div key={s.label} className="rounded-lg bg-plum-900/[0.04] p-3">
-                    <p className="font-[family-name:var(--font-display)] text-xl text-plum-900">{s.value}</p>
-                    <p className="mt-0.5 text-[0.625rem] tracking-wide text-plum-900/50 uppercase">{s.label}</p>
+                    <p className="font-[family-name:var(--font-display)] text-xl text-plum-900">
+                      {s.value}
+                    </p>
+                    <p className="mt-0.5 text-[0.625rem] tracking-wide text-plum-900/50 uppercase">
+                      {s.label}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -262,9 +314,16 @@ function BlockView({ block: b }: { block: Block }) {
       return (
         <div className="space-y-5">
           {b.items.map((ph) => (
-            <div key={ph.title} className="rounded-xl border border-plum-700/15 bg-plum-700/[0.06] p-6">
-              <p className="font-[family-name:var(--font-display)] text-lg text-plum-900">{ph.title}</p>
-              <p className="mt-2 text-[0.9375rem] leading-relaxed text-plum-900/75">{rich(ph.text)}</p>
+            <div
+              key={ph.title}
+              className="rounded-xl border border-plum-700/15 bg-plum-700/[0.06] p-6"
+            >
+              <p className="font-[family-name:var(--font-display)] text-lg text-plum-900">
+                {ph.title}
+              </p>
+              <p className="mt-2 text-[0.9375rem] leading-relaxed text-plum-900/75">
+                {rich(ph.text)}
+              </p>
             </div>
           ))}
         </div>

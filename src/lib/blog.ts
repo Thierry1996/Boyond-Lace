@@ -75,7 +75,10 @@ export const BLOG_POSTS: BlogPost[] = [
       "Where hair actually sells in 2026 — and the exact content, setup, and dropshipping workflow behind five-figure months.",
     readTime: "13 min read",
     views: "1,102 views",
-    author: { name: "Beyond Lace Social Commerce Team", role: "E-commerce & Social Media Specialists" },
+    author: {
+      name: "Beyond Lace Social Commerce Team",
+      role: "E-commerce & Social Media Specialists",
+    },
     keywords: [
       "sell hair on tiktok shop",
       "sell wigs on instagram",
@@ -162,7 +165,8 @@ export const BLOG_POSTS: BlogPost[] = [
               { value: "3–5%", label: "Conversion Rate" },
               { value: "$145", label: "Avg. Order Value" },
             ],
-            bestFor: "Viral content, younger demographics (18–34), impulse purchases, video-first selling",
+            bestFor:
+              "Viral content, younger demographics (18–34), impulse purchases, video-first selling",
           },
           {
             name: "Instagram Shop",
@@ -173,7 +177,8 @@ export const BLOG_POSTS: BlogPost[] = [
               { value: "2–4%", label: "Conversion Rate" },
               { value: "$135", label: "Avg. Order Value" },
             ],
-            bestFor: "Established brands, older demographics (25–45), lifestyle content, carousel posts",
+            bestFor:
+              "Established brands, older demographics (25–45), lifestyle content, carousel posts",
           },
         ],
       },
@@ -226,7 +231,8 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         type: "image",
         image: "navBrand",
-        caption: "Transformation videos get 10x more engagement than product photos — here’s the formula.",
+        caption:
+          "Transformation videos get 10x more engagement than product photos — here’s the formula.",
         ratio: "16 / 9",
       },
       {
@@ -265,14 +271,15 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         type: "image",
         image: "fitGuides",
-        caption: "Good lighting costs less than $100 — here’s the exact setup Beyond Lace partners use.",
+        caption:
+          "Good lighting costs less than $100 — here’s the exact setup Beyond Lace partners use.",
         ratio: "16 / 9",
       },
       {
         type: "steps",
         title: "Budget Photography Setup (Under $200)",
         lines: [
-          "Essentials: ring light (12–18\") $40–80 · tripod with phone mount $30–50 · white backdrop $20–40 · mannequin head $15–30 · a modern smartphone.",
+          'Essentials: ring light (12–18") $40–80 · tripod with phone mount $30–50 · white backdrop $20–40 · mannequin head $15–30 · a modern smartphone.',
           "Optional upgrades: softbox lighting kit $80–150 · turntable for 360° shots $50–100 · reflector panels $20–40.",
         ],
       },
@@ -299,7 +306,12 @@ export const BLOG_POSTS: BlogPost[] = [
         rows: [
           ["TikTok Shop", "1080×1080px (min)", "Up to 9 images", "15–60 seconds (required)"],
           ["Instagram Shop", "1080×1080px (min)", "Up to 10 images", "Reels 15–90 seconds"],
-          ["Both Platforms", "White/clean background", "Show detail & texture", "Show movement & quality"],
+          [
+            "Both Platforms",
+            "White/clean background",
+            "Show detail & texture",
+            "Show movement & quality",
+          ],
         ],
       },
 
@@ -406,7 +418,11 @@ export const BLOG_POSTS: BlogPost[] = [
         questions: [
           {
             q: "What’s your content comfort level?",
-            options: ["I love being on camera", "I prefer photos over video", "I’m shy but willing to learn"],
+            options: [
+              "I love being on camera",
+              "I prefer photos over video",
+              "I’m shy but willing to learn",
+            ],
           },
           {
             q: "What’s your monthly marketing budget?",
@@ -452,7 +468,13 @@ export const BLOG_POSTS: BlogPost[] = [
     readTime: "6 min read",
     views: "842 views",
     author: EDITORIAL,
-    keywords: ["12a hair grade", "10a hair", "virgin remy human hair", "hair grade explained", "buy human hair wig"],
+    keywords: [
+      "12a hair grade",
+      "10a hair",
+      "virgin remy human hair",
+      "hair grade explained",
+      "buy human hair wig",
+    ],
     blocks: [
       { type: "h2", text: "What the Grade Actually Measures" },
       {
@@ -479,7 +501,8 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Wig Guides",
     date: "2026-07-25",
     image: "laceDetail",
-    excerpt: "The numbers describe the parting space, not the wig. Match them to how you actually style.",
+    excerpt:
+      "The numbers describe the parting space, not the wig. Match them to how you actually style.",
     readTime: "5 min read",
     views: "1,286 views",
     author: EDITORIAL,
@@ -520,7 +543,12 @@ export const BLOG_POSTS: BlogPost[] = [
     readTime: "7 min read",
     views: "2,041 views",
     author: EDITORIAL,
-    keywords: ["wig care routine", "make wig last longer", "human hair wig maintenance", "how to wash a wig"],
+    keywords: [
+      "wig care routine",
+      "make wig last longer",
+      "human hair wig maintenance",
+      "how to wash a wig",
+    ],
     blocks: [
       { type: "h2", text: "Friction, Heat, Moisture — in That Order" },
       {
@@ -557,7 +585,12 @@ export const BLOG_POSTS: BlogPost[] = [
     readTime: "6 min read",
     views: "3,318 views",
     author: EDITORIAL,
-    keywords: ["wear and go wig", "glueless wig install", "beginner wig installation", "how to install a wig"],
+    keywords: [
+      "wear and go wig",
+      "glueless wig install",
+      "beginner wig installation",
+      "how to install a wig",
+    ],
     blocks: [
       { type: "h2", text: "Built for Speed, No Glue Required" },
       {
@@ -590,11 +623,17 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Wig Guides",
     date: "2026-07-15",
     image: "company",
-    excerpt: "HD lace melts into the skin in a way standard lace never could. Here is what changed.",
+    excerpt:
+      "HD lace melts into the skin in a way standard lace never could. Here is what changed.",
     readTime: "5 min read",
     views: "1,674 views",
     author: EDITORIAL,
-    keywords: ["hd lace wig", "hd lace vs transparent lace", "invisible hairline wig", "swiss lace"],
+    keywords: [
+      "hd lace wig",
+      "hd lace vs transparent lace",
+      "invisible hairline wig",
+      "swiss lace",
+    ],
     blocks: [
       { type: "h2", text: "The Lace That Disappears" },
       {
@@ -621,7 +660,12 @@ export const BLOG_POSTS: BlogPost[] = [
     readTime: "6 min read",
     views: "958 views",
     author: EDITORIAL,
-    keywords: ["wig density guide", "150 vs 180 density", "wig fullness", "what density wig to buy"],
+    keywords: [
+      "wig density guide",
+      "150 vs 180 density",
+      "wig fullness",
+      "what density wig to buy",
+    ],
     blocks: [
       { type: "h2", text: "How Much Hair Is on the Cap" },
       {
@@ -654,7 +698,8 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Hair Care",
     date: "2026-07-08",
     image: "tier1",
-    excerpt: "The melt is where a good install becomes an invisible one. Small tools, big difference.",
+    excerpt:
+      "The melt is where a good install becomes an invisible one. Small tools, big difference.",
     readTime: "5 min read",
     views: "1,120 views",
     author: EDITORIAL,
@@ -694,7 +739,13 @@ export const BLOG_POSTS: BlogPost[] = [
     readTime: "8 min read",
     views: "1,433 views",
     author: EDITORIAL,
-    keywords: ["private label hair", "hair brand oem", "start a wig brand", "custom hair packaging", "wholesale hair"],
+    keywords: [
+      "private label hair",
+      "hair brand oem",
+      "start a wig brand",
+      "custom hair packaging",
+      "wholesale hair",
+    ],
     blocks: [
       { type: "h2", text: "You Own the Brand, We Run the Floor" },
       {
@@ -725,7 +776,13 @@ export const BLOG_POSTS: BlogPost[] = [
     readTime: "6 min read",
     views: "774 views",
     author: EDITORIAL,
-    keywords: ["braiding hair", "crochet hair", "protective styles", "knotless braids", "passion twists"],
+    keywords: [
+      "braiding hair",
+      "crochet hair",
+      "protective styles",
+      "knotless braids",
+      "passion twists",
+    ],
     blocks: [
       { type: "h2", text: "The Workhorses of a Style Menu" },
       {
@@ -775,11 +832,17 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Hair Care",
     date: "2026-06-17",
     image: "navLearn",
-    excerpt: "Human hair takes colour like your own — which means it can be over-processed like your own too.",
+    excerpt:
+      "Human hair takes colour like your own — which means it can be over-processed like your own too.",
     readTime: "6 min read",
     views: "1,067 views",
     author: EDITORIAL,
-    keywords: ["bleaching human hair wig", "colour a wig", "bleach knots hd lace", "dye human hair"],
+    keywords: [
+      "bleaching human hair wig",
+      "colour a wig",
+      "bleach knots hd lace",
+      "dye human hair",
+    ],
     blocks: [
       { type: "h2", text: "The Gift and the Risk" },
       {
@@ -806,8 +869,18 @@ export const BLOG_POSTS: BlogPost[] = [
 ];
 
 const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 /** "2026-07-28" -> "July 28, 2026". Parsed as UTC so it never drifts a day. */

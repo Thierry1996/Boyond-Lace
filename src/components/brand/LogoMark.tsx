@@ -49,10 +49,7 @@ export function LogoMark({
         // Crop to the glyph region only. The 2048:640 ratio matches where
         // the wordmark + tagline actually live inside the source frame.
         // object-[center_55%] aligns to the visual centre of the artwork.
-        <span
-          className="block w-full overflow-hidden"
-          style={{ aspectRatio: "2048 / 640" }}
-        >
+        <span className="block w-full overflow-hidden" style={{ aspectRatio: "2048 / 640" }}>
           <Image
             src="/brand/wordmark.png"
             alt="Beyond Lace"

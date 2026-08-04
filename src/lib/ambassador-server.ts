@@ -2,7 +2,14 @@ import "server-only";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { AdFormat, type Ambassador, type Campaign, type AffiliateLink, type PayoutMethod, type SocialPlatform } from "@prisma/client";
+import {
+  AdFormat,
+  type Ambassador,
+  type Campaign,
+  type AffiliateLink,
+  type PayoutMethod,
+  type SocialPlatform,
+} from "@prisma/client";
 import type { CampaignLog, AffiliateLinkInput, PayoutMethodInput } from "@/lib/schemas";
 
 const AD_FORMATS = new Set<string>(Object.values(AdFormat));

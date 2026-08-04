@@ -7,11 +7,7 @@ import { useState } from "react";
  * TikTok or Instagram; once every question is answered it reveals a pick. No
  * network — purely a client-side engagement widget.
  */
-export function PlatformQuiz({
-  questions,
-}: {
-  questions: { q: string; options: string[] }[];
-}) {
+export function PlatformQuiz({ questions }: { questions: { q: string; options: string[] }[] }) {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const answered = Object.keys(answers).length;
   const done = answered === questions.length;
@@ -58,7 +54,9 @@ export function PlatformQuiz({
           <p className="text-[0.6875rem] font-semibold tracking-[0.14em] text-plum-600 uppercase">
             Your recommended platform
           </p>
-          <p className="mt-2 font-[family-name:var(--font-display)] text-2xl text-plum-900">{pick}</p>
+          <p className="mt-2 font-[family-name:var(--font-display)] text-2xl text-plum-900">
+            {pick}
+          </p>
           <p className="mx-auto mt-2 max-w-md text-[0.875rem] leading-relaxed text-plum-900/65">
             Start here, master it, then add the other platform once you’re consistent. Beyond Lace
             supports selling on both.

@@ -184,8 +184,8 @@ export function CampaignLogger({ initialCampaigns = [] }: { initialCampaigns?: C
       {rows.length === 0 ? (
         <div className="rounded-xl border border-white/[0.07] px-6 py-14 text-center">
           <p className="text-[0.9375rem] text-neutral-400">
-            No campaigns logged yet. Log your first above — it saves to your record and counts toward
-            your next tier review.
+            No campaigns logged yet. Log your first above — it saves to your record and counts
+            toward your next tier review.
           </p>
         </div>
       ) : (
@@ -193,11 +193,13 @@ export function CampaignLogger({ initialCampaigns = [] }: { initialCampaigns?: C
           <table className="w-full min-w-[46rem] border-collapse text-left">
             <thead>
               <tr className="border-b border-gold/25">
-                {["Campaign", "Format", "Started", "Impressions", "Reactions", "Clicks"].map((h) => (
-                  <th key={h} className="eyebrow py-3 pr-6 text-gold">
-                    {h}
-                  </th>
-                ))}
+                {["Campaign", "Format", "Started", "Impressions", "Reactions", "Clicks"].map(
+                  (h) => (
+                    <th key={h} className="eyebrow py-3 pr-6 text-gold">
+                      {h}
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
             <tbody>

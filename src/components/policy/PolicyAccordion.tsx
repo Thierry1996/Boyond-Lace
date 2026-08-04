@@ -73,7 +73,11 @@ export function PolicyAccordion({ sections }: { sections: PolicySection[] }) {
         {sections.map((s, i) => {
           const isOpen = open.includes(i);
           return (
-            <section key={s.id} id={s.id} className="relative scroll-mt-32 border-b border-plum-900/10">
+            <section
+              key={s.id}
+              id={s.id}
+              className="relative scroll-mt-32 border-b border-plum-900/10"
+            >
               <span
                 aria-hidden
                 className="absolute inset-x-0 top-0 h-px origin-left bg-gradient-to-r from-plum-700 to-blush-400 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"

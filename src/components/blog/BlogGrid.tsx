@@ -54,10 +54,7 @@ export function BlogGrid({ posts }: { posts: BlogPost[] }) {
       </div>
 
       {pageCount > 1 && (
-        <nav
-          aria-label="Blog pages"
-          className="mt-16 flex items-center justify-center gap-2.5"
-        >
+        <nav aria-label="Blog pages" className="mt-16 flex items-center justify-center gap-2.5">
           <button
             type="button"
             onClick={() => go(page - 1)}

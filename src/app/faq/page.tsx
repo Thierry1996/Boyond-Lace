@@ -13,7 +13,9 @@ export const metadata: Metadata = {
 /* ---------------------------------------------------------------- Light UI */
 
 function P({ children }: { children: React.ReactNode }) {
-  return <p className="mt-4 text-[0.9375rem] leading-[1.8] text-plum-900/75 first:mt-0">{children}</p>;
+  return (
+    <p className="mt-4 text-[0.9375rem] leading-[1.8] text-plum-900/75 first:mt-0">{children}</p>
+  );
 }
 function B({ children }: { children: React.ReactNode }) {
   return <strong className="font-semibold text-plum-900">{children}</strong>;
@@ -53,9 +55,9 @@ const ITEMS: FaqItem[] = [
           materials.
         </P>
         <Note>
-          <B>Burn test:</B> Authentic human hair curls away from flame, burns slowly, and smells like
-          burning protein — never synthetic plastic. We invite customers to perform this test on
-          receipt of any order.
+          <B>Burn test:</B> Authentic human hair curls away from flame, burns slowly, and smells
+          like burning protein — never synthetic plastic. We invite customers to perform this test
+          on receipt of any order.
         </Note>
         <P>
           Our quality assurance includes cuticle alignment checks, tangle-resistance testing, and
@@ -111,13 +113,13 @@ const ITEMS: FaqItem[] = [
           hairline that standard brown or transparent lace simply cannot match.
         </P>
         <Note>
-          Our HD lace wigs require minimal to no bleaching of knots and significantly less foundation
-          or concealer application — saving you time and protecting your hairline.
+          Our HD lace wigs require minimal to no bleaching of knots and significantly less
+          foundation or concealer application — saving you time and protecting your hairline.
         </Note>
         <P>
-          The result is a finish that looks genuinely grown from your scalp, which is why HD lace has
-          become the industry standard for editorial and everyday wear alike. All our HD wigs are
-          hand-tied by skilled artisans with decades of experience in Xuchang&rsquo;s hair
+          The result is a finish that looks genuinely grown from your scalp, which is why HD lace
+          has become the industry standard for editorial and everyday wear alike. All our HD wigs
+          are hand-tied by skilled artisans with decades of experience in Xuchang&rsquo;s hair
           manufacturing district.
         </P>
       </>
@@ -129,9 +131,9 @@ const ITEMS: FaqItem[] = [
     a: (
       <>
         <P>
-          Yes — wholesale is at the heart of what we do. Beyond Lace was built to serve salon owners,
-          distributors, boutiques, and resellers across the globe with competitive, tiered pricing
-          structures.
+          Yes — wholesale is at the heart of what we do. Beyond Lace was built to serve salon
+          owners, distributors, boutiques, and resellers across the globe with competitive, tiered
+          pricing structures.
         </P>
         <List
           items={[
@@ -264,11 +266,12 @@ const ITEMS: FaqItem[] = [
               before washing
             </>,
             <>
-              <B>Conditioning:</B> Deep condition monthly. Leave-in conditioner after every wash keeps
-              strands hydrated
+              <B>Conditioning:</B> Deep condition monthly. Leave-in conditioner after every wash
+              keeps strands hydrated
             </>,
             <>
-              <B>Heat:</B> Always use a heat protectant before any hot tool use. Maximum 180°C (356°F)
+              <B>Heat:</B> Always use a heat protectant before any hot tool use. Maximum 180°C
+              (356°F)
             </>,
             <>
               <B>Sleeping:</B> Braid or twist hair and wrap in a silk or satin bonnet to prevent
@@ -281,8 +284,8 @@ const ITEMS: FaqItem[] = [
           ]}
         />
         <Note>
-          Treat our hair as you would your own — it responds the same way. The more moisture and care
-          you invest, the longer and more beautifully it will perform.
+          Treat our hair as you would your own — it responds the same way. The more moisture and
+          care you invest, the longer and more beautifully it will perform.
         </Note>
       </>
     ),
@@ -300,8 +303,8 @@ const ITEMS: FaqItem[] = [
         <List
           items={[
             <>
-              We recommend using a <B>professional colourist</B>, especially for bleaching or drastic
-              colour changes
+              We recommend using a <B>professional colourist</B>, especially for bleaching or
+              drastic colour changes
             </>,
             <>
               <B>Bleaching knots</B> on HD lace wigs: use diluted bleach and process for a shorter
