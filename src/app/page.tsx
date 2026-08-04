@@ -10,6 +10,7 @@ import { NewArrivals } from "@/components/home/NewArrivals";
 import { BestSellers } from "@/components/home/BestSellers";
 import { FlashSale } from "@/components/home/FlashSale";
 import { ReachCarousel, type ReachItem } from "@/components/home/ReachCarousel";
+import { CollectionTabs, type CatalogTab } from "@/components/home/CollectionTabs";
 import { BrandMarquee, ProofBand, EditorialSplit, PillarBento } from "@/components/home/Sections";
 
 export default async function HomePage() {
@@ -17,12 +18,13 @@ export default async function HomePage() {
   // by review volume, which floats the $5 test kit and the $34 adhesive to the
   // top — accessories always out-review units. That is the wrong first
   // impression for a brand justifying $600.
-  const [bestsellers, capsule, newArrivals, topRated, premium] = await Promise.all([
+  const [bestsellers, capsule, newArrivals, topRated, premium, bundlePool] = await Promise.all([
     commerce.getProducts({ line: "luxe", sort: "featured", limit: 4 }),
     commerce.getProducts({ avatar: "editorial", limit: 2 }),
     commerce.getProducts({ sort: "newest", limit: 12 }),
     commerce.getProducts({ sort: "rating", limit: 40 }),
     commerce.getProducts({ sort: "price-desc", limit: 24 }),
+    commerce.getProducts({ line: "bundle", limit: 16 }),
   ]);
   // Ten priced, in-stock units for the drop — accessories/by-application skip.
   const drop = newArrivals.filter((p) => p.price > 0).slice(0, 10);
@@ -65,6 +67,62 @@ export default async function HomePage() {
     .filter(isWig)
     .slice(0, 12)
     .map((p, i) => toReach(p, i, false));
+
+  // Tabbed collection catalogue — three category sets, each drawn from the
+  // commerce database and routed to its real collection/filter.
+  const toItem = (p: (typeof topRated)[number], tag: string): ReachItem => ({
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    image: p.images[0].src,
+    price: p.price,
+    compareAtPrice: p.compareAtPrice,
+    rating: p.rating || 5,
+    reviewCount: p.reviewCount,
+    tag,
+  });
+  const CURLY = [
+    "deep-wave",
+    "kinky-curly",
+    "kinky-straight",
+    "jerry-curl",
+    "water-wave",
+    "curly",
+    "afro-kinky",
+    "loose-deep",
+  ];
+  const bundles = bundlePool.filter((p) => p.price > 0);
+  const colouredWigs = priced.filter((p) => p.shade && p.shade !== "natural-black");
+  const curlyWigs = priced.filter(
+    (p) => p.texture && CURLY.includes(p.texture) && !colouredWigs.includes(p),
+  );
+  const fill = (set: typeof priced, min = 5) => (set.length >= min ? set : priced);
+  const catalogTabs: CatalogTab[] = [
+    {
+      id: "bundles",
+      label: "Hair Bundles",
+      href: "/shop?line=bundle",
+      items: fill(bundles)
+        .slice(0, 10)
+        .map((p) => toItem(p, p.badges[0] ?? "Bundle Deal")),
+    },
+    {
+      id: "crochet",
+      label: "Crochet Hair",
+      href: "/shop?texture=kinky-curly",
+      items: fill(curlyWigs)
+        .slice(0, 10)
+        .map((p) => toItem(p, p.badges[0] ?? "Crochet Hair")),
+    },
+    {
+      id: "colors",
+      label: "Trending Colors",
+      href: "/collections/coloured-wigs",
+      items: fill(colouredWigs)
+        .slice(0, 10)
+        .map((p) => toItem(p, p.badges[0] ?? "Trending Color")),
+    },
+  ];
 
   return (
     <>
@@ -121,6 +179,12 @@ export default async function HomePage() {
 
       {/* Asymmetric editorial split, replacing the old equal-halves layout. */}
       <EditorialSplit />
+
+      {/* Tabbed collection catalogue — immediately below the five-dollar answer.
+          Tabs switch category sets (bundles / crochet / colours) client-side;
+          cards link to the PDP, heart -> wishlist, bag -> cart, View More ->
+          the category collection. */}
+      <CollectionTabs tabs={catalogTabs} />
 
       {/* ── Bestsellers ──────────────────────────────────────────────────── */}
       <Section

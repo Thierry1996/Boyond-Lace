@@ -233,51 +233,55 @@ export function PillarBento() {
  */
 export function EditorialSplit() {
   return (
-    <section className="section-rhythm relative overflow-hidden">
-      <div className="mx-auto grid max-w-[1440px] items-center gap-14 px-[4vw] lg:grid-cols-12">
-        <Reveal direction="right" className="lg:col-span-5 lg:col-start-1">
-          <Tilt className="overflow-hidden rounded-xl">
-            <BrandImage name="laceDetail" ratio="4 / 5" width={900} sizes="45vw" />
-          </Tilt>
-        </Reveal>
+    <section className="relative overflow-hidden py-14">
+      {/* A smaller, self-contained rounded panel in a distinct blush-plum tone so
+          it reads as its own moment between the merchandising rails. */}
+      <div className="mx-auto max-w-[1200px] px-[4vw]">
+        <div className="grid items-center gap-9 overflow-hidden rounded-3xl border border-gold/15 bg-gradient-to-br from-plum-800 via-plum-900 to-[#2a1122] px-7 py-10 lg:grid-cols-12 lg:px-12 lg:py-12">
+          <Reveal direction="right" className="lg:col-span-5">
+            <Tilt className="overflow-hidden rounded-2xl">
+              <BrandImage name="laceDetail" ratio="4 / 5" width={720} sizes="40vw" />
+            </Tilt>
+          </Reveal>
 
-        <div className="lg:col-span-6 lg:col-start-7">
-          <Reveal duration={0.7}>
-            <p className="eyebrow mb-5 text-gold">The five-dollar answer</p>
-          </Reveal>
-          <SplitText
-            as="h2"
-            text="Certainty costs five dollars."
-            italicFrom={1}
-            className="text-[clamp(2rem,4.5vw,3.5rem)] leading-[1.04] text-paper"
-          />
-          <Reveal delay={0.3}>
-            <p className="mt-6 max-w-lg text-[1.0625rem] leading-relaxed text-neutral-400">
-              A third of this industry&apos;s units go back in the box, and almost all of it is
-              shade — lace that looked right under a ringlight and wrong in daylight. So we send six
-              swatches and five shade cards for five dollars, redeemable in full.
-            </p>
-          </Reveal>
-          <Reveal delay={0.42}>
-            <p className="mt-4 max-w-lg text-[1.0625rem] leading-relaxed text-neutral-400">
-              We would rather spend five dollars than have you return eight hundred.
-            </p>
-          </Reveal>
-          <Reveal delay={0.54}>
-            <Magnetic className="mt-10 inline-block">
-              <Link
-                href="/product/lace-test-kit"
-                className="group inline-flex items-center gap-3 border border-gold px-9 py-4 text-[0.8125rem] tracking-[0.14em] text-gold uppercase transition-colors duration-500 hover:bg-gold hover:text-ink"
-              >
-                Order the Lace Test
-                <ArrowUpRight
-                  size={14}
-                  strokeWidth={1.5}
-                  className="transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                />
-              </Link>
-            </Magnetic>
-          </Reveal>
+          <div className="lg:col-span-6 lg:col-start-7">
+            <Reveal duration={0.7}>
+              <p className="eyebrow mb-4 text-blush-300">The five-dollar answer</p>
+            </Reveal>
+            <SplitText
+              as="h2"
+              text="Certainty costs five dollars."
+              italicFrom={1}
+              className="text-[clamp(1.6rem,3.2vw,2.5rem)] leading-[1.05] text-paper"
+            />
+            <Reveal delay={0.3}>
+              <p className="mt-5 max-w-lg text-[0.9375rem] leading-relaxed text-blush-200/70">
+                A third of this industry&apos;s units go back in the box, and almost all of it is
+                shade — lace that looked right under a ringlight and wrong in daylight. So we send
+                six swatches and five shade cards for five dollars, redeemable in full.
+              </p>
+            </Reveal>
+            <Reveal delay={0.42}>
+              <p className="mt-3 max-w-lg text-[0.9375rem] leading-relaxed text-blush-200/70">
+                We would rather spend five dollars than have you return eight hundred.
+              </p>
+            </Reveal>
+            <Reveal delay={0.54}>
+              <Magnetic className="mt-8 inline-block">
+                <Link
+                  href="/product/lace-test-kit"
+                  className="group inline-flex items-center gap-3 rounded-full border border-gold px-7 py-3.5 text-[0.75rem] tracking-[0.14em] text-gold uppercase transition-colors duration-500 hover:bg-gold hover:text-ink"
+                >
+                  Order the Lace Test
+                  <ArrowUpRight
+                    size={14}
+                    strokeWidth={1.5}
+                    className="transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                  />
+                </Link>
+              </Magnetic>
+            </Reveal>
+          </div>
         </div>
       </div>
     </section>
