@@ -46,13 +46,13 @@ export default async function HomePage() {
           to the New In collection. */}
       <NewArrivals products={drop} />
 
-      {/* Flash-sale image accordion — the FOMO drop, immediately above the
-          proof stats. Panels auto-cycle every 6s and route to real collections;
-          the BUY button and card both link to the category. */}
-      <FlashSale />
-
       {/* Figures that resolve on scroll, before any sales copy. */}
       <ProofBand />
+
+      {/* Flash-sale image accordion — the FOMO drop, just below the proof stats.
+          Panels auto-cycle every 6s and route to real collections; the BUY
+          button and card both link to the category. */}
+      <FlashSale />
 
       {/* Asymmetric editorial split, replacing the old equal-halves layout. */}
       <EditorialSplit />
