@@ -7,6 +7,7 @@ import { MonogramAurora, CrownWave } from "@/components/brand/Logo";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { CollectionRail } from "@/components/home/CollectionRail";
 import { NewArrivals } from "@/components/home/NewArrivals";
+import { FlashSale } from "@/components/home/FlashSale";
 import { BrandMarquee, ProofBand, EditorialSplit, PillarBento } from "@/components/home/Sections";
 
 export default async function HomePage() {
@@ -44,6 +45,11 @@ export default async function HomePage() {
           Cards link to the PDP, the cart button quick-adds, "View all" routes
           to the New In collection. */}
       <NewArrivals products={drop} />
+
+      {/* Flash-sale image accordion — the FOMO drop, immediately above the
+          proof stats. Panels auto-cycle every 6s and route to real collections;
+          the BUY button and card both link to the category. */}
+      <FlashSale />
 
       {/* Figures that resolve on scroll, before any sales copy. */}
       <ProofBand />
