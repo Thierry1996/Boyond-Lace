@@ -6,6 +6,7 @@ import { ProductImage } from "@/components/ui/ProductImage";
 import { MonogramAurora, CrownWave } from "@/components/brand/Logo";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { CollectionRail } from "@/components/home/CollectionRail";
+import { NewArrivals } from "@/components/home/NewArrivals";
 import { BrandMarquee, ProofBand, EditorialSplit, PillarBento } from "@/components/home/Sections";
 
 export default async function HomePage() {
@@ -13,10 +14,13 @@ export default async function HomePage() {
   // by review volume, which floats the $5 test kit and the $34 adhesive to the
   // top — accessories always out-review units. That is the wrong first
   // impression for a brand justifying $600.
-  const [bestsellers, capsule] = await Promise.all([
+  const [bestsellers, capsule, newArrivals] = await Promise.all([
     commerce.getProducts({ line: "luxe", sort: "featured", limit: 4 }),
     commerce.getProducts({ avatar: "editorial", limit: 2 }),
+    commerce.getProducts({ sort: "newest", limit: 12 }),
   ]);
+  // Ten priced, in-stock units for the drop — accessories/by-application skip.
+  const drop = newArrivals.filter((p) => p.price > 0).slice(0, 10);
 
   return (
     <>
@@ -28,6 +32,11 @@ export default async function HomePage() {
         Beyond Lace — luxury HD Swiss lace human hair wigs. We don&apos;t sell hair; we sell
         what&apos;s beyond it.
       </h1>
+      {/* New-arrivals drop — placed immediately below the marquee banner, above
+          the hero, as the first thing shoppers see. Cards link to the PDP, the
+          cart button quick-adds, "View all" routes to the New In collection. */}
+      <NewArrivals products={drop} />
+
       <HeroCarousel />
 
       {/* Shop-by-collection rail — the category entry points, straight under the hero. */}
