@@ -32,11 +32,6 @@ export default async function HomePage() {
         Beyond Lace — luxury HD Swiss lace human hair wigs. We don&apos;t sell hair; we sell
         what&apos;s beyond it.
       </h1>
-      {/* New-arrivals drop — placed immediately below the marquee banner, above
-          the hero, as the first thing shoppers see. Cards link to the PDP, the
-          cart button quick-adds, "View all" routes to the New In collection. */}
-      <NewArrivals products={drop} />
-
       <HeroCarousel />
 
       {/* Shop-by-collection rail — the category entry points, straight under the hero. */}
@@ -44,6 +39,11 @@ export default async function HomePage() {
 
       {/* Gilded statement ticker — a pulse between two dark blocks. */}
       <BrandMarquee />
+
+      {/* New-arrivals drop — rendered just below the on-page gilded ticker.
+          Cards link to the PDP, the cart button quick-adds, "View all" routes
+          to the New In collection. */}
+      <NewArrivals products={drop} />
 
       {/* Figures that resolve on scroll, before any sales copy. */}
       <ProofBand />
