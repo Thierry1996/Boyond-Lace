@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Zap, ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { Money } from "@/components/ui/Money";
@@ -20,6 +21,7 @@ const DWELL = 6000;
 const CYCLE = 2 * 3600; // countdown loops on a rolling two-hour window
 
 export function FlashSale() {
+  const reduced = useReducedMotion();
   const [base, setBase] = useState(0);
   const [hovered, setHovered] = useState<number | null>(null);
   const [now, setNow] = useState<number | null>(null);
@@ -87,15 +89,25 @@ export function FlashSale() {
           </button>
 
           <div className="flex h-[380px] flex-1 gap-2 overflow-hidden sm:h-[460px] sm:gap-3">
+            <AnimatePresence initial={false} mode="popLayout">
             {visible.map((p, i) => {
               const expanded = i === expandedIndex;
               return (
-                <div
-                  key={`${p.slug}-${i}`}
+                <motion.div
+                  key={p.slug}
+                  layout
                   onMouseEnter={() => setHovered(i)}
                   onMouseLeave={() => setHovered(null)}
+                  initial={reduced ? { opacity: 0 } : { opacity: 0, x: 70 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={reduced ? { opacity: 0 } : { opacity: 0, x: -70 }}
+                  transition={{
+                    layout: { duration: reduced ? 0.2 : 0.6, ease: [0.16, 1, 0.3, 1] },
+                    duration: reduced ? 0.2 : 0.55,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
                   style={{ flexGrow: expanded ? 5 : 1, flexBasis: 0 }}
-                  className="group relative min-w-[2.5rem] overflow-hidden rounded-2xl shadow-[0_18px_40px_-24px_rgba(190,24,93,0.5)] transition-[flex-grow] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                  className="group relative min-w-[2.5rem] overflow-hidden rounded-2xl shadow-[0_18px_40px_-24px_rgba(190,24,93,0.5)]"
                 >
                   {/* Image (also the link target) */}
                   <Link href={p.href} aria-label={p.name} className="absolute inset-0 z-0 block">
@@ -150,9 +162,10 @@ export function FlashSale() {
                       </Link>
                     </div>
                   )}
-                </div>
+                </motion.div>
               );
             })}
+            </AnimatePresence>
           </div>
 
           <button
