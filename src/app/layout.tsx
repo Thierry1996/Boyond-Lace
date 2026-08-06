@@ -8,6 +8,8 @@ import { ChannelGate } from "@/components/channel/ChannelGate";
 import { Providers } from "@/components/Providers";
 import { SupportWidget } from "@/components/support/SupportWidget";
 import { SpinWheelPopup } from "@/components/marketing/SpinWheelPopup";
+import { ExitIntentPopup } from "@/components/marketing/ExitIntentPopup";
+import { SourcingRequest } from "@/components/marketing/SourcingRequest";
 
 /**
  * Brand Kit v2 typography — kit fonts only, no substitutes
@@ -83,6 +85,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ChannelGate />
           <SupportWidget />
           <SpinWheelPopup />
+          <ExitIntentPopup />
+          <SourcingRequest />
         </Providers>
       </body>
     </html>

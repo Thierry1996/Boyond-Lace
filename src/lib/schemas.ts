@@ -103,6 +103,22 @@ export const contactInquirySchema = z.object({
 export type ContactInquiry = z.infer<typeof contactInquirySchema>;
 
 /**
+ * "Source it for me" request — a shopper describes a unit we don't stock and we
+ * source it, for personal use or salon resale. Persisted alongside contact
+ * messages (topic="sourcing") so the desk works one queue.
+ */
+export const sourcingSchema = z.object({
+  description: z
+    .string()
+    .min(10, "Describe the wig you're after — ten characters minimum")
+    .max(1200),
+  useCase: z.enum(["personal", "salon"], { message: "Tell us how you'll use it" }),
+  email: z.string().email("A valid email is required"),
+  phone: z.string().max(40).optional().or(z.literal("")),
+});
+export type SourcingInput = z.infer<typeof sourcingSchema>;
+
+/**
  * Spin-wheel marketing capture. Email is required; phone is optional. Both
  * consents must be true (the box is the marketing/SMS opt-in; the terms/privacy
  * acknowledgment is the act of submitting). The rest is provenance stored with

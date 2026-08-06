@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, Sparkles } from "lucide-react";
+import { X, Sparkles, Minus, Gift } from "lucide-react";
 
 /**
  * Spin-wheel marketing popup — a right-docked panel that slides in fifteen
@@ -192,6 +192,7 @@ function Wheel({ rotation }: { rotation: number }) {
 export function SpinWheelPopup() {
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
+  const [minimized, setMinimized] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [phase, setPhase] = useState<"form" | "spinning" | "won">("form");
   const [won, setWon] = useState<Prize | null>(null);
@@ -256,18 +257,14 @@ export function SpinWheelPopup() {
     return () => clearInterval(id);
   }, [open, phase]);
 
-  // Lock body scroll while open.
+  // Non-blocking: the panel docks to the side and never locks page scroll, so a
+  // shopper can keep browsing and come back to fill it in and submit later.
+  // Escape just tucks it away to the edge tab rather than dismissing it.
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMinimized(true);
     window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      window.removeEventListener("keydown", onKey);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
   function persist(state: { subscribed?: boolean; dismissedAt?: number }) {
@@ -357,34 +354,50 @@ export function SpinWheelPopup() {
   const [hh, mm, ss] = fmt(seconds);
 
   return createPortal(
-    <div className="fixed inset-0 z-[90] flex items-stretch justify-end sm:items-center">
-      {/* Scrim */}
+    // Non-blocking wrapper: pointer-events pass through to the page; only the
+    // panel and the reopen tab are interactive.
+    <div className="pointer-events-none fixed inset-0 z-[90] flex items-center justify-end">
+      {/* Minimized reopen tab — docked flush to the edge, always reachable */}
       <button
         type="button"
-        aria-label="Close offer"
-        onClick={close}
-        className={`absolute inset-0 bg-ink/50 backdrop-blur-[2px] transition-opacity duration-500 ${
-          open ? "opacity-100" : "opacity-0"
-        }`}
-      />
-
-      {/* Panel */}
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Win a free unit or big rewards"
-        className={`relative flex w-full max-w-[860px] flex-col overflow-y-auto border-l border-gold/30 bg-gradient-to-br from-plum-900 to-ink shadow-[0_20px_80px_-20px_rgba(0,0,0,0.8)] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] sm:my-auto sm:h-auto sm:max-h-[94vh] sm:rounded-l-2xl ${
-          open ? "translate-x-0" : "translate-x-[105%]"
+        onClick={() => setMinimized(false)}
+        aria-label="Reopen offer"
+        className={`pointer-events-auto fixed top-1/2 right-0 z-[91] flex -translate-y-1/2 rotate-180 items-center gap-2 rounded-l-xl border border-r-0 border-gold/40 bg-gradient-to-br from-plum-900 to-ink px-2.5 py-4 text-gold shadow-[0_10px_40px_-12px_rgba(0,0,0,0.7)] [writing-mode:vertical-rl] transition-transform duration-500 ${
+          open && minimized ? "translate-x-0" : "translate-x-[110%]"
         }`}
       >
-        <button
-          type="button"
-          onClick={close}
-          aria-label="Close"
-          className="absolute top-4 right-4 z-[3] grid size-9 place-items-center rounded-full text-neutral-300 transition-colors hover:bg-white/10 hover:text-gold"
-        >
-          <X size={18} strokeWidth={1.75} />
-        </button>
+        <Gift size={15} strokeWidth={1.75} className="rotate-180" />
+        <span className="text-[0.6875rem] font-semibold tracking-[0.16em] uppercase">
+          Spin &amp; Save
+        </span>
+      </button>
+
+      {/* Panel — docked a couple pixels from the right edge, never full-bleed */}
+      <div
+        role="dialog"
+        aria-label="Win a free unit or big rewards"
+        className={`pointer-events-auto relative mr-2 flex max-h-[94vh] w-[min(96vw,860px)] flex-col overflow-y-auto rounded-2xl border border-gold/30 bg-gradient-to-br from-plum-900 to-ink shadow-[0_20px_80px_-20px_rgba(0,0,0,0.85)] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          open && !minimized ? "translate-x-0" : "translate-x-[calc(100%+1rem)]"
+        }`}
+      >
+        <div className="absolute top-3 right-3 z-[3] flex gap-1">
+          <button
+            type="button"
+            onClick={() => setMinimized(true)}
+            aria-label="Minimize — finish later"
+            className="grid size-9 place-items-center rounded-full text-neutral-300 transition-colors hover:bg-white/10 hover:text-gold"
+          >
+            <Minus size={18} strokeWidth={1.75} />
+          </button>
+          <button
+            type="button"
+            onClick={close}
+            aria-label="Close"
+            className="grid size-9 place-items-center rounded-full text-neutral-300 transition-colors hover:bg-white/10 hover:text-gold"
+          >
+            <X size={18} strokeWidth={1.75} />
+          </button>
+        </div>
 
         <div className="flex flex-col items-center gap-8 p-7 md:flex-row md:items-center md:gap-10 md:p-10">
           {/* Left — wheel */}
