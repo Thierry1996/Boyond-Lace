@@ -3,7 +3,7 @@ import { commerce } from "@/lib/commerce";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { ProductImage } from "@/components/ui/ProductImage";
-import { MonogramAurora, CrownWave } from "@/components/brand/Logo";
+import { CrownWave } from "@/components/brand/Logo";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { CollectionRail } from "@/components/home/CollectionRail";
 import { NewArrivals } from "@/components/home/NewArrivals";
@@ -11,6 +11,7 @@ import { BestSellers } from "@/components/home/BestSellers";
 import { FlashSale } from "@/components/home/FlashSale";
 import { ReachCarousel, type ReachItem } from "@/components/home/ReachCarousel";
 import { CollectionTabs, type CatalogTab } from "@/components/home/CollectionTabs";
+import { SocialProof } from "@/components/home/SocialProof";
 import { BrandMarquee, ProofBand, EditorialSplit, PillarBento } from "@/components/home/Sections";
 
 export default async function HomePage() {
@@ -123,6 +124,12 @@ export default async function HomePage() {
         .map((p) => toItem(p, p.badges[0] ?? "Trending Color")),
     },
   ];
+
+  // Social-proof engine — video-review clips and a masonry board, both from the
+  // wig catalogue; the trust badge totals real review counts.
+  const socialClips = priced.slice(0, 10).map((p, i) => toReach(p, i, false));
+  const socialBoard = priced.slice(0, 15).map((p, i) => toReach(p, i, false));
+  const reviewsTotal = priced.reduce((s, p) => s + p.reviewCount, 0);
 
   return (
     <>
@@ -310,19 +317,11 @@ export default async function HomePage() {
         </div>
       </Section>
 
-      {/* ── Manifesto close ──────────────────────────────────────────────── */}
-      <section className="surface-velvet border-t border-white/[0.07] py-32">
-        <div className="mx-auto max-w-[1440px] px-[4vw]">
-          <div className="mx-auto max-w-3xl text-center">
-            <MonogramAurora size={72} />
-            <blockquote className="mt-10 font-[family-name:var(--font-display)] text-[clamp(1.5rem,3.5vw,2.75rem)] leading-[1.25] text-paper italic">
-              &ldquo;Every wig I owned looked incredible in videos and fake in daylight. I stopped
-              buying hair and started buying the eight hours I spent not thinking about it.&rdquo;
-            </blockquote>
-            <p className="eyebrow mt-8">Beyond Circle member · Atlanta</p>
-          </div>
-        </div>
-      </section>
+      {/* ── Social proof engine ──────────────────────────────────────────────
+          Replaces the single closing testimonial: a scrollable video-review
+          carousel and a Pinterest-style masonry board with a woven-in
+          testimonial. Every tile links into the catalogue. */}
+      <SocialProof clips={socialClips} board={socialBoard} reviewsTotal={reviewsTotal} />
     </>
   );
 }
