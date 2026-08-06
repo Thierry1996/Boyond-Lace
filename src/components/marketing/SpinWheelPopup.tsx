@@ -192,7 +192,6 @@ function Wheel({ rotation }: { rotation: number }) {
 export function SpinWheelPopup() {
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
-  const [minimized, setMinimized] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [phase, setPhase] = useState<"form" | "spinning" | "won">("form");
   const [won, setWon] = useState<Prize | null>(null);
@@ -207,7 +206,10 @@ export function SpinWheelPopup() {
   const [seconds, setSeconds] = useState(COUNTDOWN_SECONDS);
   const rotationRef = useRef(0);
 
-  // Decide whether and when to appear.
+  // The docker tab is available from the start (unless the shopper already won),
+  // so there is always a visible handle on the right edge. The full panel
+  // auto-opens once — after the channel gate resolves and a short delay — unless
+  // it was recently dismissed, in which case only the tab remains.
   useEffect(() => {
     let raw: { subscribed?: boolean; dismissedAt?: number } = {};
     try {
@@ -215,16 +217,11 @@ export function SpinWheelPopup() {
     } catch {
       /* ignore */
     }
-    if (raw.subscribed) return;
-    if (raw.dismissedAt && Date.now() - raw.dismissedAt < REDISPLAY_DAYS * 86_400_000) return;
+    if (raw.subscribed) return; // already claimed — nothing to show
+    setMounted(true); // docker visible immediately
 
-    let delayTimer: ReturnType<typeof setTimeout>;
-    const start = () => {
-      delayTimer = setTimeout(() => {
-        setMounted(true);
-        requestAnimationFrame(() => setOpen(true));
-      }, SHOW_DELAY_MS);
-    };
+    // Recently dismissed → keep the tab, but don't auto-pop the panel.
+    if (raw.dismissedAt && Date.now() - raw.dismissedAt < REDISPLAY_DAYS * 86_400_000) return;
 
     // Wait until the compulsory channel gate is resolved this session.
     const confirmed = () => {
@@ -234,19 +231,22 @@ export function SpinWheelPopup() {
         return true;
       }
     };
-    if (confirmed()) {
-      start();
-      return () => clearTimeout(delayTimer);
-    }
-    const poll = setInterval(() => {
-      if (confirmed()) {
-        clearInterval(poll);
-        start();
-      }
-    }, 600);
+    let delayTimer: ReturnType<typeof setTimeout> | undefined;
+    let poll: ReturnType<typeof setInterval> | undefined;
+    const start = () => {
+      delayTimer = setTimeout(() => setOpen(true), SHOW_DELAY_MS);
+    };
+    if (confirmed()) start();
+    else
+      poll = setInterval(() => {
+        if (confirmed()) {
+          clearInterval(poll);
+          start();
+        }
+      }, 600);
     return () => {
-      clearInterval(poll);
       clearTimeout(delayTimer);
+      clearInterval(poll);
     };
   }, []);
 
@@ -262,7 +262,7 @@ export function SpinWheelPopup() {
   // Escape just tucks it away to the edge tab rather than dismissing it.
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMinimized(true);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
@@ -275,10 +275,17 @@ export function SpinWheelPopup() {
     }
   }
 
+  // Collapse the panel back to the edge tab. On a win we're done, so the tab is
+  // retired too; otherwise the tab persists and auto-open is suppressed for a
+  // few days, but the shopper can reopen from the tab any time.
   function close() {
     setOpen(false);
-    if (phase !== "won") persist({ dismissedAt: Date.now() });
-    setTimeout(() => setMounted(false), 480);
+    if (phase === "won") {
+      persist({ subscribed: true });
+      setTimeout(() => setMounted(false), 480);
+    } else {
+      persist({ dismissedAt: Date.now() });
+    }
   }
 
   function submit(e: React.FormEvent) {
@@ -357,13 +364,14 @@ export function SpinWheelPopup() {
     // Non-blocking wrapper: pointer-events pass through to the page; only the
     // panel and the reopen tab are interactive.
     <div className="pointer-events-none fixed inset-0 z-[90] flex items-center justify-end">
-      {/* Minimized reopen tab — docked flush to the edge, always reachable */}
+      {/* Persistent docker — always on the right edge whenever the panel is
+          closed, so the offer is one click away. */}
       <button
         type="button"
-        onClick={() => setMinimized(false)}
-        aria-label="Reopen offer"
+        onClick={() => setOpen(true)}
+        aria-label="Open offer"
         className={`pointer-events-auto fixed top-1/2 right-0 z-[91] flex -translate-y-1/2 rotate-180 items-center gap-2 rounded-l-xl border border-r-0 border-gold/40 bg-gradient-to-br from-plum-900 to-ink px-2.5 py-4 text-gold shadow-[0_10px_40px_-12px_rgba(0,0,0,0.7)] [writing-mode:vertical-rl] transition-transform duration-500 ${
-          open && minimized ? "translate-x-0" : "translate-x-[110%]"
+          open ? "translate-x-[110%]" : "translate-x-0"
         }`}
       >
         <Gift size={15} strokeWidth={1.75} className="rotate-180" />
@@ -377,13 +385,13 @@ export function SpinWheelPopup() {
         role="dialog"
         aria-label="Win a free unit or big rewards"
         className={`pointer-events-auto relative mr-2 flex max-h-[94vh] w-[min(96vw,860px)] flex-col overflow-y-auto rounded-2xl border border-gold/30 bg-gradient-to-br from-plum-900 to-ink shadow-[0_20px_80px_-20px_rgba(0,0,0,0.85)] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          open && !minimized ? "translate-x-0" : "translate-x-[calc(100%+1rem)]"
+          open ? "translate-x-0" : "translate-x-[calc(100%+1rem)]"
         }`}
       >
         <div className="absolute top-3 right-3 z-[3] flex gap-1">
           <button
             type="button"
-            onClick={() => setMinimized(true)}
+            onClick={() => setOpen(false)}
             aria-label="Minimize — finish later"
             className="grid size-9 place-items-center rounded-full text-neutral-300 transition-colors hover:bg-white/10 hover:text-gold"
           >
