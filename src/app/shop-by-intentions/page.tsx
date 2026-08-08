@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { getCollectionsWithCounts } from "@/lib/collections";
+import { getIntentionCategories } from "@/lib/intention-categories";
 
 export const metadata: Metadata = {
   title: "Shop by Intention — Find Your Collection | Beyond Lace",
@@ -10,8 +11,41 @@ export const metadata: Metadata = {
   alternates: { canonical: "/shop-by-intentions" },
 };
 
+interface Circle {
+  slug: string;
+  label: string;
+  eyebrow: string;
+  image: string;
+  href: string;
+  count?: number;
+}
+
 export default async function ShopByIntentionsPage() {
-  const collections = await getCollectionsWithCounts();
+  const [collections, extra] = await Promise.all([
+    getCollectionsWithCounts(),
+    getIntentionCategories(),
+  ]);
+
+  // Editorial collections (live counts) first, then the merchandising
+  // categories (display counts). Both render as the same circle.
+  const circles: Circle[] = [
+    ...collections.map((c) => ({
+      slug: c.slug,
+      label: c.label,
+      eyebrow: c.eyebrow,
+      image: c.cardImage,
+      href: `/collections/${c.slug}`,
+      count: c.count,
+    })),
+    ...extra.map((e) => ({
+      slug: e.slug,
+      label: e.label,
+      eyebrow: e.eyebrow,
+      image: e.image,
+      href: e.href,
+      count: e.count,
+    })),
+  ];
 
   return (
     <>
@@ -20,7 +54,7 @@ export default async function ShopByIntentionsPage() {
         <div className="mx-auto max-w-[1440px] px-[4vw]">
           <div className="flex items-center justify-between border-t border-white/[0.07] pt-4">
             <span className="eyebrow">Shop by intention</span>
-            <span className="eyebrow tabular-nums">{collections.length} collections</span>
+            <span className="eyebrow tabular-nums">{circles.length} collections</span>
           </div>
           <div className="mt-16 max-w-3xl">
             <h1 className="text-[clamp(2.5rem,6vw,5rem)] leading-[0.95] text-paper">
@@ -43,15 +77,12 @@ export default async function ShopByIntentionsPage() {
         </h2>
 
         <ul className="grid grid-cols-2 gap-x-6 gap-y-12 sm:grid-cols-3 lg:grid-cols-5">
-          {collections.map((c) => (
+          {circles.map((c) => (
             <li key={c.slug}>
-              <Link
-                href={`/collections/${c.slug}`}
-                className="group flex flex-col items-center text-center"
-              >
+              <Link href={c.href} className="group flex flex-col items-center text-center">
                 <div className="relative aspect-square w-full overflow-hidden rounded-full bg-plum-900 ring-1 ring-white/[0.08] transition-all duration-500 group-hover:ring-2 group-hover:ring-gold/60">
                   <ProductImage
-                    src={c.cardImage}
+                    src={c.image}
                     alt={c.label}
                     ratio="1 / 1"
                     className="absolute inset-0 h-full w-full transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.07]"
@@ -62,7 +93,10 @@ export default async function ShopByIntentionsPage() {
                   />
                 </div>
                 <p className="mt-4 px-2 text-[0.9375rem] leading-snug font-medium text-paper transition-colors duration-300 group-hover:text-gold">
-                  {c.label} <span className="text-neutral-500 tabular-nums">({c.count})</span>
+                  {c.label}
+                  {c.count != null && (
+                    <span className="text-neutral-500 tabular-nums"> ({c.count})</span>
+                  )}
                 </p>
                 <p className="mt-1 text-[0.6875rem] tracking-[0.14em] text-gold/70 uppercase">
                   {c.eyebrow}
