@@ -24,7 +24,7 @@ export default async function HomePage() {
   // impression for a brand justifying $600.
   const [bestsellers, capsule, newArrivals, topRated, premium, bundlePool, carePool, kitPool] =
     await Promise.all([
-      commerce.getProducts({ line: "luxe", sort: "featured", limit: 4 }),
+      commerce.getProducts({ line: "luxe", sort: "featured", limit: 6 }),
       commerce.getProducts({ avatar: "editorial", limit: 2 }),
       commerce.getProducts({ sort: "newest", limit: 12 }),
       commerce.getProducts({ sort: "rating", limit: 40 }),
@@ -259,7 +259,16 @@ export default async function HomePage() {
             All units
           </Link>
         </div>
-        <BestsellerShowcase items={bestsellerItems} />
+        <BestsellerShowcase
+          items={bestsellerItems}
+          feature={{
+            eyebrow: "The glueless edit",
+            title: "Wear & Go.",
+            href: "/collections/glueless-wigs",
+            image: "aurora",
+            cta: "Shop all",
+          }}
+        />
       </Section>
 
       {/* ── Six Pillars — broken bento, not a uniform 3×2 ─────────────────── */}

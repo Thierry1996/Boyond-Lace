@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Eye } from "lucide-react";
+import { Eye, ArrowUpRight } from "lucide-react";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { WishlistButton } from "@/components/ui/WishlistButton";
 import { Money } from "@/components/ui/Money";
@@ -10,14 +10,15 @@ import { useCart } from "@/lib/stores/cart";
 import { QuickView, type ShowcaseProduct } from "./RealLooks";
 
 /**
- * "What people come back for" — the bestseller grid, rebuilt to the reference
- * product-card architecture (image 1): image with stacked New + discount badges,
- * a centred name, the sale price against a struck-through compare, star rating,
- * and a full-width action button. Products with variants show "Choose options"
- * (opens the Quick View picker — the same modal as the Real Looks clone); simple
- * units show "Add to Cart" and one-tap into the bag. Wishlist, rating, price,
- * badge, name and brand styling are all carried over. Dark-plum branding is kept
- * — we borrow the layout, not the white theme.
+ * "What people come back for" — rebuilt to the reference architecture (image 1):
+ * a tall editorial feature panel on the left ("Wear & Go" + Shop all), with the
+ * product cards laid out as a grid to its right — not a uniform full-width grid.
+ * Each card keeps the reference product architecture: image with stacked brand +
+ * discount badges, a centred name, the sale price against a struck-through
+ * compare, star rating, and a full-width action button. Variant units show
+ * "Choose options" (opens the Quick View picker — the same modal as the Real
+ * Looks clone); simple units one-tap "Add to Cart". Wishlist, rating, price,
+ * badge, name and dark-plum branding are all carried over.
  */
 
 export interface BestsellerItem extends ShowcaseProduct {
@@ -26,6 +27,47 @@ export interface BestsellerItem extends ShowcaseProduct {
   reviewCount: number;
   badges: string[];
   inStock: boolean;
+}
+
+export interface FeaturePanelData {
+  eyebrow: string;
+  title: string;
+  href: string;
+  /** Gradient placeholder key (aurora/velvet/plum/blush/gold/mono/mono-2). */
+  image: string;
+  cta?: string;
+}
+
+/** Full-bleed editorial panel — the left column of the split (image 1). */
+function FeaturePanel({ feature }: { feature: FeaturePanelData }) {
+  return (
+    <Link
+      href={feature.href}
+      className="group relative flex min-h-[24rem] flex-col justify-end overflow-hidden rounded-xl ring-1 ring-white/[0.06] transition-all duration-500 hover:ring-gold/40 lg:min-h-full"
+    >
+      <ProductImage
+        src={feature.image}
+        alt={feature.title}
+        className="absolute inset-0 h-full w-full transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/25 to-transparent"
+      />
+      <div className="relative p-7 sm:p-8">
+        <p className="text-[0.6875rem] font-semibold tracking-[0.2em] text-gold uppercase">
+          {feature.eyebrow}
+        </p>
+        <h3 className="mt-2 font-[family-name:var(--font-display)] text-[clamp(1.75rem,3vw,2.5rem)] leading-[1.05] text-paper">
+          {feature.title}
+        </h3>
+        <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-gold px-6 py-2.5 text-[0.6875rem] font-semibold tracking-[0.14em] text-ink uppercase transition-transform duration-300 group-hover:-translate-y-0.5">
+          {feature.cta ?? "Shop all"}
+          <ArrowUpRight size={14} strokeWidth={2} />
+        </span>
+      </div>
+    </Link>
+  );
 }
 
 function Card({ item, onQuickView }: { item: BestsellerItem; onQuickView: () => void }) {
@@ -167,16 +209,26 @@ function Card({ item, onQuickView }: { item: BestsellerItem; onQuickView: () => 
   );
 }
 
-export function BestsellerShowcase({ items }: { items: BestsellerItem[] }) {
+export function BestsellerShowcase({
+  items,
+  feature,
+}: {
+  items: BestsellerItem[];
+  feature: FeaturePanelData;
+}) {
   const [qv, setQv] = useState<BestsellerItem | null>(null);
   if (items.length === 0) return null;
 
   return (
     <>
-      <div className="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-        {items.map((item) => (
-          <Card key={item.id} item={item} onQuickView={() => setQv(item)} />
-        ))}
+      {/* Split: editorial feature left, product cards gridded right (image 1) */}
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,2fr)]">
+        <FeaturePanel feature={feature} />
+        <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
+          {items.map((item) => (
+            <Card key={item.id} item={item} onQuickView={() => setQv(item)} />
+          ))}
+        </div>
       </div>
       {qv && <QuickView product={qv} onClose={() => setQv(null)} />}
     </>
