@@ -12,6 +12,8 @@ import { FlashSale } from "@/components/home/FlashSale";
 import { ReachCarousel, type ReachItem } from "@/components/home/ReachCarousel";
 import { CollectionTabs, type CatalogTab } from "@/components/home/CollectionTabs";
 import { SocialProof } from "@/components/home/SocialProof";
+import { RealLooks, type ShowcaseProduct } from "@/components/home/RealLooks";
+import { FreeGiftPopup, type GiftItem } from "@/components/marketing/FreeGiftPopup";
 import { BrandMarquee, ProofBand, EditorialSplit, PillarBento } from "@/components/home/Sections";
 
 export default async function HomePage() {
@@ -19,14 +21,17 @@ export default async function HomePage() {
   // by review volume, which floats the $5 test kit and the $34 adhesive to the
   // top — accessories always out-review units. That is the wrong first
   // impression for a brand justifying $600.
-  const [bestsellers, capsule, newArrivals, topRated, premium, bundlePool] = await Promise.all([
-    commerce.getProducts({ line: "luxe", sort: "featured", limit: 4 }),
-    commerce.getProducts({ avatar: "editorial", limit: 2 }),
-    commerce.getProducts({ sort: "newest", limit: 12 }),
-    commerce.getProducts({ sort: "rating", limit: 40 }),
-    commerce.getProducts({ sort: "price-desc", limit: 24 }),
-    commerce.getProducts({ line: "bundle", limit: 16 }),
-  ]);
+  const [bestsellers, capsule, newArrivals, topRated, premium, bundlePool, carePool, kitPool] =
+    await Promise.all([
+      commerce.getProducts({ line: "luxe", sort: "featured", limit: 4 }),
+      commerce.getProducts({ avatar: "editorial", limit: 2 }),
+      commerce.getProducts({ sort: "newest", limit: 12 }),
+      commerce.getProducts({ sort: "rating", limit: 40 }),
+      commerce.getProducts({ sort: "price-desc", limit: 24 }),
+      commerce.getProducts({ line: "bundle", limit: 16 }),
+      commerce.getProducts({ line: "care", limit: 8 }),
+      commerce.getProducts({ line: "kit", limit: 4 }),
+    ]);
   // Ten priced, in-stock units for the drop — accessories/by-application skip.
   const drop = newArrivals.filter((p) => p.price > 0).slice(0, 10);
   // Best Sale: wig units only (no $5 test kit / care accessories), discounted
@@ -131,6 +136,29 @@ export default async function HomePage() {
   const socialBoard = priced.slice(0, 15).map((p, i) => toReach(p, i, false));
   const reviewsTotal = priced.reduce((s, p) => s + p.reviewCount, 0);
 
+  // "Real Looks" impulse carousel — bold product cards with a Buy-Now quick view.
+  const showcase: ShowcaseProduct[] = priced.slice(0, 6).map((p) => ({
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    image: p.images[0].src,
+    price: p.price,
+    compareAtPrice: p.compareAtPrice,
+    options: p.options,
+  }));
+  // Free-gift pool — real accessories (care + install kit).
+  const gifts: GiftItem[] = [...carePool, ...kitPool]
+    .filter((p) => p.price > 0)
+    .slice(0, 5)
+    .map((p) => ({
+      id: p.id,
+      slug: p.slug,
+      title: p.title,
+      image: p.images[0].src,
+      price: p.price,
+      compareAtPrice: p.compareAtPrice,
+    }));
+
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────────────────────
@@ -192,6 +220,10 @@ export default async function HomePage() {
           cards link to the PDP, heart -> wishlist, bag -> cart, View More ->
           the category collection. */}
       <CollectionTabs tabs={catalogTabs} />
+
+      {/* Real Looks impulse carousel — bold auto-sliding product-in-action cards,
+          each opening a Buy-Now quick view straight to checkout. */}
+      <RealLooks products={showcase} />
 
       {/* ── Bestsellers ──────────────────────────────────────────────────── */}
       <Section
@@ -322,6 +354,9 @@ export default async function HomePage() {
           carousel and a Pinterest-style masonry board with a woven-in
           testimonial. Every tile links into the catalogue. */}
       <SocialProof clips={socialClips} board={socialBoard} reviewsTotal={reviewsTotal} />
+
+      {/* Time-triggered spend-and-get-a-free-gift bundle offer. */}
+      <FreeGiftPopup gifts={gifts} />
     </>
   );
 }
