@@ -64,7 +64,7 @@ function defaultVariant(p: ShowcaseProduct) {
 
 /* -------------------------------------------------- Quick view (image 2) --- */
 
-function QuickView({ product, onClose }: { product: ShowcaseProduct; onClose: () => void }) {
+export function QuickView({ product, onClose }: { product: ShowcaseProduct; onClose: () => void }) {
   const router = useRouter();
   const { add, setOpen: setCartOpen } = useCart();
   const [sel, setSel] = useState<Record<string, string>>(() =>

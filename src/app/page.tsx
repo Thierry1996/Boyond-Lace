@@ -13,6 +13,7 @@ import { ReachCarousel, type ReachItem } from "@/components/home/ReachCarousel";
 import { CollectionTabs, type CatalogTab } from "@/components/home/CollectionTabs";
 import { SocialProof } from "@/components/home/SocialProof";
 import { RealLooks, type ShowcaseProduct } from "@/components/home/RealLooks";
+import { BestsellerShowcase, type BestsellerItem } from "@/components/home/BestsellerShowcase";
 import { FreeGiftPopup, type GiftItem } from "@/components/marketing/FreeGiftPopup";
 import { BrandMarquee, ProofBand, EditorialSplit, PillarBento } from "@/components/home/Sections";
 
@@ -146,6 +147,22 @@ export default async function HomePage() {
     compareAtPrice: p.compareAtPrice,
     options: p.options,
   }));
+  // "What people come back for" — bestsellers mapped to the image-1 card shape,
+  // carrying the extras the card renders (rating, badges, stock).
+  const bestsellerItems: BestsellerItem[] = bestsellers.map((p) => ({
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    image: p.images[0].src,
+    price: p.price,
+    compareAtPrice: p.compareAtPrice,
+    options: p.options,
+    tagline: p.tagline,
+    rating: p.rating || 5,
+    reviewCount: p.reviewCount,
+    badges: p.badges,
+    inStock: p.inStock,
+  }));
   // Free-gift pool — real accessories (care + install kit).
   const gifts: GiftItem[] = [...carePool, ...kitPool]
     .filter((p) => p.price > 0)
@@ -242,11 +259,7 @@ export default async function HomePage() {
             All units
           </Link>
         </div>
-        <div className="grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
-          {bestsellers.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
+        <BestsellerShowcase items={bestsellerItems} />
       </Section>
 
       {/* ── Six Pillars — broken bento, not a uniform 3×2 ─────────────────── */}
