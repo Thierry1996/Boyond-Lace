@@ -2,7 +2,6 @@ import Link from "next/link";
 import { commerce } from "@/lib/commerce";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { ProductCard } from "@/components/ui/ProductCard";
-import { ProductImage } from "@/components/ui/ProductImage";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { CollectionRail } from "@/components/home/CollectionRail";
 import { NewArrivals } from "@/components/home/NewArrivals";
@@ -16,6 +15,7 @@ import { BestsellerShowcase, type BestsellerItem } from "@/components/home/Bests
 import { DiscoverBanner } from "@/components/home/DiscoverBanner";
 import { ShopByOccasion } from "@/components/home/ShopByOccasion";
 import { JoinTheCircle } from "@/components/home/JoinTheCircle";
+import { WholesaleSpecial } from "@/components/home/WholesaleSpecial";
 import { FreeGiftPopup, type GiftItem } from "@/components/marketing/FreeGiftPopup";
 import { BrandMarquee, ProofBand, EditorialSplit, PillarBento } from "@/components/home/Sections";
 
@@ -313,48 +313,9 @@ export default async function HomePage() {
         </div>
       </Section>
 
-      {/* ── Wholesale teaser ─────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-plum-900 py-28">
-        <div className="mx-auto grid max-w-[1440px] gap-16 px-[4vw] lg:grid-cols-2 lg:items-center">
-          <div>
-            <p className="eyebrow mb-5 text-gold">For salons & resellers</p>
-            <h2 className="text-[clamp(2rem,4.5vw,3.5rem)] text-paper">
-              Your name on our manufacturing floor.
-            </h2>
-            <p className="mt-6 text-[1.0625rem] leading-relaxed text-blush-200/70">
-              Beyond Lace Pro is the private-label line: our cap construction and batch guarantee,
-              your branding on the box. Five-unit first trial. Turnkey photography and spec sheets
-              so you can sell it the day it lands.
-            </p>
-            <p className="mt-4 text-[1.0625rem] leading-relaxed text-blush-200/70">
-              MAP is enforced, not suggested. Your margin is contractually defended — no partner
-              undercuts another, and none of them undercut us.
-            </p>
-            <div className="mt-9 flex flex-wrap gap-6">
-              <Link
-                href="/wholesale"
-                className="border border-gold px-8 py-3.5 text-[0.8125rem] tracking-[0.14em] text-gold uppercase transition-all duration-500 hover:bg-gold hover:text-ink"
-              >
-                The programme
-              </Link>
-              <Link
-                href="/wholesale#apply"
-                className="border-b border-white/25 pb-1 text-[0.8125rem] tracking-[0.1em] text-blush-200 uppercase transition-colors hover:border-gold hover:text-gold"
-              >
-                Apply as a partner
-              </Link>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-5">
-            <ProductImage src="plum" alt="Beyond Lace Pro private label packaging" />
-            <ProductImage
-              src="gold"
-              alt="Custom branded comb and hang tag detail"
-              className="mt-12"
-            />
-          </div>
-        </div>
-      </section>
+      {/* ── Wholesale Special — B2B offer, perks checklist, value accordion and
+          the wholesale CTAs. */}
+      <WholesaleSpecial />
 
       {/* ── The Beyond Circle — full-width animated membership banner + tier
           ladder, cloned from a tested competitor loyalty section, brand-skinned.
