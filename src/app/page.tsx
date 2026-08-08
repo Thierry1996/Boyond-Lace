@@ -137,7 +137,7 @@ export default async function HomePage() {
   const reviewsTotal = priced.reduce((s, p) => s + p.reviewCount, 0);
 
   // "Real Looks" impulse carousel — bold product cards with a Buy-Now quick view.
-  const showcase: ShowcaseProduct[] = priced.slice(0, 6).map((p) => ({
+  const showcase: ShowcaseProduct[] = priced.slice(0, 10).map((p) => ({
     id: p.id,
     slug: p.slug,
     title: p.title,
@@ -176,6 +176,11 @@ export default async function HomePage() {
 
       {/* Gilded statement ticker — a pulse between two dark blocks. */}
       <BrandMarquee />
+
+      {/* Real Looks impulse carousel — top-level bold auto-sliding product-in-
+          action cards (6s dwell, chevrons, spotlight upscale), each opening a
+          Buy-Now quick view straight to checkout. */}
+      <RealLooks products={showcase} />
 
       {/* New-arrivals drop — rendered just below the on-page gilded ticker.
           Cards link to the PDP, the cart button quick-adds, "View all" routes
@@ -220,10 +225,6 @@ export default async function HomePage() {
           cards link to the PDP, heart -> wishlist, bag -> cart, View More ->
           the category collection. */}
       <CollectionTabs tabs={catalogTabs} />
-
-      {/* Real Looks impulse carousel — bold auto-sliding product-in-action cards,
-          each opening a Buy-Now quick view straight to checkout. */}
-      <RealLooks products={showcase} />
 
       {/* ── Bestsellers ──────────────────────────────────────────────────── */}
       <Section
