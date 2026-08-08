@@ -15,6 +15,7 @@ import { SocialProof } from "@/components/home/SocialProof";
 import { RealLooks, type ShowcaseProduct } from "@/components/home/RealLooks";
 import { BestsellerShowcase, type BestsellerItem } from "@/components/home/BestsellerShowcase";
 import { DiscoverBanner } from "@/components/home/DiscoverBanner";
+import { ShopByOccasion } from "@/components/home/ShopByOccasion";
 import { FreeGiftPopup, type GiftItem } from "@/components/marketing/FreeGiftPopup";
 import { BrandMarquee, ProofBand, EditorialSplit, PillarBento } from "@/components/home/Sections";
 
@@ -207,6 +208,11 @@ export default async function HomePage() {
 
       {/* Figures that resolve on scroll, before any sales copy. */}
       <ProofBand />
+
+      {/* Shop by Occasion — impulse-buy rail cloned from a tested competitor
+          layout, brand-skinned. Tiles route to the collection built for each
+          moment. Sits directly on top of the Best Sale grid. */}
+      <ShopByOccasion />
 
       {/* Best Sale grid — bestseller drop, immediately above the flash sale.
           Cards, prices, ratings and cart all wired to real product data. */}
