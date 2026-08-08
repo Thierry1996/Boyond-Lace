@@ -73,7 +73,7 @@ export function HomeNewsletter() {
           <>
             <form
               onSubmit={submit}
-              className="mx-auto mt-8 flex max-w-xl flex-col gap-3 sm:flex-row"
+              className="mx-auto mt-8 flex max-w-2xl flex-col gap-3 sm:flex-row"
             >
               <input
                 value={firstName}
