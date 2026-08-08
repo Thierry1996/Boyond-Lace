@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Search, Heart, ShoppingBag, Menu, X } from "lucide-react";
 import { primaryNav } from "@/lib/navigation";
 import { useCart } from "@/lib/stores/cart";
@@ -38,17 +38,35 @@ export function Header() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [condensed, setCondensed] = useState(false);
+  // Measured height of rows 1–2, so the condense transform slides them exactly
+  // out of view and lands row 3 at the top.
+  const topRowsRef = useRef<HTMLDivElement>(null);
+  const [topRowsH, setTopRowsH] = useState(0);
   const { count, hydrated, setOpen: setCartOpen } = useCart();
   const wishCount = useWishlist((s) => s.slugs.length);
   const wishHydrated = useWishlist((s) => s.hydrated);
+
+  // Track the live height of rows 1–2 so the condense transform is exact across
+  // breakpoints (the wordmark and utility row change height with the viewport).
+  useEffect(() => {
+    const el = topRowsRef.current;
+    if (!el) return;
+    const measure = () => setTopRowsH(el.offsetHeight);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     // Hysteresis, not a single threshold. Rows 1–2 collapse only after scrolling
     // DOWN past 160, and re-expand only after scrolling back UP under 70. A lone
     // threshold flips condensed on/off with every pixel of jitter around that
-    // point, and each flip reverses the 500ms row transition mid-flight — which
-    // is the flicker when you slide back and forth across it. The 90px deadband
-    // between the two bounds means the state holds unless you genuinely move.
+    // point, and each flip reverses the 500ms transition mid-flight — the flicker
+    // when you slide back and forth across it. The 90px deadband between the two
+    // bounds means the state holds unless you genuinely move. Collapse is a
+    // transform (below), not a height change, so it never reflows the document
+    // or triggers scroll anchoring — which was the up/down feedback loop.
     // rAF-batched so a burst of scroll events resolves to one state read.
     let raf = 0;
     const update = () => {
@@ -83,129 +101,130 @@ export function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50" onMouseLeave={() => setOpenMenu(null)}>
-      {/* ── Row 1 · Announcement marquee ─────────────────────────────────── */}
+    <header
+      className="sticky top-0 z-50 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform"
+      style={{ transform: condensed ? `translateY(-${topRowsH}px)` : undefined }}
+      onMouseLeave={() => setOpenMenu(null)}
+    >
+      {/* Rows 1–2 collapse together via a transform on the whole header (below),
+          so no height animation, no reflow, no scroll-anchoring jitter. When
+          condensed they slide up out of view; they stay non-interactive there. */}
       <div
-        className="overflow-hidden transition-[max-height,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
-        style={{ maxHeight: condensed ? 0 : 60, opacity: condensed ? 0 : 1 }}
+        ref={topRowsRef}
+        aria-hidden={condensed}
+        className={condensed ? "pointer-events-none" : ""}
       >
+        {/* ── Row 1 · Announcement marquee ───────────────────────────────── */}
         <AnnouncementBar />
-      </div>
 
-      {/* ── Row 2 · Utility / centred wordmark / commerce ─────────────────── */}
-      <div
-        className="bg-ink transition-[max-height,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
-        style={{
-          maxHeight: condensed ? 0 : 160,
-          opacity: condensed ? 0 : 1,
-          overflow: condensed ? "hidden" : "visible",
-        }}
-      >
-        <div className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-5 py-2.5">
-          {/* Left — the wordmark, sized to content so it never squeezes the nav. */}
-          <Link
-            href="/"
-            aria-label="Beyond Lace — home"
-            className="justify-self-start transition-opacity duration-300 hover:opacity-85"
-          >
-            <LogoMark width={260} priority className="w-[11rem] sm:w-[13rem] lg:w-[15rem]" />
-          </Link>
+        {/* ── Row 2 · Utility / centred wordmark / commerce ──────────────── */}
+        <div className="bg-ink">
+          <div className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-5 py-2.5">
+            {/* Left — the wordmark, sized to content so it never squeezes the nav. */}
+            <Link
+              href="/"
+              aria-label="Beyond Lace — home"
+              className="justify-self-start transition-opacity duration-300 hover:opacity-85"
+            >
+              <LogoMark width={260} priority className="w-[11rem] sm:w-[13rem] lg:w-[15rem]" />
+            </Link>
 
-          {/* Centre — the search field. The column flexes with the viewport while
+            {/* Centre — the search field. The column flexes with the viewport while
               the field itself caps at 700px and stays centred, so the right nav
               always keeps its natural width and is never clipped. */}
-          <div className="hidden w-full lg:block">
-            <HeaderSearch className="mx-auto w-full max-w-[700px]" attention />
-          </div>
+            <div className="hidden w-full lg:block">
+              <HeaderSearch className="mx-auto w-full max-w-[700px]" attention />
+            </div>
 
-          {/* Right — preferences and commerce, compact. On mobile the search
+            {/* Right — preferences and commerce, compact. On mobile the search
               collapses to a link and the menu trigger lives here too. */}
-          <div className="flex items-center justify-end gap-2">
-            <nav
-              aria-label="Preferences"
-              className="hidden items-center gap-2 border-r border-white/12 pr-2.5 lg:flex"
-            >
-              <ChannelSwitch />
-              <CurrencySelector />
-              <LanguageSelector />
-              <ThemeToggle />
-              <a
-                href={URLS.whatsappPrefilled}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Chat with us on WhatsApp"
-                title="Chat with us on WhatsApp"
-                className="wa-pop group flex h-8 w-8 items-center justify-center rounded-full border border-emerald-500/40 bg-emerald-500/12 text-emerald-400 transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-400 hover:bg-emerald-500/25 hover:text-emerald-300 active:translate-y-0 active:scale-95"
+            <div className="flex items-center justify-end gap-2">
+              <nav
+                aria-label="Preferences"
+                className="hidden items-center gap-2 border-r border-white/12 pr-2.5 lg:flex"
               >
-                <WhatsAppGlyph
-                  size={15}
-                  className="transition-transform duration-300 group-hover:scale-110"
-                />
-              </a>
-            </nav>
+                <ChannelSwitch />
+                <CurrencySelector />
+                <LanguageSelector />
+                <ThemeToggle />
+                <a
+                  href={URLS.whatsappPrefilled}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Chat with us on WhatsApp"
+                  title="Chat with us on WhatsApp"
+                  className="wa-pop group flex h-8 w-8 items-center justify-center rounded-full border border-emerald-500/40 bg-emerald-500/12 text-emerald-400 transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-400 hover:bg-emerald-500/25 hover:text-emerald-300 active:translate-y-0 active:scale-95"
+                >
+                  <WhatsAppGlyph
+                    size={15}
+                    className="transition-transform duration-300 group-hover:scale-110"
+                  />
+                </a>
+              </nav>
 
-            <nav aria-label="Account and cart" className="flex items-center gap-3">
-              {/* Below lg the inline field is hidden, so keep a route to search. */}
-              <Link
-                href="/search"
-                aria-label="Search"
-                className="text-neutral-400 transition-colors duration-300 hover:text-gold lg:hidden"
-              >
-                <Search size={16} strokeWidth={1.5} />
-              </Link>
-              <Link
-                href="/wishlist"
-                aria-label={`Wishlist${wishHydrated && wishCount ? `, ${wishCount} saved` : ""}`}
-                className="group relative hidden h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-neutral-300 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/50 hover:bg-white/[0.09] hover:text-gold active:translate-y-0 active:scale-95 sm:flex"
-              >
-                <Heart
-                  size={16}
-                  strokeWidth={1.6}
-                  className="transition-transform duration-300 group-hover:scale-110"
-                />
-                {wishHydrated && wishCount > 0 && (
-                  <span className="pop-badge absolute -top-1.5 -right-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-blush-400 px-1 text-[0.625rem] font-semibold text-plum-900 tabular-nums ring-2 ring-ink transition-transform duration-300 group-hover:scale-110">
-                    {wishCount}
-                  </span>
-                )}
-              </Link>
-              <div className="hidden sm:block">
-                <AuthControls />
-              </div>
-              <button
-                type="button"
-                onClick={() => setCartOpen(true)}
-                aria-label={`Bag, ${hydrated ? count : 0} item${count === 1 ? "" : "s"}`}
-                className="group relative flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-neutral-300 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/50 hover:bg-white/[0.09] hover:text-gold active:translate-y-0 active:scale-95"
-              >
-                <ShoppingBag
-                  size={16}
-                  strokeWidth={1.6}
-                  className="transition-transform duration-300 group-hover:scale-110"
-                />
-                {hydrated && count > 0 && (
-                  <span
-                    suppressHydrationWarning
-                    className="pop-badge absolute -top-1.5 -right-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-blush-400 px-1 text-[0.625rem] font-semibold text-plum-900 tabular-nums ring-2 ring-ink transition-transform duration-300 group-hover:scale-110"
-                  >
-                    {count}
-                  </span>
-                )}
-              </button>
-              {/* Mobile menu trigger */}
-              <button
-                className="lg:hidden"
-                onClick={() => setMobileOpen((v) => !v)}
-                aria-label={mobileOpen ? "Close menu" : "Open menu"}
-                aria-expanded={mobileOpen}
-              >
-                {mobileOpen ? (
-                  <X size={20} strokeWidth={1.5} className="text-paper" />
-                ) : (
-                  <Menu size={20} strokeWidth={1.5} className="text-paper" />
-                )}
-              </button>
-            </nav>
+              <nav aria-label="Account and cart" className="flex items-center gap-3">
+                {/* Below lg the inline field is hidden, so keep a route to search. */}
+                <Link
+                  href="/search"
+                  aria-label="Search"
+                  className="text-neutral-400 transition-colors duration-300 hover:text-gold lg:hidden"
+                >
+                  <Search size={16} strokeWidth={1.5} />
+                </Link>
+                <Link
+                  href="/wishlist"
+                  aria-label={`Wishlist${wishHydrated && wishCount ? `, ${wishCount} saved` : ""}`}
+                  className="group relative hidden h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-neutral-300 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/50 hover:bg-white/[0.09] hover:text-gold active:translate-y-0 active:scale-95 sm:flex"
+                >
+                  <Heart
+                    size={16}
+                    strokeWidth={1.6}
+                    className="transition-transform duration-300 group-hover:scale-110"
+                  />
+                  {wishHydrated && wishCount > 0 && (
+                    <span className="pop-badge absolute -top-1.5 -right-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-blush-400 px-1 text-[0.625rem] font-semibold text-plum-900 tabular-nums ring-2 ring-ink transition-transform duration-300 group-hover:scale-110">
+                      {wishCount}
+                    </span>
+                  )}
+                </Link>
+                <div className="hidden sm:block">
+                  <AuthControls />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCartOpen(true)}
+                  aria-label={`Bag, ${hydrated ? count : 0} item${count === 1 ? "" : "s"}`}
+                  className="group relative flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-neutral-300 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/50 hover:bg-white/[0.09] hover:text-gold active:translate-y-0 active:scale-95"
+                >
+                  <ShoppingBag
+                    size={16}
+                    strokeWidth={1.6}
+                    className="transition-transform duration-300 group-hover:scale-110"
+                  />
+                  {hydrated && count > 0 && (
+                    <span
+                      suppressHydrationWarning
+                      className="pop-badge absolute -top-1.5 -right-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-blush-400 px-1 text-[0.625rem] font-semibold text-plum-900 tabular-nums ring-2 ring-ink transition-transform duration-300 group-hover:scale-110"
+                    >
+                      {count}
+                    </span>
+                  )}
+                </button>
+                {/* Mobile menu trigger */}
+                <button
+                  className="lg:hidden"
+                  onClick={() => setMobileOpen((v) => !v)}
+                  aria-label={mobileOpen ? "Close menu" : "Open menu"}
+                  aria-expanded={mobileOpen}
+                >
+                  {mobileOpen ? (
+                    <X size={20} strokeWidth={1.5} className="text-paper" />
+                  ) : (
+                    <Menu size={20} strokeWidth={1.5} className="text-paper" />
+                  )}
+                </button>
+              </nav>
+            </div>
           </div>
         </div>
       </div>
