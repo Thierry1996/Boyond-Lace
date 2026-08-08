@@ -12,7 +12,9 @@ import { getDataClient } from "@/lib/supabase/data";
  *
  * Categories that duplicate an existing collection (Best Sellers, HD invisible
  * lace, all-glueless, bundles-and-closure-only) are deliberately omitted here —
- * the collection already covers them.
+ * the collection already covers them. The wall is kept intentionally tight:
+ * redundant-destination buckets (extra sale/price/trending duplicates) are left
+ * out so each circle earns its place.
  *
  * `count` is a merchandising display number, not a live query count (these
  * buckets span the aspirational full catalogue). Swap for live counts when the
@@ -58,14 +60,6 @@ export const intentionCategories: IntentionCategory[] = [
     count: 104,
   },
   {
-    slug: "currently-trending",
-    label: "Currently Trending",
-    eyebrow: "Moving fast",
-    image: "aurora",
-    href: "/shop?sort=rating",
-    count: 612,
-  },
-  {
     slug: "wear-go-straight-wigs",
     label: "Wear & Go (Glueless) Straight Wigs",
     eyebrow: "Wear & go",
@@ -98,29 +92,6 @@ export const intentionCategories: IntentionCategory[] = [
     count: 782,
   },
   {
-    slug: "crochet-braids",
-    label: "Crochet Braids",
-    eyebrow: "Protective styles",
-    image: "velvet",
-    href: "/shop?texture=kinky-curly",
-    count: 698,
-  },
-  {
-    slug: "headband-wigs",
-    label: "Headband Wigs",
-    eyebrow: "Five-minute, no lace",
-    image: "plum",
-    href: "/shop?fit=glueless-wear-go",
-    count: 683,
-  },
-  {
-    slug: "colour-highlighted-curly-fringe",
-    label: "Colour: Double Drawn Highlighted Curly Fringe",
-    eyebrow: "Fashion colour",
-    image: "blush",
-    href: "/shop?shade=honey-balayage",
-  },
-  {
     slug: "combos",
     label: "Combos",
     eyebrow: "Buy together, save",
@@ -145,60 +116,12 @@ export const intentionCategories: IntentionCategory[] = [
     count: 700,
   },
   {
-    slug: "accessories",
-    label: "Accessories",
-    eyebrow: "Tools & care",
-    image: "mono-2",
-    href: "/shop?line=care",
-    count: 542,
-  },
-  {
     slug: "anniversary-sale",
     label: "10 Year Anniversary Sale",
     eyebrow: "Limited time",
     image: "blush",
     href: "/shop?sort=price-asc",
     count: 900,
-  },
-  {
-    slug: "flash-sales",
-    label: "Flash Sales",
-    eyebrow: "While stocks last",
-    image: "blush",
-    href: "/shop?sort=price-asc",
-    count: 83,
-  },
-  {
-    slug: "below-250",
-    label: "Below $250",
-    eyebrow: "Under budget",
-    image: "gold",
-    href: "/shop?sort=price-asc",
-    count: 450,
-  },
-  {
-    slug: "clearance-samples",
-    label: "Clearance: Pre-tested Samples",
-    eyebrow: "Lace cut units",
-    image: "mono",
-    href: "/shop?sort=price-asc",
-    count: 340,
-  },
-  {
-    slug: "hair-masterclasses",
-    label: "The Beyond Lace Hair Masterclasses",
-    eyebrow: "Learn the craft",
-    image: "mono-2",
-    href: "/learn",
-    count: 8,
-  },
-  {
-    slug: "all-products",
-    label: "All Products",
-    eyebrow: "The whole floor",
-    image: "mono-2",
-    href: "/shop",
-    count: 7860,
   },
 ];
 
