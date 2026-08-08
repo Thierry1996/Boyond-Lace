@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Check, Plus } from "lucide-react";
+import { Check, Plus, ArrowUpRight } from "lucide-react";
+import { ProductImage } from "@/components/ui/ProductImage";
 
 /**
  * Wholesale Special — the B2B teaser on the home page. Left: the offer, a
@@ -128,9 +129,66 @@ export function WholesaleSpecial() {
           </div>
         </div>
 
-        {/* Compact value accordion, immediately next to the perks */}
+        {/* Wholesale sneak-peek teaser + value accordion, immediately next */}
         <div className="lg:pt-2">
           <p className="mb-4 text-[0.6875rem] font-semibold tracking-[0.18em] text-gold uppercase">
+            Wholesale sneak peek
+          </p>
+
+          {/* Teaser units — the whole block routes into the wholesale channel */}
+          <Link
+            href="/wholesale"
+            className="group relative block overflow-hidden rounded-xl ring-1 ring-white/[0.08] transition-all duration-500 hover:ring-gold/50"
+          >
+            <div className="grid grid-cols-2 gap-4 p-4">
+              <ProductImage
+                src="plum"
+                alt="Beyond Lace Pro private-label unit — wholesale preview"
+                className="rounded-lg transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+              />
+              <ProductImage
+                src="gold"
+                alt="Trade-price unit with custom branded hang tag — wholesale preview"
+                className="mt-10 rounded-lg transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+              />
+            </div>
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/85 via-transparent to-transparent"
+            />
+            <span className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 p-5">
+              <span className="text-[0.8125rem] font-semibold tracking-[0.06em] text-paper">
+                Preview the trade line
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-[0.6875rem] font-semibold tracking-[0.14em] text-gold uppercase">
+                Enter the channel
+                <ArrowUpRight
+                  size={13}
+                  strokeWidth={2}
+                  className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                />
+              </span>
+            </span>
+          </Link>
+
+          {/* The three ways in for a wig business */}
+          <p className="mt-3 text-[0.75rem] leading-relaxed text-blush-200/70">
+            For wig businesses: {""}
+            <Link href="/wholesale" className="text-gold underline-offset-2 hover:underline">
+              access the wholesale channel
+            </Link>
+            , {""}
+            <Link href="/wholesale#apply" className="text-gold underline-offset-2 hover:underline">
+              submit a request
+            </Link>
+            , or {""}
+            <Link href="/wholesale" className="text-gold underline-offset-2 hover:underline">
+              order direct at trade price
+            </Link>
+            .
+          </p>
+
+          <p className="mt-8 mb-4 text-[0.6875rem] font-semibold tracking-[0.18em] text-gold uppercase">
             What value does Beyond Lace bring you?
           </p>
           <Accordion />
