@@ -3,7 +3,6 @@ import { commerce } from "@/lib/commerce";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { ProductImage } from "@/components/ui/ProductImage";
-import { CrownWave } from "@/components/brand/Logo";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { CollectionRail } from "@/components/home/CollectionRail";
 import { NewArrivals } from "@/components/home/NewArrivals";
@@ -16,6 +15,7 @@ import { RealLooks, type ShowcaseProduct } from "@/components/home/RealLooks";
 import { BestsellerShowcase, type BestsellerItem } from "@/components/home/BestsellerShowcase";
 import { DiscoverBanner } from "@/components/home/DiscoverBanner";
 import { ShopByOccasion } from "@/components/home/ShopByOccasion";
+import { JoinTheCircle } from "@/components/home/JoinTheCircle";
 import { FreeGiftPopup, type GiftItem } from "@/components/marketing/FreeGiftPopup";
 import { BrandMarquee, ProofBand, EditorialSplit, PillarBento } from "@/components/home/Sections";
 
@@ -356,31 +356,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── The Beyond Circle ────────────────────────────────────────────── */}
-      <Section
-        className="py-28"
-        eyebrowLeft="Retention"
-        eyebrowCenter="The Beyond Circle"
-        eyebrowRight="Members only"
-      >
-        <div className="mx-auto max-w-3xl text-center">
-          <CrownWave size={40} className="mx-auto mb-8 text-gold" />
-          <h2 className="text-[clamp(2rem,4.5vw,3.5rem)] text-paper">
-            The proof arrives before the parcel does.
-          </h2>
-          <p className="mt-6 text-[1.0625rem] leading-relaxed text-neutral-400">
-            Members post their transformations inside the Circle while their unit is still in
-            transit. By the time the box lands, they have already seen twenty women with their hair
-            type wearing it. Buyer&apos;s remorse does not survive that.
-          </p>
-          <Link
-            href="/circle"
-            className="mt-10 inline-block border border-gold px-9 py-4 text-[0.8125rem] tracking-[0.14em] text-gold uppercase transition-all duration-500 hover:bg-gold hover:text-ink"
-          >
-            Join the Circle
-          </Link>
-        </div>
-      </Section>
+      {/* ── The Beyond Circle — full-width animated membership banner + tier
+          ladder, cloned from a tested competitor loyalty section, brand-skinned.
+          CTA routes to the members' space at /circle. */}
+      <JoinTheCircle />
 
       {/* ── Social proof engine ──────────────────────────────────────────────
           Replaces the single closing testimonial: a scrollable video-review
