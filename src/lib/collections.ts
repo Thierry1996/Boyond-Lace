@@ -1,4 +1,4 @@
-import type { ProductQuery, Shade } from "@/lib/commerce";
+import { commerce, type ProductQuery, type Shade } from "@/lib/commerce";
 import { getDataClient } from "@/lib/supabase/data";
 
 /**
@@ -422,4 +422,33 @@ export async function getCollections(): Promise<Collection[]> {
 export async function getCollectionBySlug(slug: string): Promise<Collection | undefined> {
   const all = await getCollections();
   return all.find((c) => c.slug === slug);
+}
+
+/**
+ * The number of units a collection's landing page will show. Mirrors the base
+ * query in /collections/[slug] exactly, so the count shown on the shop-by-
+ * intention circles is the truth a shopper lands on — no phantom numbers.
+ */
+export async function getCollectionCount(c: Collection): Promise<number> {
+  if (c.select === "new") {
+    const all = await commerce.getProducts({ sort: "newest" });
+    return all.filter((p) => p.badges.includes("New") && p.price > 0).length;
+  }
+  if (c.select === "bestsellers") {
+    const all = await commerce.getProducts({ sort: "rating" });
+    return all.filter((p) => p.price > 0).slice(0, 18).length;
+  }
+  const products = await commerce.getProducts({ ...(c.query ?? {}) });
+  return products.length;
+}
+
+export interface CollectionWithCount extends Collection {
+  count: number;
+}
+
+/** Every collection paired with its live unit count, in display order. */
+export async function getCollectionsWithCounts(): Promise<CollectionWithCount[]> {
+  const all = await getCollections();
+  const counts = await Promise.all(all.map((c) => getCollectionCount(c)));
+  return all.map((c, i) => ({ ...c, count: counts[i] }));
 }

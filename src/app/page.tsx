@@ -14,6 +14,7 @@ import { CollectionTabs, type CatalogTab } from "@/components/home/CollectionTab
 import { SocialProof } from "@/components/home/SocialProof";
 import { RealLooks, type ShowcaseProduct } from "@/components/home/RealLooks";
 import { BestsellerShowcase, type BestsellerItem } from "@/components/home/BestsellerShowcase";
+import { DiscoverBanner } from "@/components/home/DiscoverBanner";
 import { FreeGiftPopup, type GiftItem } from "@/components/marketing/FreeGiftPopup";
 import { BrandMarquee, ProofBand, EditorialSplit, PillarBento } from "@/components/home/Sections";
 
@@ -270,6 +271,9 @@ export default async function HomePage() {
           }}
         />
       </Section>
+
+      {/* ── Discover banner — doorway into the shop-by-intention page ─────── */}
+      <DiscoverBanner />
 
       {/* ── Six Pillars — broken bento, not a uniform 3×2 ─────────────────── */}
       <PillarBento />
