@@ -14,9 +14,9 @@ export function DiscoverBanner({ href = "/shop-by-intentions" }: { href?: string
   return (
     <section aria-label="Discover the perfect wig" className="px-[4vw] py-10">
       <div className="mx-auto max-w-[1560px]">
-        <div className="grid overflow-hidden rounded-3xl bg-gradient-to-br from-plum-800 via-plum-900 to-[#2a1122] ring-1 ring-white/[0.08] lg:grid-cols-2">
+        <div className="grid overflow-hidden rounded-3xl bg-gradient-to-br from-plum-800 via-plum-900 to-[#2a1122] ring-1 ring-white/[0.08] lg:h-[24rem] lg:grid-cols-2">
           {/* Lifestyle image — full-bleed left */}
-          <div className="relative min-h-[20rem] overflow-hidden lg:min-h-[32rem]">
+          <div className="relative h-52 overflow-hidden lg:h-full">
             <ProductImage
               src="aurora"
               alt="A woman glowing in a Beyond Lace human hair unit"
@@ -29,7 +29,7 @@ export function DiscoverBanner({ href = "/shop-by-intentions" }: { href?: string
           </div>
 
           {/* Copy — centred right */}
-          <div className="flex flex-col items-center justify-center gap-5 p-10 text-center sm:p-14 lg:p-16">
+          <div className="flex flex-col items-center justify-center gap-3.5 p-6 text-center sm:p-8 lg:p-10">
             <p className="border-b border-gold/50 pb-1.5 text-[0.6875rem] font-semibold tracking-[0.24em] text-gold uppercase">
               Premium quality, stunning looks
             </p>
