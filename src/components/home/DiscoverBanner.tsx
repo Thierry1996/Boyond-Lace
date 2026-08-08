@@ -14,7 +14,7 @@ export function DiscoverBanner({ href = "/shop-by-intentions" }: { href?: string
   return (
     <section aria-label="Discover the perfect wig" className="px-[4vw] py-10">
       <div className="mx-auto max-w-[1560px]">
-        <div className="grid overflow-hidden rounded-3xl bg-gradient-to-br from-plum-800 via-plum-900 to-[#2a1122] ring-1 ring-white/[0.08] lg:min-h-[24rem] lg:grid-cols-2">
+        <div className="dark-island grid overflow-hidden rounded-3xl bg-gradient-to-br from-plum-800 via-plum-900 to-[#2a1122] ring-1 ring-white/[0.08] lg:min-h-[24rem] lg:grid-cols-2">
           {/* Lifestyle image — full-bleed left */}
           <div className="relative h-52 overflow-hidden lg:h-[24rem]">
             <ProductImage

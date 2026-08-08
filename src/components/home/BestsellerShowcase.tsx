@@ -43,7 +43,7 @@ function FeaturePanel({ feature }: { feature: FeaturePanelData }) {
   return (
     <Link
       href={feature.href}
-      className="group relative flex min-h-[24rem] flex-col justify-end overflow-hidden rounded-xl ring-1 ring-white/[0.06] transition-all duration-500 hover:ring-gold/40 lg:min-h-full"
+      className="dark-island group relative flex min-h-[24rem] flex-col justify-end overflow-hidden rounded-xl ring-1 ring-white/[0.06] transition-all duration-500 hover:ring-gold/40 lg:min-h-full"
     >
       <ProductImage
         src={feature.image}
