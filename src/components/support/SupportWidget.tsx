@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { MessageCircle, X, Send, Sparkles, ArrowLeft } from "lucide-react";
 import { WhatsAppGlyph, InstagramGlyph } from "@/components/brand/SocialIcons";
 import { URLS } from "@/lib/contact";
@@ -22,6 +23,7 @@ interface Msg {
 }
 
 export function SupportWidget() {
+  const reduced = useReducedMotion();
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<View>("menu");
   const [messages, setMessages] = useState<Msg[]>([
@@ -80,7 +82,38 @@ export function SupportWidget() {
         className="fixed right-5 bottom-5 z-[80] flex h-14 w-14 items-center justify-center rounded-full text-ink shadow-2xl transition-transform duration-300 hover:scale-105"
         style={{ background: "var(--grad-gilded)" }}
       >
-        {open ? <X size={22} strokeWidth={1.75} /> : <MessageCircle size={22} strokeWidth={1.75} />}
+        {/* Attention ring — pulses outward while the hub is closed */}
+        {!open && !reduced && (
+          <>
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 rounded-full bg-gold/40 [animation-duration:2.6s] motion-safe:animate-ping"
+            />
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute -inset-1 rounded-full ring-2 ring-gold/30 motion-safe:animate-pulse"
+            />
+          </>
+        )}
+        <motion.span
+          className="relative flex"
+          animate={
+            open || reduced
+              ? { rotate: 0, scale: 1 }
+              : { rotate: [0, -14, 12, -6, 0], scale: [1, 1.12, 1] }
+          }
+          transition={
+            open || reduced
+              ? { duration: 0.2 }
+              : { duration: 0.9, repeat: Infinity, repeatDelay: 3.4, ease: "easeInOut" }
+          }
+        >
+          {open ? (
+            <X size={22} strokeWidth={1.75} />
+          ) : (
+            <MessageCircle size={22} strokeWidth={1.75} />
+          )}
+        </motion.span>
       </button>
 
       {/* Panel */}
