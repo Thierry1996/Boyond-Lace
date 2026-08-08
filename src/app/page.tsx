@@ -18,6 +18,7 @@ import { JoinTheCircle } from "@/components/home/JoinTheCircle";
 import { WholesaleSpecial } from "@/components/home/WholesaleSpecial";
 import { ShopByLook } from "@/components/home/ShopByLook";
 import { BlogPosts } from "@/components/home/BlogPosts";
+import { HomeNewsletter } from "@/components/home/HomeNewsletter";
 import { FreeGiftPopup, type GiftItem } from "@/components/marketing/FreeGiftPopup";
 import { BrandMarquee, ProofBand, EditorialSplit, PillarBento } from "@/components/home/Sections";
 
@@ -338,6 +339,9 @@ export default async function HomePage() {
       {/* Blog posts — the four newest Media Center articles, each linking to
           /blog/[slug]. Distinct plum-gradient ground. */}
       <BlogPosts />
+
+      {/* Newsletter band — home subscribe, posts to /api/newsletter. */}
+      <HomeNewsletter />
 
       {/* Time-triggered spend-and-get-a-free-gift bundle offer. */}
       <FreeGiftPopup gifts={gifts} />
