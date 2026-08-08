@@ -53,7 +53,7 @@ export function HomeNewsletter() {
         className="pointer-events-none absolute top-1/2 left-1/2 h-72 w-[46rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/10 blur-3xl"
       />
 
-      <div className="relative mx-auto max-w-2xl px-[5vw] text-center">
+      <div className="relative mx-auto max-w-3xl px-[5vw] text-center">
         <Mail size={30} className="mx-auto mb-5 text-gold" strokeWidth={1.5} />
         <p className="eyebrow text-gold">Stay in the loop</p>
         <h2 className="mt-3 font-[family-name:var(--font-display)] text-[clamp(1.9rem,4vw,3rem)] text-paper">
@@ -73,7 +73,7 @@ export function HomeNewsletter() {
           <>
             <form
               onSubmit={submit}
-              className="mx-auto mt-8 flex max-w-2xl flex-col gap-3 sm:flex-row"
+              className="mx-auto mt-8 flex max-w-3xl flex-col gap-3 sm:flex-row"
             >
               <input
                 value={firstName}
