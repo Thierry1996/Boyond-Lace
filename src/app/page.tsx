@@ -16,6 +16,7 @@ import { DiscoverBanner } from "@/components/home/DiscoverBanner";
 import { ShopByOccasion } from "@/components/home/ShopByOccasion";
 import { JoinTheCircle } from "@/components/home/JoinTheCircle";
 import { WholesaleSpecial } from "@/components/home/WholesaleSpecial";
+import { ShopByLook } from "@/components/home/ShopByLook";
 import { FreeGiftPopup, type GiftItem } from "@/components/marketing/FreeGiftPopup";
 import { BrandMarquee, ProofBand, EditorialSplit, PillarBento } from "@/components/home/Sections";
 
@@ -327,6 +328,11 @@ export default async function HomePage() {
           carousel and a Pinterest-style masonry board with a woven-in
           testimonial. Every tile links into the catalogue. */}
       <SocialProof clips={socialClips} board={socialBoard} reviewsTotal={reviewsTotal} />
+
+      {/* Shop by Look — editorial discovery rail under the social-proof board.
+          Two reference slides folded into one 3-up carousel; each look routes to
+          its real collection or filtered shop view. */}
+      <ShopByLook />
 
       {/* Time-triggered spend-and-get-a-free-gift bundle offer. */}
       <FreeGiftPopup gifts={gifts} />
