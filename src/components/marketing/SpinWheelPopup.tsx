@@ -370,7 +370,7 @@ export function SpinWheelPopup() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open offer"
-        className={`pointer-events-auto fixed top-1/2 right-0 z-[91] flex -translate-y-1/2 rotate-180 items-center gap-2 rounded-l-xl border border-r-0 border-gold/40 bg-gradient-to-br from-plum-900 to-ink px-2.5 py-4 text-gold shadow-[0_10px_40px_-12px_rgba(0,0,0,0.7)] [writing-mode:vertical-rl] transition-transform duration-500 ${
+        className={`dark-island pointer-events-auto fixed top-1/2 right-0 z-[91] flex -translate-y-1/2 rotate-180 items-center gap-2 rounded-l-xl border border-r-0 border-gold/40 bg-gradient-to-br from-plum-900 to-ink px-2.5 py-4 text-gold shadow-[0_10px_40px_-12px_rgba(0,0,0,0.7)] [writing-mode:vertical-rl] transition-transform duration-500 ${
           open ? "translate-x-[110%]" : "translate-x-0"
         }`}
       >
@@ -384,7 +384,7 @@ export function SpinWheelPopup() {
       <div
         role="dialog"
         aria-label="Win a free unit or big rewards"
-        className={`pointer-events-auto relative mr-2 flex max-h-[94vh] w-[min(96vw,860px)] flex-col overflow-y-auto rounded-2xl border border-gold/30 bg-gradient-to-br from-plum-900 to-ink shadow-[0_20px_80px_-20px_rgba(0,0,0,0.85)] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`dark-island pointer-events-auto relative mr-2 flex max-h-[94vh] w-[min(96vw,860px)] flex-col overflow-y-auto rounded-2xl border border-gold/30 bg-gradient-to-br from-plum-900 to-ink shadow-[0_20px_80px_-20px_rgba(0,0,0,0.85)] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           open ? "translate-x-0" : "translate-x-[calc(100%+1rem)]"
         }`}
       >

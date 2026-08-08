@@ -48,7 +48,7 @@ export function SourcingRequest() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 left-5 z-40 flex items-center gap-2 rounded-full border border-gold/40 bg-gradient-to-br from-plum-900 to-ink py-2.5 pr-4 pl-3 text-gold shadow-[0_10px_30px_-10px_rgba(0,0,0,0.6)] transition-transform duration-300 hover:-translate-y-0.5"
+        className="dark-island fixed bottom-5 left-5 z-40 flex items-center gap-2 rounded-full border border-gold/40 bg-gradient-to-br from-plum-900 to-ink py-2.5 pr-4 pl-3 text-gold shadow-[0_10px_30px_-10px_rgba(0,0,0,0.6)] transition-transform duration-300 hover:-translate-y-0.5"
       >
         <Search size={15} strokeWidth={1.75} />
         <span className="text-[0.6875rem] font-semibold tracking-[0.12em] uppercase">
@@ -68,7 +68,7 @@ export function SourcingRequest() {
             <div
               role="dialog"
               aria-label="Source a custom wig"
-              className="relative w-full max-w-md overflow-hidden rounded-2xl border border-gold/30 bg-gradient-to-br from-plum-900 to-ink p-7 shadow-[0_30px_90px_-24px_rgba(0,0,0,0.85)]"
+              className="dark-island relative w-full max-w-md overflow-hidden rounded-2xl border border-gold/30 bg-gradient-to-br from-plum-900 to-ink p-7 shadow-[0_30px_90px_-24px_rgba(0,0,0,0.85)]"
             >
               <button
                 type="button"
