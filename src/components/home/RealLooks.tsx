@@ -288,12 +288,12 @@ export function RealLooks({ products }: { products: ShowcaseProduct[] }) {
   const step = (d: number) => setBase((b) => (b + d + len) % len);
 
   return (
-    <section className="bg-gradient-to-b from-[#f4ecf9] via-[#faf6f9] to-[#f6eef5] py-16">
+    <section className="bg-gradient-to-br from-plum-900 via-plum-800 to-[#2a1122] py-16">
       <div className="mx-auto max-w-[1600px] px-[3vw]">
-        <h2 className="text-center font-[family-name:var(--font-display)] text-[clamp(1.75rem,4vw,2.75rem)] text-plum-900">
+        <h2 className="text-center font-[family-name:var(--font-display)] text-[clamp(1.75rem,4vw,2.75rem)] text-paper">
           Real Looks, Real Confidence
         </h2>
-        <p className="mx-auto mt-3 max-w-xl text-center text-[0.9375rem] text-plum-900/55">
+        <p className="mx-auto mt-3 max-w-xl text-center text-[0.9375rem] text-blush-200/70">
           See the unit in motion — then picture it on you. This is the version of you that walks in
           and owns the room.
         </p>
@@ -307,7 +307,7 @@ export function RealLooks({ products }: { products: ShowcaseProduct[] }) {
             type="button"
             aria-label="Previous"
             onClick={() => step(-1)}
-            className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-plum-900/15 text-plum-700 transition-colors hover:bg-plum-700 hover:text-white sm:flex"
+            className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/20 text-blush-200 transition-colors hover:border-gold hover:bg-gold hover:text-ink sm:flex"
           >
             <ChevronLeft size={20} />
           </button>
@@ -339,7 +339,7 @@ export function RealLooks({ products }: { products: ShowcaseProduct[] }) {
             type="button"
             aria-label="Next"
             onClick={() => step(1)}
-            className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-plum-900/15 text-plum-700 transition-colors hover:bg-plum-700 hover:text-white sm:flex"
+            className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/20 text-blush-200 transition-colors hover:border-gold hover:bg-gold hover:text-ink sm:flex"
           >
             <ChevronRight size={20} />
           </button>
