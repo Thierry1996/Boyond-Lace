@@ -17,6 +17,7 @@ import { ShopByOccasion } from "@/components/home/ShopByOccasion";
 import { JoinTheCircle } from "@/components/home/JoinTheCircle";
 import { WholesaleSpecial } from "@/components/home/WholesaleSpecial";
 import { ShopByLook } from "@/components/home/ShopByLook";
+import { BlogPosts } from "@/components/home/BlogPosts";
 import { FreeGiftPopup, type GiftItem } from "@/components/marketing/FreeGiftPopup";
 import { BrandMarquee, ProofBand, EditorialSplit, PillarBento } from "@/components/home/Sections";
 
@@ -333,6 +334,10 @@ export default async function HomePage() {
           Two reference slides folded into one 3-up carousel; each look routes to
           its real collection or filtered shop view. */}
       <ShopByLook />
+
+      {/* Blog posts — the four newest Media Center articles, each linking to
+          /blog/[slug]. Distinct plum-gradient ground. */}
+      <BlogPosts />
 
       {/* Time-triggered spend-and-get-a-free-gift bundle offer. */}
       <FreeGiftPopup gifts={gifts} />
