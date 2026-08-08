@@ -43,7 +43,7 @@ export function DiscoverBanner({ href = "/shop-by-intentions" }: { href?: string
             </p>
             <Link
               href={href}
-              className="group mt-2 inline-flex items-center gap-2 rounded-full border border-gold/60 px-8 py-3.5 text-[0.75rem] font-semibold tracking-[0.16em] text-gold uppercase transition-all duration-300 hover:bg-gold hover:text-ink"
+              className="group mt-2 inline-flex items-center gap-2 rounded-md border border-gold/70 px-9 py-3.5 text-[0.75rem] font-semibold tracking-[0.16em] text-gold uppercase transition-all duration-300 hover:bg-gold hover:text-ink"
             >
               Shop Now
               <ArrowUpRight
