@@ -59,22 +59,20 @@ export function Header() {
   }, []);
 
   useEffect(() => {
-    // Hysteresis, not a single threshold. Rows 1–2 collapse only after scrolling
-    // DOWN past 160, and re-expand only after scrolling back UP under 70. A lone
-    // threshold flips condensed on/off with every pixel of jitter around that
-    // point, and each flip reverses the 500ms transition mid-flight — the flicker
-    // when you slide back and forth across it. The 90px deadband between the two
-    // bounds means the state holds unless you genuinely move. Collapse is a
-    // transform (below), not a height change, so it never reflows the document
-    // or triggers scroll anchoring — which was the up/down feedback loop.
-    // rAF-batched so a burst of scroll events resolves to one state read.
+    // Rows 1–2 aren't collapsed by JS anymore — they sit in normal flow and
+    // scroll away, while row 3 is natively sticky (no reflow, no scroll-anchor
+    // jitter). This flag only styles the docked nav: it fades in a drop shadow
+    // and the compact wordmark once the nav has actually reached the top. A
+    // small hysteresis band around the rows' height keeps that toggle from
+    // buzzing on and off right at the seam. rAF-batched.
     let raf = 0;
     const update = () => {
       raf = 0;
       const y = window.scrollY;
+      const on = topRowsH || 160;
       setCondensed((prev) => {
-        if (!prev && y > 160) return true;
-        if (prev && y < 70) return false;
+        if (!prev && y > on - 4) return true;
+        if (prev && y < on - 48) return false;
         return prev;
       });
     };
@@ -87,7 +85,7 @@ export function Header() {
       window.removeEventListener("scroll", onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [topRowsH]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -101,19 +99,12 @@ export function Header() {
   }, []);
 
   return (
-    <header
-      className="sticky top-0 z-50 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform"
-      style={{ transform: condensed ? `translateY(-${topRowsH}px)` : undefined }}
-      onMouseLeave={() => setOpenMenu(null)}
-    >
-      {/* Rows 1–2 collapse together via a transform on the whole header (below),
-          so no height animation, no reflow, no scroll-anchoring jitter. When
-          condensed they slide up out of view; they stay non-interactive there. */}
-      <div
-        ref={topRowsRef}
-        aria-hidden={condensed}
-        className={condensed ? "pointer-events-none" : ""}
-      >
+    // display:contents keeps the <header> landmark without a box, so the sticky
+    // nav below resolves its containing block against <body> and pins for the
+    // whole page — a real <header> box would confine sticky to the header alone.
+    <header className="contents">
+      {/* ── Rows 1–2 · normal flow — they scroll away; the nav below pins ──── */}
+      <div ref={topRowsRef}>
         {/* ── Row 1 · Announcement marquee ───────────────────────────────── */}
         <AnnouncementBar />
 
@@ -229,122 +220,129 @@ export function Header() {
         </div>
       </div>
 
-      {/* ── Row 3 · Primary navigation ───────────────────────────────────── */}
-      <div
-        className={`nav-band relative border-y border-ink/25 transition-shadow duration-500 ${
-          condensed ? "shadow-[0_14px_44px_-16px_rgb(0_0_0/0.75)]" : ""
-        }`}
-      >
-        <div className="flex w-full items-center gap-1 px-5">
-          {/* Condensed state reintroduces the mark so the brand never vanishes.
+      {/* ── Row 3 + overlays · the sticky unit ─────────────────────────────
+          Only this pins. It's a sibling of rows 1–2 (not their child), so its
+          sticky containing block is <body> and it stays put the whole page.
+          The mega menu and mobile drawer live inside it, so they anchor to the
+          docked nav rather than to the header's original top. */}
+      <div className="sticky top-0 z-50" onMouseLeave={() => setOpenMenu(null)}>
+        {/* ── Row 3 · Primary navigation ─────────────────────────────────── */}
+        <div
+          className={`nav-band relative border-y border-ink/25 transition-shadow duration-500 ${
+            condensed ? "shadow-[0_14px_44px_-16px_rgb(0_0_0/0.75)]" : ""
+          }`}
+        >
+          <div className="flex w-full items-center gap-1 px-5">
+            {/* Condensed state reintroduces the mark so the brand never vanishes.
               Width has to clear the full wordmark — 7rem clipped it to "Beyo". */}
-          <Link
-            href="/"
-            aria-label="Beyond Lace — home"
-            className={`shrink-0 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-              condensed ? "mr-5 max-w-[11rem] opacity-100" : "mr-0 max-w-0 opacity-0"
-            }`}
-          >
-            <span className="font-[family-name:var(--font-display)] text-[1.125rem] whitespace-nowrap text-ink">
-              Beyond&nbsp;Lace
-            </span>
-          </Link>
+            <Link
+              href="/"
+              aria-label="Beyond Lace — home"
+              className={`shrink-0 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                condensed ? "mr-5 max-w-[11rem] opacity-100" : "mr-0 max-w-0 opacity-0"
+              }`}
+            >
+              <span className="font-[family-name:var(--font-display)] text-[1.125rem] whitespace-nowrap text-ink">
+                Beyond&nbsp;Lace
+              </span>
+            </Link>
 
-          {/* Full-width, non-wrapping: items spread edge to edge across the band.
+            {/* Full-width, non-wrapping: items spread edge to edge across the band.
               At tighter widths the nine items exceed the band; rather than wrap
               or push the page, the band scrolls horizontally inside itself. */}
-          <nav
-            aria-label="Primary"
-            className="no-scrollbar hidden w-full items-stretch justify-between overflow-x-auto lg:flex"
-          >
-            {primaryNav.map((item) => (
-              <div
-                key={item.label}
-                className="flex"
-                onMouseEnter={() => setOpenMenu(item.groups ? item.label : null)}
-              >
-                <Link
-                  href={item.href}
-                  aria-expanded={item.groups ? openMenu === item.label : undefined}
-                  data-open={openMenu === item.label ? "true" : undefined}
-                  className="nav-link relative flex items-center px-2.5 py-4 text-[0.75rem] font-medium tracking-[0.08em] whitespace-nowrap text-ink uppercase xl:px-4 xl:text-[0.8125rem] xl:tracking-[0.12em]"
+            <nav
+              aria-label="Primary"
+              className="no-scrollbar hidden w-full items-stretch justify-between overflow-x-auto lg:flex"
+            >
+              {primaryNav.map((item) => (
+                <div
+                  key={item.label}
+                  className="flex"
+                  onMouseEnter={() => setOpenMenu(item.groups ? item.label : null)}
                 >
-                  <span className="relative z-[1]">{item.label}</span>
-                  <span
-                    aria-hidden="true"
-                    className={`absolute inset-x-3 bottom-2.5 h-[2px] origin-left bg-ink transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                      openMenu === item.label ? "scale-x-100" : "scale-x-0"
-                    }`}
-                  />
-                </Link>
-              </div>
-            ))}
-          </nav>
+                  <Link
+                    href={item.href}
+                    aria-expanded={item.groups ? openMenu === item.label : undefined}
+                    data-open={openMenu === item.label ? "true" : undefined}
+                    className="nav-link relative flex items-center px-2.5 py-4 text-[0.75rem] font-medium tracking-[0.08em] whitespace-nowrap text-ink uppercase xl:px-4 xl:text-[0.8125rem] xl:tracking-[0.12em]"
+                  >
+                    <span className="relative z-[1]">{item.label}</span>
+                    <span
+                      aria-hidden="true"
+                      className={`absolute inset-x-3 bottom-2.5 h-[2px] origin-left bg-ink transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                        openMenu === item.label ? "scale-x-100" : "scale-x-0"
+                      }`}
+                    />
+                  </Link>
+                </div>
+              ))}
+            </nav>
 
-          {/* Mobile: row 3 becomes a single labelled trigger */}
-          <button
-            onClick={() => setMobileOpen((v) => !v)}
-            className="flex w-full items-center justify-center gap-2 py-3.5 text-[0.8125rem] font-medium tracking-[0.14em] text-ink uppercase lg:hidden"
-            aria-expanded={mobileOpen}
-          >
-            <Menu size={14} strokeWidth={1.75} />
-            Browse the collection
-          </button>
+            {/* Mobile: row 3 becomes a single labelled trigger */}
+            <button
+              onClick={() => setMobileOpen((v) => !v)}
+              className="flex w-full items-center justify-center gap-2 py-3.5 text-[0.8125rem] font-medium tracking-[0.14em] text-ink uppercase lg:hidden"
+              aria-expanded={mobileOpen}
+            >
+              <Menu size={14} strokeWidth={1.75} />
+              Browse the collection
+            </button>
+          </div>
         </div>
+
+        {/* Mega menu */}
+        {primaryNav.map(
+          (item) =>
+            item.groups &&
+            openMenu === item.label && (
+              <MegaMenu key={item.label} item={item} onNavigate={() => setOpenMenu(null)} />
+            ),
+        )}
+
+        {/* Mobile drawer */}
+        {mobileOpen && (
+          <div className="border-t border-gold/20 bg-ink lg:hidden">
+            <nav aria-label="Mobile" className="max-h-[70vh] overflow-y-auto px-[6vw] py-8">
+              {/* The inline field is lg-only, so the drawer carries its own. */}
+              <div className="mb-6">
+                <HeaderSearch />
+              </div>
+              {primaryNav.map((item) => (
+                <div key={item.label} className="border-b border-white/[0.07] py-4">
+                  <Link
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="block text-lg text-paper"
+                  >
+                    {item.label}
+                  </Link>
+                  {item.groups && (
+                    <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
+                      {item.groups
+                        .flatMap((g) => g.links.slice(0, 4))
+                        .map((link) => (
+                          <Link
+                            key={link.href + link.label}
+                            href={link.href}
+                            onClick={() => setMobileOpen(false)}
+                            className="text-[0.8125rem] text-neutral-400"
+                          >
+                            {link.label}
+                          </Link>
+                        ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+              <div className="mt-6 flex flex-wrap items-center gap-6 border-t border-white/[0.07] pt-6">
+                <ThemeToggle />
+                <CurrencySelector />
+                <LanguageSelector />
+              </div>
+            </nav>
+          </div>
+        )}
       </div>
-
-      {/* Mega menu */}
-      {primaryNav.map(
-        (item) =>
-          item.groups &&
-          openMenu === item.label && (
-            <MegaMenu key={item.label} item={item} onNavigate={() => setOpenMenu(null)} />
-          ),
-      )}
-
-      {/* Mobile drawer */}
-      {mobileOpen && (
-        <div className="border-t border-gold/20 bg-ink lg:hidden">
-          <nav aria-label="Mobile" className="max-h-[70vh] overflow-y-auto px-[6vw] py-8">
-            {/* The inline field is lg-only, so the drawer carries its own. */}
-            <div className="mb-6">
-              <HeaderSearch />
-            </div>
-            {primaryNav.map((item) => (
-              <div key={item.label} className="border-b border-white/[0.07] py-4">
-                <Link
-                  href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="block text-lg text-paper"
-                >
-                  {item.label}
-                </Link>
-                {item.groups && (
-                  <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
-                    {item.groups
-                      .flatMap((g) => g.links.slice(0, 4))
-                      .map((link) => (
-                        <Link
-                          key={link.href + link.label}
-                          href={link.href}
-                          onClick={() => setMobileOpen(false)}
-                          className="text-[0.8125rem] text-neutral-400"
-                        >
-                          {link.label}
-                        </Link>
-                      ))}
-                  </div>
-                )}
-              </div>
-            ))}
-            <div className="mt-6 flex flex-wrap items-center gap-6 border-t border-white/[0.07] pt-6">
-              <ThemeToggle />
-              <CurrencySelector />
-              <LanguageSelector />
-            </div>
-          </nav>
-        </div>
-      )}
     </header>
   );
 }
