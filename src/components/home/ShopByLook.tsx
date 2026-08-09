@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductImage } from "@/components/ui/ProductImage";
+import { useResponsiveCount } from "@/lib/useResponsiveCount";
 
 /**
  * "Shop by Look" — an editorial discovery rail cloned from a competitor layout,
@@ -55,8 +56,14 @@ const LOOKS: Look[] = [
   },
 ];
 
-const VISIBLE = 3;
 const DWELL = 6000;
+// Look tiles per view by width: phone → 4K.
+const STEPS = [
+  { min: 0, count: 1 },
+  { min: 640, count: 2 },
+  { min: 1024, count: 3 },
+  { min: 2200, count: 4 },
+];
 
 function Card({ look }: { look: Look }) {
   return (
@@ -84,17 +91,18 @@ function Card({ look }: { look: Look }) {
 
 export function ShopByLook() {
   const reduced = useReducedMotion();
+  const visibleCount = useResponsiveCount(STEPS);
   const [base, setBase] = useState(0);
   const [paused, setPaused] = useState(false);
   const len = LOOKS.length;
 
   useEffect(() => {
-    if (paused || len <= VISIBLE) return;
+    if (paused || len <= visibleCount) return;
     const t = setInterval(() => setBase((b) => (b + 1) % len), DWELL);
     return () => clearInterval(t);
-  }, [paused, len]);
+  }, [paused, len, visibleCount]);
 
-  const count = Math.min(VISIBLE, len);
+  const count = Math.min(visibleCount, len);
   const visible = Array.from({ length: count }, (_, i) => LOOKS[(base + i) % len]);
   const step = (d: number) => setBase((b) => (b + d + len) % len);
 

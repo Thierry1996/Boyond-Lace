@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductImage } from "@/components/ui/ProductImage";
+import { useResponsiveCount } from "@/lib/useResponsiveCount";
 
 /**
  * "Shop by Occasion" — an impulse-buy conversion rail cloned from a tested
@@ -78,8 +79,14 @@ const OCCASIONS: Occasion[] = [
   },
 ];
 
-const VISIBLE = 4;
 const DWELL = 6000;
+// Tiles per view by width: phone → 4K.
+const STEPS = [
+  { min: 0, count: 2 },
+  { min: 768, count: 3 },
+  { min: 1024, count: 4 },
+  { min: 2200, count: 5 },
+];
 
 function Tile({ o }: { o: Occasion }) {
   return (
@@ -110,17 +117,18 @@ function Tile({ o }: { o: Occasion }) {
 
 export function ShopByOccasion() {
   const reduced = useReducedMotion();
+  const visibleCount = useResponsiveCount(STEPS);
   const [base, setBase] = useState(0);
   const [paused, setPaused] = useState(false);
   const len = OCCASIONS.length;
 
   useEffect(() => {
-    if (paused || len <= VISIBLE) return;
+    if (paused || len <= visibleCount) return;
     const t = setInterval(() => setBase((b) => (b + 1) % len), DWELL);
     return () => clearInterval(t);
-  }, [paused, len]);
+  }, [paused, len, visibleCount]);
 
-  const count = Math.min(VISIBLE, len);
+  const count = Math.min(visibleCount, len);
   const visible = Array.from({ length: count }, (_, i) => OCCASIONS[(base + i) % len]);
   const step = (d: number) => setBase((b) => (b + d + len) % len);
 

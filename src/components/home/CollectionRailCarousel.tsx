@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductImage } from "@/components/ui/ProductImage";
+import { useResponsiveCount } from "@/lib/useResponsiveCount";
 
 /**
  * Shop-by-collection carousel. Six bold cards to a view; every six seconds the
@@ -21,8 +22,16 @@ export interface RailItem {
   cardImage: string;
 }
 
-const VISIBLE = 6;
 const DWELL = 6000;
+// Cards per view by width: phone → 4K.
+const STEPS = [
+  { min: 0, count: 2 },
+  { min: 480, count: 3 },
+  { min: 768, count: 4 },
+  { min: 1024, count: 5 },
+  { min: 1280, count: 6 },
+  { min: 2200, count: 8 },
+];
 
 function Card({ c, active }: { c: RailItem; active: boolean }) {
   return (
@@ -52,18 +61,19 @@ function Card({ c, active }: { c: RailItem; active: boolean }) {
 
 export function CollectionRailCarousel({ items }: { items: RailItem[] }) {
   const reduced = useReducedMotion();
+  const visibleCount = useResponsiveCount(STEPS);
   const [base, setBase] = useState(0);
   const [paused, setPaused] = useState(false);
   const len = items.length;
 
   useEffect(() => {
-    if (paused || len <= VISIBLE) return;
+    if (paused || len <= visibleCount) return;
     const t = setInterval(() => setBase((b) => (b + 1) % len), DWELL);
     return () => clearInterval(t);
-  }, [paused, len]);
+  }, [paused, len, visibleCount]);
 
   if (len === 0) return null;
-  const count = Math.min(VISIBLE, len);
+  const count = Math.min(visibleCount, len);
   const visible = Array.from({ length: count }, (_, i) => items[(base + i) % len]);
   const step = (d: number) => setBase((b) => (b + d + len) % len);
 

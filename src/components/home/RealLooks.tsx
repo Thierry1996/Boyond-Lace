@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, ChevronDown, X, Zap } from "lucide-react";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { Money } from "@/components/ui/Money";
 import { useCart } from "@/lib/stores/cart";
+import { useResponsiveCount } from "@/lib/useResponsiveCount";
 
 /**
  * "Real Looks, Real Confidence" — four powerful UGC video impulse cards (image
@@ -28,8 +29,15 @@ export interface ShowcaseProduct {
   options: { name: string; values: { label: string; value: string; priceDelta?: number }[] }[];
 }
 
-const VISIBLE = 4;
 const DWELL = 6000;
+// Video cards per view by width: phone → 4K.
+const STEPS = [
+  { min: 0, count: 1 },
+  { min: 640, count: 2 },
+  { min: 1024, count: 3 },
+  { min: 1280, count: 4 },
+  { min: 2200, count: 5 },
+];
 
 function Media({ p, className = "" }: { p: ShowcaseProduct; className?: string }) {
   if (p.video) {
@@ -271,19 +279,20 @@ function Card({ p, active, onOpen }: { p: ShowcaseProduct; active: boolean; onOp
 
 export function RealLooks({ products }: { products: ShowcaseProduct[] }) {
   const reduced = useReducedMotion();
+  const visibleCount = useResponsiveCount(STEPS);
   const [base, setBase] = useState(0);
   const [paused, setPaused] = useState(false);
   const [qv, setQv] = useState<ShowcaseProduct | null>(null);
   const len = products.length;
 
   useEffect(() => {
-    if (paused || qv || len <= VISIBLE) return;
+    if (paused || qv || len <= visibleCount) return;
     const t = setInterval(() => setBase((b) => (b + 1) % len), DWELL);
     return () => clearInterval(t);
-  }, [paused, qv, len]);
+  }, [paused, qv, len, visibleCount]);
 
   if (len === 0) return null;
-  const count = Math.min(VISIBLE, len);
+  const count = Math.min(visibleCount, len);
   const visible = Array.from({ length: count }, (_, i) => products[(base + i) % len]);
   const step = (d: number) => setBase((b) => (b + d + len) % len);
 
