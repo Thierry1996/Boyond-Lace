@@ -8,6 +8,7 @@ import { ProductImage } from "@/components/ui/ProductImage";
 import { WishlistButton } from "@/components/ui/WishlistButton";
 import { QuickAddButton } from "./QuickAddButton";
 import { Money } from "@/components/ui/Money";
+import { useResponsiveCount } from "@/lib/useResponsiveCount";
 
 /**
  * Catalogue teaser carousel. Five equal cards to a view; every ~5s the strip
@@ -32,8 +33,16 @@ export interface ReachItem {
   video?: string;
 }
 
-const PANELS = 5;
 const DWELL = 5000;
+// Cards per view by width: phone → 4K. Rich cards (title, rating, price,
+// add-to-cart), so never more than two on a phone.
+const STEPS = [
+  { min: 0, count: 2 },
+  { min: 640, count: 3 },
+  { min: 1024, count: 4 },
+  { min: 1280, count: 5 },
+  { min: 2200, count: 6 },
+];
 
 /** Video-ready thumbnail. Renders an autoplay loop when a source exists. */
 function Thumb({ item, className = "" }: { item: ReachItem; className?: string }) {
@@ -180,18 +189,19 @@ export function ReachCarousel({
   dots?: boolean;
 }) {
   const reduced = useReducedMotion();
+  const visibleCount = useResponsiveCount(STEPS);
   const [base, setBase] = useState(0);
   const [paused, setPaused] = useState(false);
   const len = items.length;
 
   useEffect(() => {
-    if (paused || len <= PANELS) return;
+    if (paused || len <= visibleCount) return;
     const t = setInterval(() => setBase((b) => (b + 1) % len), DWELL);
     return () => clearInterval(t);
-  }, [paused, len]);
+  }, [paused, len, visibleCount]);
 
   if (len === 0) return null;
-  const count = Math.min(PANELS, len);
+  const count = Math.min(visibleCount, len);
   const visible = Array.from({ length: count }, (_, i) => items[(base + i) % len]);
   const step = (d: number) => setBase((b) => (b + d + len) % len);
 
@@ -218,7 +228,7 @@ export function ReachCarousel({
             type="button"
             aria-label="Previous"
             onClick={() => step(-1)}
-            className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full border border-plum-700/30 text-plum-700 transition-colors hover:bg-plum-700 hover:text-white sm:flex"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-plum-700/30 text-plum-700 transition-colors hover:bg-plum-700 hover:text-white sm:h-9 sm:w-9"
           >
             <ChevronLeft size={18} />
           </button>
@@ -250,7 +260,7 @@ export function ReachCarousel({
             type="button"
             aria-label="Next"
             onClick={() => step(1)}
-            className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full border border-plum-700/30 text-plum-700 transition-colors hover:bg-plum-700 hover:text-white sm:flex"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-plum-700/30 text-plum-700 transition-colors hover:bg-plum-700 hover:text-white sm:h-9 sm:w-9"
           >
             <ChevronRight size={18} />
           </button>
