@@ -9,6 +9,12 @@ import {
   Receipt,
   Wallet,
   ShieldCheck,
+  ShoppingBag,
+  PackageCheck,
+  Boxes,
+  RotateCcw,
+  UserRound,
+  Mail,
 } from "lucide-react";
 import { MonogramFlat } from "@/components/brand/Logo";
 import { requireAdmin } from "@/lib/admin-server";
@@ -18,14 +24,36 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const ADMIN_NAV = [
-  { label: "Overview", href: "/admin", icon: Gauge },
-  { label: "Ambassadors", href: "/admin/ambassadors", icon: Users },
-  { label: "Applications", href: "/admin/applications", icon: FileText },
-  { label: "Affiliate Links", href: "/admin/links", icon: Link2 },
-  { label: "Campaigns", href: "/admin/campaigns", icon: Megaphone },
-  { label: "Commissions", href: "/admin/commissions", icon: Receipt },
-  { label: "Payouts", href: "/admin/payouts", icon: Wallet },
+const NAV_GROUPS = [
+  {
+    group: "",
+    items: [{ label: "Overview", href: "/admin", icon: Gauge }],
+  },
+  {
+    group: "Operations",
+    items: [
+      { label: "Orders", href: "/admin/orders", icon: ShoppingBag },
+      { label: "Fulfilment", href: "/admin/fulfilment", icon: PackageCheck },
+      { label: "Inventory", href: "/admin/inventory", icon: Boxes },
+      { label: "Refunds", href: "/admin/refunds", icon: RotateCcw },
+      { label: "Customers", href: "/admin/customers", icon: UserRound },
+    ],
+  },
+  {
+    group: "Ambassadors",
+    items: [
+      { label: "Ambassadors", href: "/admin/ambassadors", icon: Users },
+      { label: "Applications", href: "/admin/applications", icon: FileText },
+      { label: "Affiliate Links", href: "/admin/links", icon: Link2 },
+      { label: "Campaigns", href: "/admin/campaigns", icon: Megaphone },
+      { label: "Commissions", href: "/admin/commissions", icon: Receipt },
+      { label: "Payouts", href: "/admin/payouts", icon: Wallet },
+    ],
+  },
+  {
+    group: "Marketing",
+    items: [{ label: "Signups & Newsletter", href: "/admin/marketing", icon: Mail }],
+  },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -51,20 +79,32 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             {admin.email}
           </p>
 
-          <nav aria-label="Admin console" className="flex gap-1.5 overflow-x-auto lg:flex-col">
-            {ADMIN_NAV.map((n) => (
-              <Link
-                key={n.href}
-                href={n.href}
-                className="group flex shrink-0 items-center gap-3 rounded-lg px-3.5 py-2.5 text-[0.875rem] text-neutral-400 transition-colors duration-300 hover:bg-plum-900 hover:text-paper"
-              >
-                <n.icon
-                  size={16}
-                  strokeWidth={1.6}
-                  className="shrink-0 text-neutral-400 transition-colors group-hover:text-gold"
-                />
-                {n.label}
-              </Link>
+          <nav
+            aria-label="Admin console"
+            className="flex gap-1.5 overflow-x-auto lg:flex-col lg:gap-0.5 lg:overflow-visible"
+          >
+            {NAV_GROUPS.map((g) => (
+              <div key={g.group || "top"} className="flex shrink-0 gap-1.5 lg:flex-col lg:gap-0.5">
+                {g.group && (
+                  <p className="mt-4 mb-1 hidden px-3.5 text-[0.5625rem] font-semibold tracking-[0.16em] text-neutral-500 uppercase lg:block">
+                    {g.group}
+                  </p>
+                )}
+                {g.items.map((n) => (
+                  <Link
+                    key={n.href}
+                    href={n.href}
+                    className="group flex shrink-0 items-center gap-3 rounded-lg px-3.5 py-2.5 text-[0.875rem] text-neutral-400 transition-colors duration-300 hover:bg-plum-900 hover:text-paper"
+                  >
+                    <n.icon
+                      size={16}
+                      strokeWidth={1.6}
+                      className="shrink-0 text-neutral-400 transition-colors group-hover:text-gold"
+                    />
+                    {n.label}
+                  </Link>
+                ))}
+              </div>
             ))}
           </nav>
 

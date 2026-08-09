@@ -1,13 +1,67 @@
 import Link from "next/link";
-import { Users, MousePointerClick, TrendingUp, DollarSign, Wallet, FileText } from "lucide-react";
-import { getAdminOverview, listCommissions } from "@/lib/admin-server";
+import {
+  Users,
+  MousePointerClick,
+  TrendingUp,
+  DollarSign,
+  Wallet,
+  FileText,
+  ShoppingBag,
+  Boxes,
+  PackageCheck,
+  UserRound,
+} from "lucide-react";
+import {
+  getAdminOverview,
+  getOrderStats,
+  getInventory,
+  listCustomers,
+  listCommissions,
+} from "@/lib/admin-server";
 import { Usd, AdminDate, StatusPill, AdminTable } from "@/components/admin/AdminUI";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminOverviewPage() {
-  const [o, commissions] = await Promise.all([getAdminOverview(), listCommissions()]);
+  const [o, orderStats, inv, customers, commissions] = await Promise.all([
+    getAdminOverview(),
+    getOrderStats(),
+    getInventory(),
+    listCustomers(),
+    listCommissions(),
+  ]);
   const recent = commissions.slice(0, 10);
+
+  const ops = [
+    {
+      label: "Orders",
+      value: orderStats.total.toLocaleString(),
+      sub: <Usd cents={orderStats.revenue} />,
+      icon: ShoppingBag,
+      href: "/admin/orders",
+    },
+    {
+      label: "Awaiting fulfilment",
+      value: orderStats.awaitingFulfilment.toLocaleString(),
+      sub: "in the queue",
+      icon: PackageCheck,
+      href: "/admin/fulfilment",
+    },
+    {
+      label: "SKUs in catalogue",
+      value: inv.skuCount.toLocaleString(),
+      sub: `${inv.outOfStock} on waitlist`,
+      icon: Boxes,
+      href: "/admin/inventory",
+    },
+    {
+      label: "Customer accounts",
+      value: customers.length.toLocaleString(),
+      sub: "shoppers & partners",
+      icon: UserRound,
+      href: "/admin/customers",
+    },
+  ];
 
   const kpis = [
     {
@@ -56,16 +110,41 @@ export default async function AdminOverviewPage() {
   return (
     <>
       <div className="mb-9">
-        <p className="eyebrow mb-2 text-gold">Universal monitoring · read-only</p>
+        <p className="eyebrow mb-2 text-gold">Universal monitoring · one login</p>
         <h1 className="font-[family-name:var(--font-display)] text-[clamp(2rem,4vw,3rem)] text-paper">
-          Ambassador economy.
+          Command centre.
         </h1>
         <p className="mt-2 text-[0.875rem] text-neutral-400">
-          Every application, link, click, attributed sale and payout across the programme — live
-          from the ledger.
+          Sales, orders, fulfilment, inventory, customers, marketing and the ambassador ledger —
+          every stream in one place, live.
         </p>
       </div>
 
+      {/* Operations at a glance */}
+      <p className="eyebrow mb-3 text-neutral-500">Operations</p>
+      <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {ops.map((k) => (
+          <Link
+            key={k.label}
+            href={k.href}
+            className="group rounded-xl border border-white/[0.07] p-6 transition-colors duration-300 hover:border-gold/50"
+          >
+            <k.icon
+              size={18}
+              strokeWidth={1.6}
+              className="text-neutral-400 group-hover:text-gold"
+            />
+            <p className="mt-5 font-[family-name:var(--font-display)] text-3xl text-paper tabular-nums">
+              {k.value}
+            </p>
+            <p className="eyebrow mt-1.5">{k.label}</p>
+            <p className="mt-1 text-[0.6875rem] text-neutral-500">{k.sub}</p>
+          </Link>
+        ))}
+      </div>
+
+      {/* Ambassador economy */}
+      <p className="eyebrow mb-3 text-neutral-500">Ambassador programme</p>
       <div className="mb-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {kpis.map((k) => {
           const body = (

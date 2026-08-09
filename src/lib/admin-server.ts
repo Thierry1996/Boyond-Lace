@@ -2,7 +2,9 @@ import "server-only";
 import { redirect, notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { getSessionUser } from "@/lib/ambassador-server";
-import type { User } from "@prisma/client";
+import { commerce, type Product } from "@/lib/commerce";
+import { getDataClient } from "@/lib/supabase/data";
+import type { OrderStatus, User } from "@prisma/client";
 
 /**
  * Admin console data layer — universal, read-only monitoring for Beyond Lace
@@ -189,4 +191,167 @@ export async function listPayoutMethods() {
     take: 500,
     include: { ambassador: { select: { displayName: true, referralCode: true } } },
   });
+}
+
+/* ── Operations: orders, fulfilment, refunds ─────────────────────────────────
+   These read the Order graph. Orders persist once the checkout/payment pipeline
+   is wired; until then the views render their empty state and are ready to fill.
+   Fulfilment and refunds are the same order stream filtered by lifecycle. */
+
+const FULFIL_STATUSES: OrderStatus[] = ["PAID", "IN_PRODUCTION", "DISPATCHED"];
+const REFUND_STATUSES: OrderStatus[] = ["RETURN_REQUESTED", "REFUNDED"];
+
+export async function listOrders(statuses?: OrderStatus[]) {
+  await requireAdmin();
+  return db.order.findMany({
+    where: statuses ? { status: { in: statuses } } : undefined,
+    orderBy: { placedAt: "desc" },
+    take: 500,
+    include: {
+      user: { select: { email: true, name: true } },
+      lines: { include: { variant: { select: { sku: true } } } },
+    },
+  });
+}
+
+export const listFulfilmentQueue = () => listOrders(FULFIL_STATUSES);
+export const listRefunds = () => listOrders(REFUND_STATUSES);
+
+export interface OrderStats {
+  total: number;
+  revenue: number;
+  awaitingFulfilment: number;
+  refundsOpen: number;
+}
+export async function getOrderStats(): Promise<OrderStats> {
+  await requireAdmin();
+  const [count, paid, fulfil, refunds] = await Promise.all([
+    db.order.count(),
+    db.order.aggregate({ _sum: { total: true }, where: { status: { not: "CANCELLED" } } }),
+    db.order.count({ where: { status: { in: FULFIL_STATUSES } } }),
+    db.order.count({ where: { status: "RETURN_REQUESTED" } }),
+  ]);
+  return {
+    total: count,
+    revenue: paid._sum.total ?? 0,
+    awaitingFulfilment: fulfil,
+    refundsOpen: refunds,
+  };
+}
+
+/* ── Customers ───────────────────────────────────────────────────────────── */
+
+export async function listCustomers() {
+  await requireAdmin();
+  return db.user.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 500,
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      loyaltyPoints: true,
+      createdAt: true,
+      _count: { select: { orders: true, reviews: true } },
+    },
+  });
+}
+
+/* ── Inventory — read from the live catalogue (the commerce adapter) ─────────
+   This is the storefront's real source of truth today. Stock edits/new SKUs
+   write through once the catalogue moves behind the Prisma product tables; the
+   view already surfaces every SKU, its price and stock state. */
+
+export interface InventoryRow {
+  id: string;
+  sku: string;
+  title: string;
+  line: string;
+  price: number;
+  compareAtPrice?: number;
+  variants: number;
+  inStock: boolean;
+}
+export interface InventorySnapshot {
+  rows: InventoryRow[];
+  skuCount: number;
+  inStock: number;
+  outOfStock: number;
+  byLine: { line: string; count: number }[];
+}
+
+export async function getInventory(): Promise<InventorySnapshot> {
+  await requireAdmin();
+  const products: Product[] = await commerce.getProducts({ limit: 500 });
+  const rows: InventoryRow[] = products.map((p) => ({
+    id: p.id,
+    sku: p.sku,
+    title: p.title,
+    line: p.line,
+    price: p.price,
+    compareAtPrice: p.compareAtPrice,
+    variants: p.options.reduce((n, o) => n * Math.max(1, o.values.length), 1),
+    inStock: p.inStock,
+  }));
+  const byLineMap = new Map<string, number>();
+  for (const r of rows) byLineMap.set(r.line, (byLineMap.get(r.line) ?? 0) + 1);
+  return {
+    rows,
+    skuCount: rows.length,
+    inStock: rows.filter((r) => r.inStock).length,
+    outOfStock: rows.filter((r) => !r.inStock).length,
+    byLine: [...byLineMap.entries()].map(([line, count]) => ({ line, count })),
+  };
+}
+
+/* ── Marketing signups (Supabase email-marketing table) ─────────────────────
+   Newsletter + capture leads land in Supabase. The publishable key is RLS-gated,
+   so this returns [] if reads are locked — the page then shows a clear note
+   rather than a hard error. A service-role read wires in when configured. */
+
+export interface MarketingLead {
+  id: string;
+  created_at: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
+  phone: string | null;
+  role: string | null;
+  marketing_prefs: string | null;
+  source: string | null;
+  page_path: string | null;
+  prize: string | null;
+}
+export interface MarketingSnapshot {
+  leads: MarketingLead[];
+  available: boolean;
+  bySource: { source: string; count: number }[];
+}
+
+export async function getMarketingSignups(): Promise<MarketingSnapshot> {
+  await requireAdmin();
+  const sb = getDataClient();
+  if (!sb) return { leads: [], available: false, bySource: [] };
+  try {
+    const { data, error } = await sb
+      .from("Beyond-Lace email-marketing")
+      .select(
+        "id, created_at, first_name, last_name, email, phone, role, marketing_prefs, source, page_path, prize",
+      )
+      .order("created_at", { ascending: false })
+      .limit(500);
+    if (error || !data) return { leads: [], available: false, bySource: [] };
+    const leads = data as MarketingLead[];
+    const map = new Map<string, number>();
+    for (const l of leads)
+      map.set(l.source ?? "unknown", (map.get(l.source ?? "unknown") ?? 0) + 1);
+    return {
+      leads,
+      available: true,
+      bySource: [...map.entries()].map(([source, count]) => ({ source, count })),
+    };
+  } catch {
+    return { leads: [], available: false, bySource: [] };
+  }
 }
