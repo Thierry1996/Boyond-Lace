@@ -25,10 +25,11 @@ export async function getCurrentAdmin(): Promise<User | null> {
   return user?.role === "ADMIN" ? user : null;
 }
 
-/** Guard for every admin page/read: redirect signed-out, 404 for non-admins. */
+/** Guard for every admin page/read: redirect signed-out to the dedicated admin
+ * sign-in, 404 for signed-in non-admins (the console never reveals it exists). */
 export async function requireAdmin(): Promise<User> {
   const u = await getSessionUser();
-  if (!u?.email) redirect("/sign-in");
+  if (!u?.email) redirect("/admin-login");
   const user = await db.user.findUnique({ where: { email: u.email } });
   if (!user || user.role !== "ADMIN") notFound();
   return user;

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { MonogramFlat } from "@/components/brand/Logo";
 import { requireAdmin } from "@/lib/admin-server";
+import { AdminSignOut } from "@/components/admin/AdminSignOut";
 
 export const metadata: Metadata = {
   title: { default: "Admin Console", template: "%s — Beyond Lace Admin" },
@@ -74,10 +75,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <span className="eyebrow text-gold">Admin Console</span>
             </span>
           </Link>
-          <p className="mb-8 inline-flex items-center gap-1.5 text-[0.6875rem] text-neutral-400">
-            <ShieldCheck size={12} className="text-emerald-400" />
-            {admin.email}
-          </p>
+          <div className="mb-8 rounded-lg border border-white/[0.07] bg-white/[0.02] px-3 py-2.5">
+            <p className="inline-flex items-center gap-1.5 text-[0.75rem] text-paper">
+              <ShieldCheck size={12} className="shrink-0 text-emerald-400" />
+              <span className="truncate">{admin.email}</span>
+            </p>
+            <p className="mt-0.5 font-mono text-[0.5625rem] text-neutral-500">
+              ID {admin.id.slice(0, 12)} · {admin.role}
+            </p>
+          </div>
 
           <nav
             aria-label="Admin console"
@@ -108,9 +114,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             ))}
           </nav>
 
-          <div className="mt-auto hidden border-t border-white/[0.07] pt-6 lg:block">
-            <p className="text-[0.6875rem] leading-relaxed text-neutral-500">
-              Read-only monitoring. All figures are live from the ambassador ledger.
+          <div className="mt-6 border-t border-white/[0.07] pt-5 lg:mt-auto">
+            <AdminSignOut />
+            <p className="mt-4 hidden text-[0.625rem] leading-relaxed text-neutral-500 lg:block">
+              Standalone control centre · live data from the operations database.
             </p>
           </div>
         </div>

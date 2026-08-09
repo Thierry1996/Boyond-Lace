@@ -12,6 +12,7 @@ import { ExitIntentPopup } from "@/components/marketing/ExitIntentPopup";
 import { SourcingRequest } from "@/components/marketing/SourcingRequest";
 import { BackToTop } from "@/components/ui/BackToTop";
 import { RefTracker } from "@/components/ambassador/RefTracker";
+import { ChromeGate } from "@/components/layout/ChromeGate";
 
 /**
  * Brand Kit v2 typography — kit fonts only, no substitutes
@@ -74,23 +75,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         <Providers>
-          <a
-            href="#main"
-            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-plum-700 focus:px-4 focus:py-2 focus:text-paper"
-          >
-            Skip to content
-          </a>
-          <Header />
+          {/* Storefront chrome — hidden on the standalone /admin control centre */}
+          <ChromeGate>
+            <a
+              href="#main"
+              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-plum-700 focus:px-4 focus:py-2 focus:text-paper"
+            >
+              Skip to content
+            </a>
+            <Header />
+          </ChromeGate>
           <main id="main">{children}</main>
-          <Footer />
-          <CartDrawer />
-          <ChannelGate />
-          <SupportWidget />
-          <SpinWheelPopup />
-          <ExitIntentPopup />
-          <SourcingRequest />
-          <BackToTop />
-          <RefTracker />
+          <ChromeGate>
+            <Footer />
+            <CartDrawer />
+            <ChannelGate />
+            <SupportWidget />
+            <SpinWheelPopup />
+            <ExitIntentPopup />
+            <SourcingRequest />
+            <BackToTop />
+            <RefTracker />
+          </ChromeGate>
         </Providers>
       </body>
     </html>
