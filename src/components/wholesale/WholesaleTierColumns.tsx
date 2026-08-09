@@ -26,7 +26,10 @@ export function WholesaleTierColumns({ pricing }: { pricing: WholesalePricing })
       {ranges.map((t) => {
         const active = t.minQty === deepestReached;
         return (
-          <div key={t.label} className={`px-4 py-4 ${active ? "bg-gold/[0.06]" : ""}`}>
+          <div
+            key={t.label}
+            className={`px-2.5 py-3.5 sm:px-4 sm:py-4 ${active ? "bg-gold/[0.06]" : ""}`}
+          >
             <Money
               usd={t.unitPrice}
               className="font-[family-name:var(--font-display)] text-[clamp(1.25rem,2.4vw,1.75rem)] text-paper tabular-nums"

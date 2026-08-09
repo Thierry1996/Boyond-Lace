@@ -384,6 +384,22 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     @apply bg-background text-foreground;
+    /* App-wide guard: no page may ever produce a horizontal scrollbar on any
+       device. `clip` (not `hidden`/`auto`) never creates a scroll container, so
+       it leaves the vertical scroll and the sticky header untouched — it only
+       trims stray sub-pixel/edge overflow that would otherwise let a phone pan
+       sideways. Sections that must scroll sideways (carousels, wide tables) opt
+       in locally with their own `overflow-x-auto`. */
+    overflow-x: clip;
+  }
+
+  /* Media and embeds never overrun their column, regardless of intrinsic size. */
+  img,
+  svg,
+  video,
+  canvas,
+  iframe {
+    max-width: 100%;
   }
 
   /* Cormorant runs light — display sizes carry weight 500 to hold the page. */
