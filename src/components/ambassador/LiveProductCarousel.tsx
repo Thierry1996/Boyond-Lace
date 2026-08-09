@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Star, Plus, Eye, X } from "lucide-react";
+import { Star, Eye, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { Product } from "@/lib/commerce";
 import { Money } from "@/components/ui/Money";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { commissionOn, type PromotableCategory } from "@/lib/ambassador";
+import { PromoteButton } from "./PromoteButton";
 
 /**
  * Live promotable-product carousel for one category.
@@ -157,13 +158,10 @@ function ProductTile({
             <Eye size={12} strokeWidth={1.75} />
             Quick view
           </button>
-          <Link
-            href={`/product/${product.slug}`}
-            className="cta-secondary flex items-center gap-1.5 rounded-full px-4 py-2 text-[0.6875rem] tracking-[0.1em] uppercase"
-          >
-            <Plus size={12} strokeWidth={1.75} />
-            Promote
-          </Link>
+          <PromoteButton
+            product={product}
+            className="cta-secondary flex items-center gap-1.5 rounded-full px-4 py-2 text-[0.6875rem] tracking-[0.1em] uppercase disabled:opacity-60"
+          />
         </div>
 
         {/* Commission chip */}
@@ -274,12 +272,12 @@ function QuickView({
             >
               Open product page
             </Link>
-            <Link
-              href="/ambassadors/dashboard/links"
-              className="border-b border-gold pb-1 text-[0.75rem] tracking-[0.1em] text-gold uppercase"
+            <PromoteButton
+              product={product}
+              className="inline-flex items-center gap-1.5 border-b border-gold pb-1 text-[0.75rem] tracking-[0.1em] text-gold uppercase transition-opacity hover:opacity-75 disabled:opacity-60"
             >
-              Generate affiliate link
-            </Link>
+              Promote &amp; get link
+            </PromoteButton>
           </div>
         </div>
       </div>

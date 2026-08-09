@@ -79,6 +79,70 @@ export async function listLinks(ambassadorId: string): Promise<AffiliateLink[]> 
   });
 }
 
+/**
+ * Attribution: record a click on the affiliate link that owns `code` and return
+ * the ambassador it belongs to, so a `bl_ref` cookie can be set. Returns null if
+ * the code is unknown (stale/mistyped links never create phantom rows).
+ */
+export async function recordLinkClick(
+  code: string,
+): Promise<{ ambassadorId: string; referralCode: string } | null> {
+  const link = await db.affiliateLink.findUnique({
+    where: { code },
+    select: { ambassadorId: true },
+  });
+  if (!link) return null;
+  await db.affiliateLink.update({ where: { code }, data: { clicks: { increment: 1 } } });
+  const amb = await db.ambassador.findUnique({
+    where: { id: link.ambassadorId },
+    select: { referralCode: true },
+  });
+  return { ambassadorId: link.ambassadorId, referralCode: amb?.referralCode ?? code };
+}
+
+/**
+ * Conversion: attribute a paid order to the affiliate link `code`. Increments
+ * the link's conversion count and writes a PENDING CommissionEntry against the
+ * owning ambassador at their tier rate, so account managers can trace the sold
+ * unit back to its source and the payout ledger stays honest.
+ */
+export async function recordConversion(
+  code: string,
+  orderRef: string,
+  orderTotalCents: number,
+): Promise<boolean> {
+  const link = await db.affiliateLink.findUnique({
+    where: { code },
+    select: { ambassadorId: true },
+  });
+  if (!link) return false;
+  const amb = await db.ambassador.findUnique({
+    where: { id: link.ambassadorId },
+    select: { commissionBps: true },
+  });
+  const rateBps = amb?.commissionBps ?? 1500;
+  // Idempotent: never double-credit the same order.
+  const existing = await db.commissionEntry.findFirst({
+    where: { ambassadorId: link.ambassadorId, orderRef },
+    select: { id: true },
+  });
+  if (existing) return true;
+  await db.$transaction([
+    db.affiliateLink.update({ where: { code }, data: { conversions: { increment: 1 } } }),
+    db.commissionEntry.create({
+      data: {
+        ambassadorId: link.ambassadorId,
+        orderRef,
+        orderTotal: orderTotalCents,
+        rateBps,
+        amount: Math.round((orderTotalCents * rateBps) / 10_000),
+        status: "PENDING",
+      },
+    }),
+  ]);
+  return true;
+}
+
 export async function getDefaultPayoutMethod(ambassadorId: string): Promise<PayoutMethod | null> {
   return db.payoutMethod.findFirst({
     where: { ambassadorId },

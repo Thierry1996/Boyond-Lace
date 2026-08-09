@@ -1,4 +1,11 @@
-import type { CapSize, Product, ProductOption, WholesalePricing } from "./types";
+import type {
+  CapConstruction,
+  CapSize,
+  LaceType,
+  Product,
+  ProductOption,
+  WholesalePricing,
+} from "./types";
 
 /**
  * Seed catalog. Copy is written to the Beyond Lace voice defined in
@@ -139,7 +146,65 @@ export const CARE_BUNDLE_SLUG = "beyond-wig-care-bundle";
  */
 const UNIT_ATTACHMENTS = [INSTALL_KIT_SLUG, CARE_BUNDLE_SLUG];
 
-export const catalog: Product[] = [
+/* ── Fit normalization ───────────────────────────────────────────────────────
+   Fit is a sales-critical, returns-critical axis. Every wearable unit must show
+   the shopper its lace size, cap type and cap circumference before checkout, and
+   let them pick the circumference that fits. Rather than hand-repeat that on
+   every SKU, we derive it: each unit gets a Cap-size (circumference) option if it
+   lacks one, and Lace-size / Cap-type / Circumference rows are surfaced in specs.
+   Closures, wefted bundles and accessories have no cap, so they are skipped. */
+
+const LACE_SIZE_LABEL: Record<LaceType, string> = {
+  "hd-swiss-full": "Full HD Swiss lace — part anywhere",
+  "hd-swiss-13x6": '13"×6" HD Swiss frontal',
+  "hd-swiss-13x4": '13"×4" HD Swiss frontal',
+  "hd-swiss-7x5": '7"×5" bye-bye-knots',
+  "hd-swiss-5x5": '5"×5" HD Swiss closure',
+  "closure-4x4": '4"×4" lace closure',
+  "silk-top": "Silk top",
+  glueless: "Glueless HD lace",
+};
+
+const CAP_TYPE_LABEL: Record<CapConstruction, string> = {
+  "standard-lace": "Standard lace — adhesive install",
+  "glueless-wear-go": "Glueless wear & go — adjustable band + combs",
+  "bye-bye-knots": "Bye-bye-knots — pre-bleached, wear & go",
+  "reinforced-trans-fit": "Reinforced trans-fit — deep, extra-secure cap",
+  closure: "Closure — sew-in component",
+  "wefted-bundles": "Wefted bundles — sew-in component",
+};
+
+/** Construction that is a sew-in component (no head cap), not a capped unit.
+   Note we key off construction, not lace size: a 5×5/4×4 *closure wig* with an
+   adjustable band has a circumference, whereas a raw closure/bundle does not. */
+const NON_CAP_CONSTRUCTION = new Set<CapConstruction>(["closure", "wefted-bundles"]);
+
+function withFitDetails(p: Product): Product {
+  const isUnit = p.price > 0 && !["care", "kit", "try-on", "bundle"].includes(p.line);
+  const hasCap = isUnit && !(p.capConstruction && NON_CAP_CONSTRUCTION.has(p.capConstruction));
+
+  // 1) Ensure a Cap-size (circumference) selector so fit is chosen at checkout.
+  let options = p.options;
+  if (hasCap && !options.some((o) => /cap\s*size/i.test(o.name))) {
+    options = [...options, capSizeOption(["petite", "average", "large"])];
+  }
+
+  // 2) Surface lace size, cap type and circumference in the spec sheet.
+  const specs = [...p.specs];
+  const addSpec = (label: string, value?: string) => {
+    if (value && !specs.some((s) => s.label.toLowerCase() === label.toLowerCase())) {
+      specs.unshift({ label, value });
+    }
+  };
+  if (hasCap) addSpec("Circumference", 'Adjustable — petite 21" · average 22.5" · large 23.5"');
+  addSpec("Cap type", p.capConstruction ? CAP_TYPE_LABEL[p.capConstruction] : undefined);
+  addSpec("Lace size", p.laceType ? LACE_SIZE_LABEL[p.laceType] : undefined);
+
+  if (options === p.options && specs.length === p.specs.length) return p;
+  return { ...p, options, specs };
+}
+
+const rawCatalog: Product[] = [
   {
     id: "bl-luxe-001",
     slug: "the-reinvention-hd-swiss-full-lace",
@@ -1442,3 +1507,10 @@ export const catalog: Product[] = [
     inStock: true,
   },
 ];
+
+/**
+ * The live catalog: every wearable unit normalized to carry its fit facts (lace
+ * size, cap type, cap circumference) and a cap-size selector, so no shopper
+ * reaches checkout without the information a good fit depends on.
+ */
+export const catalog: Product[] = rawCatalog.map(withFitDetails);
