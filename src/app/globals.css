@@ -907,8 +907,21 @@
 /* ── Clerk components ─────────────────────────────────────────────────────────
    This @clerk/nextjs build ignores appearance `elements` overrides, so the dark
    sign-in card's text contrast is corrected here against Clerk's stable classes.
-   Social-button and input text are left alone (they sit on light surfaces). */
+   Inputs sit on their own light field, so their text is left alone. */
 .cl-headerTitle {
+  color: var(--color-paper) !important;
+}
+
+/* Social buttons render transparent on the dark card, but Clerk paints their
+   label black-on-black — lift the text to paper and give the button an outline. */
+.cl-socialButtonsBlockButton {
+  border-color: rgb(255 255 255 / 0.16) !important;
+  background-color: rgb(255 255 255 / 0.03) !important;
+}
+.cl-socialButtonsBlockButton:hover {
+  background-color: rgb(255 255 255 / 0.06) !important;
+}
+.cl-socialButtonsBlockButtonText {
   color: var(--color-paper) !important;
 }
 .cl-formFieldLabel,
