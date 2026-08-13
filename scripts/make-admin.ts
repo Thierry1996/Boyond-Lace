@@ -17,13 +17,21 @@ import { PrismaPg } from "@prisma/adapter-pg";
 // this runs the same way `next dev` does without extra flags.
 function resolveDatabaseUrl(): string {
   if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
-  try {
-    for (const line of readFileSync(".env", "utf8").split("\n")) {
-      const m = line.match(/^\s*DATABASE_URL\s*=\s*"?([^"\n]+)"?\s*$/);
-      if (m) return m[1];
+  // Check .env.local first (Next.js gives it priority), then .env. Strip
+  // surrounding single OR double quotes — dotenv does, so a raw regex must too,
+  // otherwise pg receives a quoted string and mis-parses the host.
+  for (const file of [".env.local", ".env"]) {
+    try {
+      for (const line of readFileSync(file, "utf8").split("\n")) {
+        const m = line.match(/^\s*DATABASE_URL\s*=\s*(.+?)\s*$/);
+        if (m) {
+          const value = m[1].replace(/^(['"])(.*)\1$/, "$2");
+          if (value) return value;
+        }
+      }
+    } catch {
+      /* file absent — try the next one */
     }
-  } catch {
-    /* no .env */
   }
   throw new Error("DATABASE_URL is not set (env or .env).");
 }
