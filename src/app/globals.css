@@ -903,3 +903,31 @@
   --sidebar-border: rgb(201 166 107 / 0.35);
   --sidebar-ring: var(--color-gold);
 }
+
+/* ── Clerk components ─────────────────────────────────────────────────────────
+   This @clerk/nextjs build ignores appearance `elements` overrides, so the dark
+   sign-in card's text contrast is corrected here against Clerk's stable classes.
+   Social-button and input text are left alone (they sit on light surfaces). */
+.cl-headerTitle {
+  color: var(--color-paper) !important;
+}
+.cl-formFieldLabel,
+.cl-identityPreviewText {
+  color: color-mix(in srgb, var(--color-paper) 88%, transparent) !important;
+}
+.cl-headerSubtitle,
+.cl-dividerText,
+.cl-footerActionText {
+  color: color-mix(in srgb, var(--color-paper) 68%, transparent) !important;
+}
+.cl-footerActionLink {
+  color: var(--color-gold) !important;
+}
+.cl-dividerLine {
+  background-color: rgb(255 255 255 / 0.12) !important;
+}
+
+/* Admin door: no self-serve sign-up (admins are provisioned, never self-made). */
+.clerk-admin .cl-footerAction {
+  display: none !important;
+}

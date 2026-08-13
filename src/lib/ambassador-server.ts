@@ -1,6 +1,6 @@
 import "server-only";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { currentUser } from "@clerk/nextjs/server";
+import { clerkEnabled } from "@/lib/clerk";
 import { db } from "@/lib/db";
 import {
   AdFormat,
@@ -34,10 +34,19 @@ function genReferralCode(seed: string): string {
   return `BL-${base}${rand}`;
 }
 
-/** The Better Auth session user, or null when signed out. */
-export async function getSessionUser() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  return session?.user ?? null;
+/**
+ * The signed-in user as { email, name }, or null when signed out / auth dormant.
+ * Backed by Clerk; short-circuits to null when Clerk keys are absent so the app
+ * degrades gracefully instead of throwing on an unconfigured backend.
+ */
+export async function getSessionUser(): Promise<{ email: string; name: string | null } | null> {
+  if (!clerkEnabled) return null;
+  const user = await currentUser();
+  if (!user) return null;
+  const email =
+    user.primaryEmailAddress?.emailAddress ?? user.emailAddresses[0]?.emailAddress ?? null;
+  if (!email) return null;
+  return { email, name: user.fullName ?? user.firstName ?? null };
 }
 
 /** Resolve (and provision on first access) the current user's Ambassador. */

@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
+import { clerkEnabled } from "@/lib/clerk";
+import { clerkAppearance } from "@/lib/clerk-appearance";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/layout/CartDrawer";
@@ -65,7 +68,7 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
+  const tree = (
     <html lang="en" className={cormorant.variable} suppressHydrationWarning>
       <body className="min-h-screen antialiased">
         {/* Applies the saved light/dark choice before first paint — no flash. */}
@@ -101,4 +104,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </body>
     </html>
   );
+
+  // Clerk activates only when configured; otherwise the app renders without the
+  // provider so the storefront works with no auth backend (see @/lib/clerk).
+  return clerkEnabled ? <ClerkProvider appearance={clerkAppearance}>{tree}</ClerkProvider> : tree;
 }
