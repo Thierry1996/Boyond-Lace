@@ -35,6 +35,21 @@ export async function requireAdmin(): Promise<User> {
   return user;
 }
 
+/* ── Admin team (access control) ─────────────────────────────────────────────
+   The console has no public "create admin" link on purpose — that would let
+   anyone grant themselves total backend access. The first admin is bootstrapped
+   from the database (scripts/make-admin.ts); after that, existing admins add or
+   remove other admins here, session-gated. */
+
+export async function listAdmins() {
+  await requireAdmin();
+  return db.user.findMany({
+    where: { role: "ADMIN" },
+    orderBy: { createdAt: "asc" },
+    select: { id: true, email: true, name: true, createdAt: true },
+  });
+}
+
 export interface AdminOverview {
   ambassadors: number;
   approvedAmbassadors: number;

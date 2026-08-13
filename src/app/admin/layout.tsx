@@ -15,6 +15,7 @@ import {
   RotateCcw,
   UserRound,
   Mail,
+  UserCog,
 } from "lucide-react";
 import { MonogramFlat } from "@/components/brand/Logo";
 import { requireAdmin } from "@/lib/admin-server";
@@ -54,6 +55,10 @@ const NAV_GROUPS = [
   {
     group: "Marketing",
     items: [{ label: "Signups & Newsletter", href: "/admin/marketing", icon: Mail }],
+  },
+  {
+    group: "Settings",
+    items: [{ label: "Admins & Access", href: "/admin/team", icon: UserCog }],
   },
 ];
 
