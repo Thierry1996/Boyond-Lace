@@ -32,12 +32,20 @@ export function ProductImage({
   className?: string;
   ratio?: string;
 }) {
+  // Real product photography (Medusa media / the catalogue CSV) arrives as URLs;
+  // known keys stay on-brand gradient fields. Cover-fit real images, gradient the rest.
+  const isReal = /^(https?:|\/|data:)/.test(src);
   return (
     <div
       role="img"
       aria-label={alt}
       className={`relative overflow-hidden bg-neutral-900 ${className}`}
-      style={{ aspectRatio: ratio, background: FIELDS[src] ?? FIELDS.plum }}
+      style={{
+        aspectRatio: ratio,
+        background: isReal
+          ? `#121012 center/cover no-repeat url("${src}")`
+          : FIELDS[src] ?? FIELDS.plum,
+      }}
     >
       {/* Grain keeps large flat gradients from banding on cheap panels. */}
       <div
