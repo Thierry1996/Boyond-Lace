@@ -1,12 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import {
-  commerce,
-  type ProductQuery,
-  type Texture,
-  type LaceType,
-  type Shade,
-} from "@/lib/commerce";
+import { commerce, type ProductQuery } from "@/lib/commerce";
 import { ProductCard } from "@/components/ui/ProductCard";
 
 export const metadata: Metadata = {
@@ -15,54 +9,48 @@ export const metadata: Metadata = {
     "Hand-tied HD Swiss lace human hair wigs, glueless units, and silk tops. Batch-consistent virgin Remy, individually bleached knots, pre-plucked hairlines.",
 };
 
-const FILTERS = {
-  texture: {
-    label: "Texture",
-    options: [
-      { value: "straight", label: "Straight" },
-      { value: "body-wave", label: "Body Wave" },
-      { value: "deep-wave", label: "Deep Wave" },
-      { value: "kinky-straight", label: "Kinky Straight" },
-      { value: "kinky-curly", label: "Kinky Curly (4C)" },
-      { value: "jerry-curl", label: "Jerry Curl" },
-    ],
-  },
-  lace: {
+/**
+ * Native filter facets, built from the collections the importer sorts products
+ * into. Each group is one filter key; its options are collection names. Only
+ * collections that actually exist in the catalogue are shown, so the filter
+ * grows automatically as the catalogue does — no hand-maintained enum lists.
+ */
+const FILTER_GROUPS: { key: string; label: string; collections: string[] }[] = [
+  {
+    key: "construction",
     label: "Construction",
-    options: [
-      { value: "hd-swiss-full", label: "Full Lace" },
-      { value: "hd-swiss-13x6", label: "13x6 Frontal" },
-      { value: "hd-swiss-13x4", label: "13x4 Frontal" },
-      { value: "hd-swiss-7x5", label: "7x5 Bye-Bye-Knots" },
-      { value: "hd-swiss-5x5", label: "5x5 Closure" },
-      { value: "closure-4x4", label: "4x4 Closure + Bundles" },
-      { value: "glueless", label: "Glueless" },
-      { value: "silk-top", label: "Silk Top" },
+    collections: [
+      "Full Lace Wigs", "Lace Front Wigs", "Lace Closure Wigs", "Glueless Wigs",
+      "U-Part & V-Part Wigs", "Lace Frontals", "Closures", "Full Lace Units",
     ],
   },
-  shade: {
-    label: "Shade",
-    options: [
-      { value: "natural-black", label: "Natural Black" },
-      { value: "espresso", label: "Espresso" },
-      { value: "brunette", label: "Brunette" },
-      { value: "auburn-copper", label: "Auburn Copper" },
-      { value: "burgundy-99j", label: "Burgundy 99J" },
-      { value: "honey-balayage", label: "Honey Balayage" },
-      { value: "blonde-613", label: "613 Blonde" },
-      { value: "platinum", label: "Platinum" },
+  {
+    key: "cut",
+    label: "Length & Cut",
+    collections: ["Bob & Short Wigs", "Long Wigs", "Layered Wigs", "Curtain Bang Wigs"],
+  },
+  {
+    key: "texture",
+    label: "Texture",
+    collections: [
+      "Straight Wigs", "Body Wave Wigs", "Deep Wave Wigs", "Loose & Water Wave Wigs",
+      "Curly Wigs", "Kinky Straight Wigs",
     ],
   },
-  fit: {
-    label: "Fit",
-    options: [
-      { value: "reinforced-trans-fit", label: "Trans-fit reinforced cap" },
-      { value: "glueless-wear-go", label: "Wear & go" },
-      { value: "bye-bye-knots", label: "Bye-bye-knots" },
-      { value: "closure", label: "Closure" },
-    ],
+  {
+    key: "colour",
+    label: "Colour",
+    collections: ["Natural Black Wigs", "Coloured & Fashion Wigs"],
   },
-} as const;
+  {
+    key: "range",
+    label: "Range",
+    collections: ["Extensions & Bundles"],
+  },
+];
+const FACET_OF = new Map<string, string>(
+  FILTER_GROUPS.flatMap((g) => g.collections.map((c) => [c, g.key] as [string, string])),
+);
 
 const SORTS = [
   { value: "featured", label: "Featured" },
@@ -73,12 +61,9 @@ const SORTS = [
 ] as const;
 
 type SearchParams = Record<string, string | string[] | undefined>;
+const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
-function one(v: string | string[] | undefined): string | undefined {
-  return Array.isArray(v) ? v[0] : v;
-}
-
-/** Builds a href that toggles a single filter value while preserving the rest. */
+/** Toggle a single filter value while preserving the rest. */
 function toggleHref(params: SearchParams, key: string, value: string): string {
   const next = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
@@ -92,22 +77,26 @@ function toggleHref(params: SearchParams, key: string, value: string): string {
 
 export default async function ShopPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams;
+  const sort = (one(params.sort) as ProductQuery["sort"]) ?? "featured";
 
-  const query: ProductQuery = {
-    texture: one(params.texture) ? [one(params.texture) as Texture] : undefined,
-    laceType: one(params.lace) ? [one(params.lace) as LaceType] : undefined,
-    shade: one(params.shade) ? [one(params.shade) as Shade] : undefined,
-    capConstruction: one(params.fit)
-      ? [one(params.fit) as NonNullable<ProductQuery["capConstruction"]>[number]]
-      : undefined,
-    line: one(params.line) as ProductQuery["line"],
-    sort: (one(params.sort) as ProductQuery["sort"]) ?? "featured",
+  // Live, unfiltered set — the facets and their counts are derived from it.
+  const all = await commerce.getProducts({ sort });
+
+  // Active collection filter per facet group (AND across groups).
+  const active = FILTER_GROUPS.map((g) => one(params[g.key])).filter(Boolean) as string[];
+  const products = active.length
+    ? all.filter((p) => active.every((c) => (p.collections ?? []).includes(c)))
+    : all;
+
+  // Counts respect the *other* active facets, so refining never dead-ends.
+  const countFor = (collection: string) => {
+    const others = active.filter((c) => FACET_OF.get(c) !== FACET_OF.get(collection));
+    return all.filter(
+      (p) =>
+        (p.collections ?? []).includes(collection) &&
+        others.every((c) => (p.collections ?? []).includes(c)),
+    ).length;
   };
-
-  const products = await commerce.getProducts(query);
-  const activeCount = ["texture", "lace", "shade", "fit", "line"].filter((k) =>
-    one(params[k]),
-  ).length;
 
   return (
     <>
@@ -116,7 +105,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
           <div className="flex items-center justify-between border-t border-white/[0.07] pt-4">
             <span className="eyebrow">The collection</span>
             <span className="eyebrow hidden md:block">Hand-tied · Batch-matched</span>
-            <span className="eyebrow tabular-nums">{products.length} units</span>
+            <span className="eyebrow tabular-nums">{all.length} units</span>
           </div>
           <div className="mt-16 max-w-3xl">
             <h1 className="text-[clamp(2.5rem,6vw,5rem)] leading-[0.95] text-paper">
@@ -133,48 +122,54 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
 
       <div className="mx-auto max-w-[1440px] px-[4vw] py-16">
         <div className="grid gap-14 lg:grid-cols-[240px_1fr]">
-          {/* Filters */}
+          {/* Filters — one group per facet, options are live collections */}
           <aside aria-label="Filters">
             <div className="flex items-center justify-between border-b border-white/[0.07] pb-4">
               <p className="eyebrow">Refine</p>
-              {activeCount > 0 && (
-                <Link
-                  href="/shop"
-                  className="text-[0.75rem] text-gold underline-offset-4 hover:underline"
-                >
-                  Clear ({activeCount})
+              {active.length > 0 && (
+                <Link href="/shop" className="text-[0.75rem] text-gold underline-offset-4 hover:underline">
+                  Clear ({active.length})
                 </Link>
               )}
             </div>
 
-            {Object.entries(FILTERS).map(([key, group]) => (
-              <div key={key} className="border-b border-white/[0.07] py-6">
-                <p className="eyebrow mb-4">{group.label}</p>
-                <ul className="space-y-2.5">
-                  {group.options.map((opt) => {
-                    const active = one(params[key]) === opt.value;
-                    return (
-                      <li key={opt.value}>
-                        <Link
-                          href={toggleHref(params, key, opt.value)}
-                          aria-pressed={active}
-                          className={`flex items-center gap-2.5 text-[0.875rem] transition-colors ${
-                            active ? "text-gold" : "text-neutral-400 hover:text-paper"
-                          }`}
-                        >
-                          <span
-                            className={`inline-block h-[7px] w-[7px] rotate-45 border transition-colors ${
-                              active ? "border-gold bg-gold" : "border-neutral-400"
+            {FILTER_GROUPS.map((group) => {
+              const opts = group.collections
+                .map((c) => ({ name: c, count: countFor(c) }))
+                .filter((o) => o.count > 0 || one(params[group.key]) === o.name);
+              if (!opts.length) return null;
+              return (
+                <div key={group.key} className="border-b border-white/[0.07] py-6">
+                  <p className="eyebrow mb-4">{group.label}</p>
+                  <ul className="space-y-2.5">
+                    {opts.map((opt) => {
+                      const isActive = one(params[group.key]) === opt.name;
+                      return (
+                        <li key={opt.name}>
+                          <Link
+                            href={toggleHref(params, group.key, opt.name)}
+                            aria-pressed={isActive}
+                            className={`flex items-center gap-2.5 text-[0.875rem] transition-colors ${
+                              isActive ? "text-gold" : "text-neutral-400 hover:text-paper"
                             }`}
-                          />
-                          {opt.label}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            ))}
+                          >
+                            <span
+                              className={`inline-block h-[7px] w-[7px] rotate-45 border transition-colors ${
+                                isActive ? "border-gold bg-gold" : "border-neutral-400"
+                              }`}
+                            />
+                            <span className="flex-1">{opt.name.replace(/ Wigs?$/, "")}</span>
+                            <span className="text-[0.6875rem] text-neutral-400/70 tabular-nums">
+                              {opt.count}
+                            </span>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              );
+            })}
 
             <div className="mt-8 border border-gold/25 p-6">
               <p className="eyebrow mb-3 text-gold">Unsure of your shade?</p>
@@ -198,13 +193,13 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
               </p>
               <div className="flex flex-wrap items-center gap-5">
                 {SORTS.map((s) => {
-                  const active = (one(params.sort) ?? "featured") === s.value;
+                  const isActive = (one(params.sort) ?? "featured") === s.value;
                   return (
                     <Link
                       key={s.value}
                       href={toggleHref(params, "sort", s.value)}
                       className={`text-[0.75rem] tracking-[0.08em] uppercase transition-colors ${
-                        active ? "text-gold" : "text-neutral-400 hover:text-paper"
+                        isActive ? "text-gold" : "text-neutral-400 hover:text-paper"
                       }`}
                     >
                       {s.label}
@@ -218,8 +213,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
               <div className="border border-white/[0.07] px-8 py-24 text-center">
                 <h2 className="text-2xl text-paper">Nothing matches that combination.</h2>
                 <p className="mx-auto mt-4 max-w-md text-[0.9375rem] leading-relaxed text-neutral-400">
-                  Our capsule runs are deliberately narrow — two hundred units and no restock. Widen
-                  the filters, or tell us what you were looking for and we will tell you when it
+                  Widen the filters, or tell us what you were looking for and we will tell you when it
                   exists.
                 </p>
                 <Link

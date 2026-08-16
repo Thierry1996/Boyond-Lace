@@ -152,6 +152,8 @@ export interface Product {
    */
   crossSell?: string[];
   options: ProductOption[];
+  /** Collections/categories this unit belongs to — the native filter facets. */
+  collections?: string[];
   images: Array<{ src: string; alt: string }>;
   /** Product demo video (Cloudinary/hosted URL). Plays in the gallery when set. */
   video?: string;

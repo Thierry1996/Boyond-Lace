@@ -163,6 +163,7 @@ function mapProduct(m: any): Product {
     density: md.density ? String(md.density) : undefined,
     origin: md.origin ? String(md.origin) : undefined,
     options: mappedOptions,
+    collections: (m.categories ?? []).map((c: any) => c.name).filter(Boolean),
     images:
       (m.images ?? []).length > 0
         ? m.images.map((i: any) => ({ src: i.url, alt: m.title }))
