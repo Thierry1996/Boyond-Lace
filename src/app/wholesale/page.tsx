@@ -24,8 +24,15 @@ import {
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { WholesaleApplyForm } from "@/components/forms/WholesaleApplyForm";
 import { WholesaleBuyerSurvey } from "@/components/forms/WholesaleBuyerSurvey";
-import { WholesaleCatalog, type CatalogCategory } from "@/components/wholesale/WholesaleCatalog";
+import { WholesaleCategoryRow } from "@/components/wholesale/WholesaleCategoryRow";
+import { CustomizedSection } from "@/components/wholesale/CustomizedSection";
+import { CustomerFeedback } from "@/components/wholesale/CustomerFeedback";
+import { WholesaleRewards } from "@/components/wholesale/WholesaleRewards";
 import { WholesaleShowcase } from "@/components/wholesale/WholesaleShowcase";
+import {
+  ProductCategoriesShowcase,
+  type CategoryCard,
+} from "@/components/wholesale/ProductCategoriesShowcase";
 import { commerce, type Product } from "@/lib/commerce";
 import { WHOLESALE_MOQ } from "@/lib/channel";
 import { URLS, EMAILS, PHONE_DISPLAY, RESPONSE_TIMES } from "@/lib/contact";
@@ -372,59 +379,23 @@ function volumeTierFor(qty: number): QuotePrefill["volume"] {
 }
 
 /**
- * Sorts the whole catalogue into the trade categories the section presents.
- * Trade-priced units (wigs, bundles) carry their deepest-tier "from" price and
- * route to the wholesale PDP; accessories keep their retail price and route to
- * the retail PDP, so no card ever links somewhere that doesn't exist. The
- * private-label programme SKU is excluded — it is the programme, not a product.
+ * Groups the wholesale-channel products into category rows for the tile grids —
+ * one row per collection with enough SKUs to fill a shelf. Rows appear/populate
+ * automatically as wholesale datasets are imported, so no hand-kept category list.
  */
-function buildCatalog(products: Product[]): CatalogCategory[] {
-  const wigs: CatalogCategory["items"] = [];
-  const extensions: CatalogCategory["items"] = [];
-  const accessories: CatalogCategory["items"] = [];
-
-  for (const p of products) {
-    if (p.slug === "beyond-lace-pro-salon-program") continue;
-
-    const base = {
-      id: p.id,
-      title: p.title,
-      tagline: p.tagline,
-      imgSrc: p.images[0].src,
-      imgAlt: p.images[0].alt,
-    };
-
-    if (p.wholesale) {
-      const deepest = [...p.wholesale.tiers].sort((a, b) => b.minQty - a.minQty)[0];
-      const item = {
-        ...base,
-        href: `/wholesale/product/${p.slug}`,
-        priceUsd: deepest.unitPrice,
-        pricePrefix: "from",
-        unitLabel: "/ unit",
-        badge: `MOQ ${WHOLESALE_MOQ}`,
-      };
-      if (p.line === "bundle") extensions.push(item);
-      else wigs.push(item);
-    } else if (["kit", "care", "try-on"].includes(p.line)) {
-      accessories.push({
-        ...base,
-        href: `/product/${p.slug}`,
-        priceUsd: p.price,
-        unitLabel: "/ each",
-        badge: "Trade on application",
-      });
-    }
+function buildWholesaleRows(products: Product[]) {
+  const wholesale = products.filter((p) => p.wholesale && p.slug !== "beyond-lace-pro-salon-program");
+  const byCollection = new Map<string, Product[]>();
+  for (const p of wholesale) {
+    const key = (p.collections ?? [])[0] ?? "Signature Wigs";
+    if (!byCollection.has(key)) byCollection.set(key, []);
+    byCollection.get(key)!.push(p);
   }
-
-  // Fixed order and labels mirror the trade catalogue's four categories; the
-  // crochet & braiding line has no SKUs yet and renders its expanding-line card.
-  return [
-    { key: "wigs", label: "Wigs", items: wigs },
-    { key: "extensions", label: "Extensions & Bundles", items: extensions },
-    { key: "crochet", label: "Crochet & Braiding", items: [] },
-    { key: "accessories", label: "Accessories & Styling", items: accessories },
-  ];
+  return [...byCollection.entries()]
+    .filter(([, ps]) => ps.length >= 3)
+    .sort((a, b) => b[1].length - a[1].length)
+    .slice(0, 6)
+    .map(([name, ps]) => ({ name, products: ps }));
 }
 
 /**
@@ -465,7 +436,35 @@ export default async function WholesalePage({
     resolvePrefill(await searchParams),
     commerce.getProducts({ sort: "launch-rank" }),
   ]);
-  const catalog = buildCatalog(products);
+  const wholesaleRows = buildWholesaleRows(products);
+
+  // Real catalogue photography for the Custom Styles grid.
+  const styleImages = products
+    .filter((p) => /^https?:/.test(p.images?.[0]?.src ?? ""))
+    .slice(0, 7)
+    .map((p) => ({ src: p.images[0].src, alt: p.title }));
+
+  // Bento showcase cards — a real hero image pulled from each headline
+  // collection, linking into the shop filtered to it. Order is the bento order.
+  const CATEGORY_CARDS: { name: string; label: string; key: string }[] = [
+    { name: "Coloured & Fashion Wigs", label: "Colourful Human Hair Wigs", key: "colour" },
+    { name: "Glueless Wigs", label: "Natural Colour Glueless Wigs", key: "construction" },
+    { name: "Extensions & Bundles", label: "Human Hair Bundles", key: "range" },
+    { name: "Lace Front Wigs", label: "HD Lace Frontals & Closures", key: "construction" },
+    { name: "Curly Wigs", label: "Curly & Textured Wigs", key: "texture" },
+    { name: "Long Wigs", label: "Long Hair Extensions", key: "cut" },
+  ];
+  const heroImage = (name: string) => {
+    const hit = products.find(
+      (p) => (p.collections ?? []).includes(name) && /^https?:/.test(p.images?.[0]?.src ?? ""),
+    );
+    return hit ? { image: hit.images[0].src, alt: hit.images[0].alt } : { image: undefined, alt: name };
+  };
+  const categoryCards: CategoryCard[] = CATEGORY_CARDS.map((c) => ({
+    label: c.label,
+    href: `/shop?${c.key}=${encodeURIComponent(c.name)}`,
+    ...heroImage(c.name),
+  }));
 
   return (
     <>
@@ -691,17 +690,41 @@ export default async function WholesalePage({
         </div>
       </Section>
 
-      {/* 5 — Catalogue */}
-      <section id="catalog" className="scroll-mt-32 bg-plum-900 py-28">
+      {/* Product categories — bento showcase of headline collections */}
+      <ProductCategoriesShowcase cards={categoryCards} />
+
+      {/* 5 — Wholesale category rows: banner + quick-view/buy tile grid per category */}
+      <section id="catalog" className="scroll-mt-32 bg-plum-900 pt-28 pb-24">
         <div className="mx-auto max-w-[1440px] px-[4vw]">
           <SectionHeading
             eyebrow="Our wholesale catalogue"
             title="Every category to build a complete hair business."
-            body="Wigs, extensions and bundles, and the accessories that turn a first order into a shelf — curated, quality-graded, and ready to ship. Trade pricing from five units per SKU."
+            body="Wigs, extensions and bundles, curated and trade-priced from five units per SKU — and shoppable in place: quick-view any unit and buy it now without a detour to the full catalogue."
           />
-          <div className="mt-14">
-            <WholesaleCatalog categories={catalog} />
-          </div>
+        </div>
+
+        {wholesaleRows.map((row, i) => (
+          <WholesaleCategoryRow
+            key={row.name}
+            title={row.name}
+            href="/wholesale/catalog"
+            products={row.products}
+            flip={i % 2 === 1}
+          />
+        ))}
+
+        {/* Private-label capability — custom styles + colour ring */}
+        <CustomizedSection styleImages={styleImages} />
+
+        {/* Kept: the route to the complete wholesale catalogue grid */}
+        <div className="mx-auto mt-14 max-w-[1440px] px-[4vw] text-center">
+          <Link
+            href="/wholesale/catalog"
+            className="inline-flex items-center gap-2 border border-gold px-10 py-4 text-[0.8125rem] tracking-[0.14em] text-gold uppercase transition-all duration-500 hover:bg-gold hover:text-ink"
+          >
+            See the full wholesale catalogue
+            <ArrowRight size={16} strokeWidth={2} />
+          </Link>
         </div>
       </section>
 
@@ -751,6 +774,12 @@ export default async function WholesalePage({
           ))}
         </div>
       </Section>
+
+      {/* Social proof — customer feedback + chat gallery (placeholder content) */}
+      <CustomerFeedback />
+
+      {/* Marketing perk — volume rewards to drive repeat orders */}
+      <WholesaleRewards />
 
       {/* 7 — Specifications */}
       <section id="specs" className="scroll-mt-32 border-t border-white/[0.07] py-28">
