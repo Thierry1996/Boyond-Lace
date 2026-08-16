@@ -26,11 +26,27 @@ export function ProductCard({ product }: { product: Product }) {
       <div className="relative overflow-hidden rounded-lg bg-plum-900">
         <WishlistButton slug={product.slug} />
 
+        {/* Primary image. On hover it fades to the second image (the flipper),
+            and the whole frame eases in a touch — the print-crop move. */}
         <ProductImage
           src={product.images[0].src}
           alt={product.images[0].alt}
-          className="transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.07]"
+          className={`transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05] ${
+            product.images[1] ? "group-hover:opacity-0" : ""
+          }`}
         />
+        {product.images[1] && (
+          <span
+            aria-hidden="true"
+            className="absolute inset-0 opacity-0 transition-opacity duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:opacity-100"
+          >
+            <ProductImage
+              src={product.images[1].src}
+              alt={product.images[1].alt}
+              className="h-full transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
+            />
+          </span>
+        )}
 
         {/* Scrim deepens on hover so the overlay type stays legible */}
         <span

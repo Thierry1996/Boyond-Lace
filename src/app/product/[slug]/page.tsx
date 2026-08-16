@@ -117,7 +117,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           {/* Left — sticky media */}
           <div className="lg:sticky lg:top-24 lg:self-start">
             <Reveal direction="up" duration={1.05}>
-              <ProductGallery images={product.images} title={product.title} />
+              <ProductGallery images={product.images} title={product.title} video={product.video} />
             </Reveal>
           </div>
 
@@ -142,7 +142,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               as="h1"
               text={product.title}
               delay={0.06}
-              className="text-[clamp(2.25rem,5vw,3.5rem)] leading-[1.02] text-paper"
+              className="text-[clamp(1.5rem,2.8vw,2.25rem)] leading-[1.12] text-paper text-balance"
             />
 
             <Reveal delay={0.22} duration={0.8}>

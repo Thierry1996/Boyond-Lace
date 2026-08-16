@@ -1,53 +1,65 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Play, X, Expand } from "lucide-react";
 import { ProductImage } from "@/components/ui/ProductImage";
 
 /**
- * Product gallery — a vertical rail of eight 1:1 thumbnails to the left of a
- * tall main viewer. The main image swipes with chevrons; one slide is the
- * product video, which plays in a lightbox. The whole gallery is meant to be
- * wrapped in a sticky container by the PDP so it holds while the details column
- * beside it scrolls.
- *
- * Real photography and video are not shot yet, so slots beyond the supplied
- * images are on-brand gradient placeholders — the interaction is real, the
- * media is provisional.
+ * Product gallery — a vertical rail of thumbnails to the left of a tall main
+ * viewer. Real product photography and (when supplied) a real product video are
+ * shown; the main image magnifies under the cursor, and any slide expands into a
+ * lightbox. When a product carries no video, no video slide is shown.
  */
 
 const FILLER_POSTERS = ["velvet", "plum", "aurora", "blush", "gold", "mono", "mono-2"];
-const THUMB_COUNT = 8;
-/** Which slide is the product video. */
-const VIDEO_INDEX = 2;
+const MIN_SLIDES = 6;
+/** How far the main image magnifies on hover. */
+const ZOOM = 2.1;
 
 interface Slide {
   src: string;
   alt: string;
-  video: boolean;
+  video?: string;
 }
 
 export function ProductGallery({
   images,
   title,
+  video,
 }: {
   images: Array<{ src: string; alt: string }>;
   title: string;
+  video?: string;
 }) {
-  // Build exactly eight slides: the real images first, then gradient fillers.
-  const slides: Slide[] = Array.from({ length: THUMB_COUNT }, (_, i) => {
-    const real = images[i];
-    return {
-      src: real?.src ?? FILLER_POSTERS[i % FILLER_POSTERS.length],
-      alt: real?.alt ?? `${title} — view ${i + 1}`,
-      video: i === VIDEO_INDEX,
-    };
-  });
+  // Real images first; pad up to a tidy minimum with on-brand gradient posters.
+  const imageSlides: Slide[] = Array.from(
+    { length: Math.max(MIN_SLIDES, Math.min(images.length, 8)) },
+    (_, i) => {
+      const real = images[i];
+      return {
+        src: real?.src ?? FILLER_POSTERS[i % FILLER_POSTERS.length],
+        alt: real?.alt ?? `${title} — view ${i + 1}`,
+      };
+    },
+  );
+  // The video, when present, rides as its own slide (poster = first real image).
+  const slides: Slide[] = video
+    ? [
+        imageSlides[0],
+        { src: images[0]?.src ?? imageSlides[0].src, alt: `${title} — video`, video },
+        ...imageSlides.slice(1),
+      ]
+    : imageSlides;
 
   const [current, setCurrent] = useState(0);
   const [lightbox, setLightbox] = useState(false);
+  const [origin, setOrigin] = useState("50% 50%");
+  const [zooming, setZooming] = useState(false);
 
-  const go = (dir: 1 | -1) => setCurrent((c) => (c + dir + slides.length) % slides.length);
+  const go = (dir: 1 | -1) => {
+    setZooming(false);
+    setCurrent((c) => (c + dir + slides.length) % slides.length);
+  };
 
   useEffect(() => {
     if (!lightbox) return;
@@ -63,9 +75,14 @@ export function ProductGallery({
 
   const active = slides[current];
 
+  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    setOrigin(`${((e.clientX - r.left) / r.width) * 100}% ${((e.clientY - r.top) / r.height) * 100}%`);
+  };
+
   return (
     <div className="flex gap-3 sm:gap-4">
-      {/* Thumbnail rail — eight 1:1 squares, vertical, to the left */}
+      {/* Thumbnail rail */}
       <div className="flex w-14 shrink-0 flex-col gap-3 sm:w-16 lg:w-[4.5rem]">
         {slides.map((s, i) => {
           const selected = i === current;
@@ -93,15 +110,40 @@ export function ProductGallery({
 
       {/* Main viewer */}
       <div className="group relative min-w-0 flex-1">
-        <div className="overflow-hidden rounded-lg">
-          <ProductImage src={active.src} alt={active.alt} ratio="4 / 5" />
-        </div>
+        {active.video ? (
+          <div className="overflow-hidden rounded-lg bg-ink">
+            <video
+              key={active.video}
+              src={active.video}
+              poster={/^https?:/.test(active.src) ? active.src : undefined}
+              controls
+              playsInline
+              preload="metadata"
+              className="aspect-[4/5] w-full bg-ink object-cover"
+            />
+          </div>
+        ) : (
+          <div
+            className="relative cursor-zoom-in overflow-hidden rounded-lg"
+            onMouseEnter={() => setZooming(true)}
+            onMouseLeave={() => setZooming(false)}
+            onMouseMove={onMove}
+            onClick={() => setLightbox(true)}
+          >
+            <div
+              className="transition-transform duration-200 ease-out"
+              style={{ transform: zooming ? `scale(${ZOOM})` : "scale(1)", transformOrigin: origin }}
+            >
+              <ProductImage src={active.src} alt={active.alt} ratio="4 / 5" />
+            </div>
+          </div>
+        )}
 
         {/* Prev / next */}
         <button
           type="button"
           onClick={() => go(-1)}
-          aria-label="Previous image"
+          aria-label="Previous"
           className="absolute top-1/2 left-3 z-[2] grid size-10 -translate-y-1/2 place-items-center rounded-full bg-ink/50 text-paper opacity-0 backdrop-blur-sm transition-all duration-300 hover:bg-gold hover:text-ink group-hover:opacity-100"
         >
           <ChevronLeft size={18} strokeWidth={1.75} />
@@ -109,25 +151,14 @@ export function ProductGallery({
         <button
           type="button"
           onClick={() => go(1)}
-          aria-label="Next image"
+          aria-label="Next"
           className="absolute top-1/2 right-3 z-[2] grid size-10 -translate-y-1/2 place-items-center rounded-full bg-ink/50 text-paper opacity-0 backdrop-blur-sm transition-all duration-300 hover:bg-gold hover:text-ink group-hover:opacity-100"
         >
           <ChevronRight size={18} strokeWidth={1.75} />
         </button>
 
-        {/* Video play OR zoom, depending on the slide */}
-        {active.video ? (
-          <button
-            type="button"
-            onClick={() => setLightbox(true)}
-            aria-label="Play product video"
-            className="absolute inset-0 z-[1] grid place-items-center"
-          >
-            <span className="grid size-16 place-items-center rounded-full bg-ink/45 text-paper backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:bg-gold hover:text-ink">
-              <Play size={24} strokeWidth={1.75} className="ml-0.5" fill="currentColor" />
-            </span>
-          </button>
-        ) : (
+        {/* Expand — images only (the video has its own controls) */}
+        {!active.video && (
           <button
             type="button"
             onClick={() => setLightbox(true)}
@@ -138,13 +169,12 @@ export function ProductGallery({
           </button>
         )}
 
-        {/* Counter */}
-        <span className="absolute bottom-3 left-3 z-[2] rounded bg-ink/55 px-2 py-0.5 text-[0.6875rem] text-paper tabular-nums backdrop-blur-sm">
+        <span className="pointer-events-none absolute bottom-3 left-3 z-[2] rounded bg-ink/55 px-2 py-0.5 text-[0.6875rem] text-paper tabular-nums backdrop-blur-sm">
           {current + 1} / {slides.length}
         </span>
       </div>
 
-      {/* Lightbox — video player or full image, with the same chevrons */}
+      {/* Lightbox — real video or full image */}
       {lightbox && (
         <div
           role="dialog"
@@ -166,36 +196,35 @@ export function ProductGallery({
             >
               <X size={18} strokeWidth={1.75} />
             </button>
-            <div className="relative aspect-[4/5] max-h-[80vh] sm:aspect-video">
-              <ProductImage src={active.src} alt={active.alt} ratio="16 / 9" className="h-full" />
-              {active.video && (
-                <span className="absolute inset-0 grid place-items-center">
-                  <span className="grid size-16 place-items-center rounded-full bg-gold text-ink">
-                    <Play size={24} strokeWidth={1.75} className="ml-0.5" fill="currentColor" />
-                  </span>
-                </span>
-              )}
-              <button
-                type="button"
-                onClick={() => go(-1)}
-                aria-label="Previous"
-                className="absolute top-1/2 left-4 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-ink/50 text-paper hover:bg-gold hover:text-ink"
-              >
-                <ChevronLeft size={18} strokeWidth={1.75} />
-              </button>
-              <button
-                type="button"
-                onClick={() => go(1)}
-                aria-label="Next"
-                className="absolute top-1/2 right-4 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-ink/50 text-paper hover:bg-gold hover:text-ink"
-              >
-                <ChevronRight size={18} strokeWidth={1.75} />
-              </button>
-            </div>
-            {active.video && (
-              <p className="px-6 py-4 text-[0.75rem] text-neutral-400">
-                Product video is an illustrative placeholder pending our media shoot.
-              </p>
+            {active.video ? (
+              <video
+                src={active.video}
+                poster={/^https?:/.test(active.src) ? active.src : undefined}
+                controls
+                autoPlay
+                playsInline
+                className="max-h-[80vh] w-full bg-ink"
+              />
+            ) : (
+              <div className="relative aspect-[4/5] max-h-[80vh] sm:aspect-video">
+                <ProductImage src={active.src} alt={active.alt} ratio="16 / 9" className="h-full" />
+                <button
+                  type="button"
+                  onClick={() => go(-1)}
+                  aria-label="Previous"
+                  className="absolute top-1/2 left-4 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-ink/50 text-paper hover:bg-gold hover:text-ink"
+                >
+                  <ChevronLeft size={18} strokeWidth={1.75} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => go(1)}
+                  aria-label="Next"
+                  className="absolute top-1/2 right-4 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-ink/50 text-paper hover:bg-gold hover:text-ink"
+                >
+                  <ChevronRight size={18} strokeWidth={1.75} />
+                </button>
+              </div>
             )}
           </div>
         </div>

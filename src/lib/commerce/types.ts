@@ -153,6 +153,10 @@ export interface Product {
   crossSell?: string[];
   options: ProductOption[];
   images: Array<{ src: string; alt: string }>;
+  /** Product demo video (Cloudinary/hosted URL). Plays in the gallery when set. */
+  video?: string;
+  /** Real customer review media, when a dataset supplies it. */
+  reviewMedia?: Array<{ type: "image" | "video"; src: string }>;
   /** Spec rows for the PDP detail table. */
   specs: Array<{ label: string; value: string }>;
   rating: number;
