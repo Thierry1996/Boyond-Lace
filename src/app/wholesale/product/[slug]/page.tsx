@@ -9,6 +9,7 @@ import {
 } from "@/lib/commerce";
 import { WholesaleProductCard } from "@/components/wholesale/WholesaleProductCard";
 import { WholesaleOrderPanel } from "@/components/wholesale/WholesaleOrderPanel";
+import { RestockVote } from "@/components/product/RestockVote";
 import { WholesaleTierColumns } from "@/components/wholesale/WholesaleTierColumns";
 import { KeyAttributes } from "@/components/wholesale/KeyAttributes";
 import { WholesaleReviews } from "@/components/wholesale/WholesaleReviews";
@@ -142,8 +143,29 @@ export default async function WholesaleProductPage({
 
           <div className="rule-gilded my-9" />
 
-          {/* Quantity, live per-unit price, customization and the quote CTAs */}
-          <WholesaleOrderPanel slug={product.slug} pricing={product.wholesale} />
+          {/* Quantity, live per-unit price, customization and the quote CTAs —
+              or, when the run has sold through, a restock vote for the trade desk. */}
+          {product.inStock ? (
+            <WholesaleOrderPanel slug={product.slug} pricing={product.wholesale} />
+          ) : (
+            <div className="border border-gold/25 p-6">
+              <p className="eyebrow text-gold">Between production runs</p>
+              <p className="mt-3 mb-6 text-[0.9375rem] leading-relaxed text-neutral-400">
+                This unit has sold through. Vote to restock and we&apos;ll notify your partner desk
+                the moment it&apos;s available for trade orders again — votes move it up the
+                production queue.
+              </p>
+              <RestockVote
+                productSlug={product.slug}
+                productTitle={product.title}
+                channel="WHOLESALE"
+                lengths={
+                  product.options.find((o) => /length/i.test(o.name))?.values.map((v) => v.label) ??
+                  []
+                }
+              />
+            </div>
+          )}
         </div>
       </div>
 

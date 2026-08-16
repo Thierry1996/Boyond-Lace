@@ -9,6 +9,7 @@ import { useWishlist } from "@/lib/stores/wishlist";
 import { Money } from "@/components/ui/Money";
 import { Heart } from "lucide-react";
 import { ProductImage } from "@/components/ui/ProductImage";
+import { RestockVote } from "@/components/product/RestockVote";
 
 export function ProductPurchase({ product }: { product: Product }) {
   const { add } = useCart();
@@ -38,16 +39,28 @@ export function ProductPurchase({ product }: { product: Product }) {
     return () => io.disconnect();
   }, []);
 
-  const [selections, setSelections] = useState<Record<string, string>>(() =>
-    Object.fromEntries(
-      product.options.map((opt) => [
-        opt.name,
-        opt.values.find((v) => v.available !== false)?.value ?? opt.values[0]?.value ?? "",
-      ]),
-    ),
+  const defaultSelections = useMemo(
+    () =>
+      Object.fromEntries(
+        product.options.map((opt) => [
+          opt.name,
+          opt.values.find((v) => v.available !== false)?.value ?? opt.values[0]?.value ?? "",
+        ]),
+      ),
+    [product],
   );
+  const [selections, setSelections] = useState<Record<string, string>>(defaultSelections);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+
+  // A shopper has personalised the combination when any axis or the quantity
+  // differs from the default — that's when the Reset control appears.
+  const dirty =
+    quantity !== 1 || product.options.some((opt) => selections[opt.name] !== defaultSelections[opt.name]);
+  const reset = () => {
+    setSelections(defaultSelections);
+    setQuantity(1);
+  };
 
   /** Base price plus every selected option's delta. */
   const unitPrice = useMemo(() => {
@@ -58,6 +71,9 @@ export function ProductPurchase({ product }: { product: Product }) {
   }, [product, selections]);
 
   const isApplication = product.price === 0;
+  // Lengths offered, for the restock modal's picker when the unit is out of stock.
+  const lengthLabels =
+    product.options.find((o) => /length/i.test(o.name))?.values.map((v) => v.label) ?? [];
 
   // Normalise every listing onto the same five axes so the storefront reads
   // consistently: fixed attributes become chips, priced ranges stay interactive,
@@ -120,29 +136,44 @@ export function ProductPurchase({ product }: { product: Product }) {
         )}
       </div>
 
-      {/* Fixed axes the unit does not vary, shown so every listing presents the
-          same anatomy — style, lace, colour, length, density — even when some
-          are set. */}
-      {attributes.length > 0 && (
-        <div className="mt-8 flex flex-wrap gap-2">
-          {attributes.map((attr) => (
-            <span
-              key={attr.axis}
-              className="inline-flex items-center gap-2 border border-white/[0.12] px-3 py-1.5 text-[0.8125rem] text-neutral-200"
-            >
-              <span className="text-neutral-400">{attr.label}:</span>
-              {attr.swatch && (
-                <span
-                  aria-hidden="true"
-                  className="inline-block h-3.5 w-3.5 rounded-full border border-white/25"
-                  style={{ background: attr.swatch }}
-                />
-              )}
-              {attr.value}
-            </span>
-          ))}
+      {/* Configure — every axis is its own labelled control, priced axes are
+          fully interactive, and nothing is lumped into a forced combination. A
+          Reset returns the whole configuration to its default. */}
+      {(attributes.length > 0 || options.length > 0) && (
+        <div className="mt-8 flex items-center justify-between border-b border-white/[0.07] pb-3">
+          <span className="eyebrow text-gold">Configure your unit</span>
+          <button
+            type="button"
+            onClick={reset}
+            disabled={!dirty}
+            className={`text-[0.75rem] tracking-[0.08em] uppercase underline-offset-4 transition-colors ${
+              dirty
+                ? "text-neutral-300 hover:text-gold hover:underline"
+                : "cursor-default text-neutral-400/30"
+            }`}
+          >
+            Reset
+          </button>
         </div>
       )}
+
+      {/* Fixed axes — each its own labelled row (not a grouped chip cluster), so
+          every axis reads as an independent control alongside the interactive ones. */}
+      {attributes.map((attr) => (
+        <div key={attr.axis} className="mt-6">
+          <p className="eyebrow mb-3">{attr.label}</p>
+          <span className="inline-flex items-center gap-2 border border-gold/40 px-4 py-2.5 text-[0.8125rem] text-gold">
+            {attr.swatch && (
+              <span
+                aria-hidden="true"
+                className="inline-block h-3.5 w-3.5 rounded-full border border-white/25"
+                style={{ background: attr.swatch }}
+              />
+            )}
+            {attr.value}
+          </span>
+        </div>
+      ))}
 
       {options.map((option) => {
         const isColor = option.axis === "color";
@@ -224,40 +255,53 @@ export function ProductPurchase({ product }: { product: Product }) {
       })}
 
       <div className="mt-10 flex items-stretch gap-4">
-        <div className="flex items-center border border-white/15">
-          <button
-            type="button"
-            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            className="px-4 py-4 text-neutral-200 transition-colors hover:text-gold"
-            aria-label="Decrease quantity"
-          >
-            −
-          </button>
-          <span
-            className="w-8 text-center text-[0.9375rem] text-paper tabular-nums"
-            aria-live="polite"
-          >
-            {quantity}
-          </span>
-          <button
-            type="button"
-            onClick={() => setQuantity((q) => q + 1)}
-            className="px-4 py-4 text-neutral-200 transition-colors hover:text-gold"
-            aria-label="Increase quantity"
-          >
-            +
-          </button>
-        </div>
+        {product.inStock ? (
+          <>
+            <div className="flex items-center border border-white/15">
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                className="px-4 py-4 text-neutral-200 transition-colors hover:text-gold"
+                aria-label="Decrease quantity"
+              >
+                −
+              </button>
+              <span
+                className="w-8 text-center text-[0.9375rem] text-paper tabular-nums"
+                aria-live="polite"
+              >
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => q + 1)}
+                className="px-4 py-4 text-neutral-200 transition-colors hover:text-gold"
+                aria-label="Increase quantity"
+              >
+                +
+              </button>
+            </div>
 
-        <button
-          ref={atcRef}
-          type="button"
-          onClick={handleAdd}
-          disabled={!product.inStock}
-          className="cta-primary flex-1 px-8 py-4 text-[0.8125rem] tracking-[0.14em] uppercase"
-        >
-          {!product.inStock ? "Join the waitlist" : added ? "Added ✓" : "Add to bag"}
-        </button>
+            <button
+              ref={atcRef}
+              type="button"
+              onClick={handleAdd}
+              className="cta-primary flex-1 px-8 py-4 text-[0.8125rem] tracking-[0.14em] uppercase"
+            >
+              {added ? "Added ✓" : "Add to bag"}
+            </button>
+          </>
+        ) : (
+          // Out of stock — the buy action becomes a restock vote (demand signal).
+          <div className="flex-1">
+            <RestockVote
+              productSlug={product.slug}
+              productTitle={product.title}
+              channel="RETAIL"
+              lengths={lengthLabels}
+            />
+          </div>
+        )}
 
         <button
           type="button"
@@ -300,6 +344,7 @@ export function ProductPurchase({ product }: { product: Product }) {
           Only for real retail units, not application-priced products. */}
       {mounted &&
         !isApplication &&
+        product.inStock &&
         createPortal(
           <div
             className={`dark-island fixed inset-x-0 bottom-0 z-[70] border-t border-gold/25 bg-neutral-900/95 backdrop-blur-md transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${

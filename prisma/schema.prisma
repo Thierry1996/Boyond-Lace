@@ -511,3 +511,34 @@ model ContactMessage {
   resolvedAt  DateTime?
   createdAt   DateTime @default(now())
 }
+
+enum RestockChannel {
+  RETAIL
+  WHOLESALE
+}
+
+enum RestockContactType {
+  EMAIL
+  SMS
+}
+
+/// "Vote to restock" demand signal — captured when a shopper asks to be notified
+/// on an out-of-stock unit. Drives marketing outreach and restock prioritisation.
+model RestockVote {
+  id           String             @id @default(cuid())
+  productSlug  String
+  productTitle String
+  channel      RestockChannel     @default(RETAIL)
+  /// Length (or other variant) the shopper wants back; "" when the unit has none.
+  variant      String             @default("")
+  contactType  RestockContactType @default(EMAIL)
+  /// Email address or phone number, per contactType.
+  contact      String
+  createdAt    DateTime           @default(now())
+  notifiedAt   DateTime?
+
+  // One standing vote per person per variant per channel — re-voting refreshes it.
+  @@unique([productSlug, variant, channel, contactType, contact])
+  @@index([productSlug, channel])
+  @@index([createdAt])
+}

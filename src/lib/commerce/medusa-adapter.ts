@@ -37,7 +37,11 @@ async function storeFetch(path: string, params: Record<string, string | number |
   for (const [k, v] of Object.entries(params)) if (v != null) url.searchParams.set(k, String(v));
   const res = await fetch(url.toString(), {
     headers: { "x-publishable-api-key": KEY },
-    next: { revalidate: 30, tags: ["products"] },
+    // Stock/price must reflect Medusa in real time. The full catalogue payload
+    // also exceeds Next's 2MB fetch-cache limit, so caching it silently serves
+    // stale data (a product stays "in stock" after selling out). Until the list
+    // is paginated with lean fields, read live. See scaling follow-up.
+    cache: "no-store",
   });
   if (!res.ok) throw new Error(`Medusa ${path} → ${res.status}`);
   return res.json();
@@ -45,6 +49,20 @@ async function storeFetch(path: string, params: Record<string, string | number |
 
 const slugify = (s: string) => s.toLowerCase().replace(/["\s]+/g, "-").replace(/[^a-z0-9-]/g, "");
 const toCents = (n: number | null | undefined) => (n == null ? null : Math.round(n * 100));
+
+/** Review media is stored as a JSON string in metadata; tolerate absence/garbage. */
+function parseReviewMedia(raw: unknown): Product["reviewMedia"] {
+  if (!raw) return undefined;
+  try {
+    const arr = typeof raw === "string" ? JSON.parse(raw) : raw;
+    if (!Array.isArray(arr) || !arr.length) return undefined;
+    return arr
+      .map((m: any) => ({ type: /\.(mp4|webm|mov)/i.test(m.src ?? m.url ?? "") ? "video" : "image", src: m.src ?? m.url }))
+      .filter((m: any) => m.src) as Product["reviewMedia"];
+  } catch {
+    return undefined;
+  }
+}
 
 // On-brand gradient posters ProductImage knows how to render. Until real image
 // URLs arrive (via the catalogue CSV → Medusa media), each product gets a stable,
@@ -151,6 +169,8 @@ function mapProduct(m: any): Product {
         : m.thumbnail
           ? [{ src: m.thumbnail, alt: m.title }]
           : fallbackImages(m.handle ?? m.id, m.title),
+    video: md.video_url ? String(md.video_url) : undefined,
+    reviewMedia: parseReviewMedia(md.review_media),
     specs,
     rating: Number(md.rating) || 4.8,
     reviewCount: Number(md.review_count) || 0,
