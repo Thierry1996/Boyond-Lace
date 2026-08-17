@@ -385,9 +385,12 @@ function volumeTierFor(qty: number): QuotePrefill["volume"] {
  */
 function buildWholesaleRows(products: Product[]) {
   const wholesale = products.filter((p) => p.wholesale && p.slug !== "beyond-lace-pro-salon-program");
+  // Fold legacy/duplicate collection names into one canonical row.
+  const ALIAS: Record<string, string> = { "Extensions & Bundles": "Hair Extensions & Bundles" };
   const byCollection = new Map<string, Product[]>();
   for (const p of wholesale) {
-    const key = (p.collections ?? [])[0] ?? "Signature Wigs";
+    const raw = (p.collections ?? [])[0] ?? "Signature Wigs";
+    const key = ALIAS[raw] ?? raw;
     if (!byCollection.has(key)) byCollection.set(key, []);
     byCollection.get(key)!.push(p);
   }

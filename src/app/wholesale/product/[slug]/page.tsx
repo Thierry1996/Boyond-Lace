@@ -100,7 +100,7 @@ export default async function WholesaleProductPage({
             <span className="text-[0.75rem] text-neutral-400 tabular-nums">SKU {product.sku}</span>
           </div>
 
-          <h1 className="mt-5 text-[clamp(2rem,4vw,3rem)] leading-[1.05] text-paper">
+          <h1 className="mt-5 text-[clamp(1.25rem,2.2vw,1.75rem)] leading-[1.15] text-balance text-paper">
             {product.title}
           </h1>
 
