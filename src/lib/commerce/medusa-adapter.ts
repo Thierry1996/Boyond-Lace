@@ -23,7 +23,8 @@ const KEY =
   process.env.MEDUSA_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
 const REGION_ID = process.env.MEDUSA_REGION_ID || "";
 
-const FIELDS = [
+// Full field set for a single product page (needs options + every variant).
+const DETAIL_FIELDS = [
   "id,title,handle,subtitle,description,thumbnail",
   "*images",
   "*options,*options.values",
@@ -32,16 +33,33 @@ const FIELDS = [
   "metadata",
 ].join(",");
 
-async function storeFetch(path: string, params: Record<string, string | number | undefined>) {
+// Lean field set for LIST/grid pages: drops the product description, the product
+// options, and per-variant options (huge for 60-variant SKUs) — keeping only what
+// cards + filters need (images, min price, stock, categories, metadata). Small
+// enough to fit Next's fetch cache, so lists are cached again instead of read live.
+const LIST_FIELDS = [
+  "id,title,handle,subtitle,thumbnail",
+  "*images",
+  "*variants.calculated_price,+variants.inventory_quantity",
+  "*categories",
+  "metadata",
+].join(",");
+
+async function storeFetch(
+  path: string,
+  params: Record<string, string | number | undefined>,
+  opts: { revalidate?: number } = {},
+) {
   const url = new URL(`${BACKEND}/store/${path}`);
   for (const [k, v] of Object.entries(params)) if (v != null) url.searchParams.set(k, String(v));
   const res = await fetch(url.toString(), {
     headers: { "x-publishable-api-key": KEY },
-    // Stock/price must reflect Medusa in real time. The full catalogue payload
-    // also exceeds Next's 2MB fetch-cache limit, so caching it silently serves
-    // stale data (a product stays "in stock" after selling out). Until the list
-    // is paginated with lean fields, read live. See scaling follow-up.
-    cache: "no-store",
+    // Lists cache briefly (fast repeat loads; ≤30s stock lag is fine — the PDP and
+    // checkout read a single product live). Single-product reads pass no revalidate
+    // → no-store, so stock/price on the PDP and in the cart are always current.
+    ...(opts.revalidate != null
+      ? { next: { revalidate: opts.revalidate, tags: ["products"] } }
+      : { cache: "no-store" as const }),
   });
   if (!res.ok) throw new Error(`Medusa ${path} → ${res.status}`);
   return res.json();
@@ -182,13 +200,21 @@ function mapProduct(m: any): Product {
   };
 }
 
+/** Paginated lean fetch of the whole catalogue — scales past the 1000-row cap and
+ *  each page is cached, so the grid no longer refetches a 2.6MB blob on every load. */
 async function fetchAll(): Promise<Product[]> {
-  const { products } = await storeFetch("products", {
-    region_id: REGION_ID,
-    fields: FIELDS,
-    limit: 1000,
-  });
-  return (products ?? []).map(mapProduct);
+  const limit = 100; // ~1.1MB/page of lean products — safely under Next's 2MB cache cap at any scale
+  const all: any[] = [];
+  for (let offset = 0; ; offset += limit) {
+    const { products = [], count = 0 } = await storeFetch(
+      "products",
+      { region_id: REGION_ID, fields: LIST_FIELDS, limit, offset },
+      { revalidate: 30 },
+    );
+    all.push(...products);
+    if (!products.length || all.length >= count) break;
+  }
+  return all.map(mapProduct);
 }
 
 function matches(p: Product, q: ProductQuery): boolean {
@@ -229,7 +255,7 @@ export const medusaAdapter: CommerceAdapter = {
     const { products } = await storeFetch("products", {
       handle: slug,
       region_id: REGION_ID,
-      fields: FIELDS,
+      fields: DETAIL_FIELDS,
     });
     return products?.[0] ? mapProduct(products[0]) : null;
   },
