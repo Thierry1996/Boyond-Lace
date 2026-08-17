@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,34 +10,41 @@ import { shippingSchema, type ShippingDetails } from "@/lib/schemas";
 import { Field, SubmitButton, inputClass } from "@/components/forms/fields";
 
 /**
- * Checkout flow — shipping → payment → confirmation, per the sitemap.
- * Payment runs in clearly-labelled DEMO mode until Stripe/PayPal/Alipay keys
- * land (locked stack, Phase 3). Demo orders persist locally so the account
- * page and E2E tests can exercise the full loop.
+ * Checkout — shipping → payment → confirmation, running the REAL Medusa flow via
+ * /api/checkout: a genuine Medusa cart is built, addresses + shipping set, a
+ * payment session opened for the chosen provider, and the cart completed into an
+ * order. Payment methods are read live from Medusa (Stripe / Paystack / PayPal
+ * etc. appear as they're enabled). The "requiresAction" branch is where a
+ * client-side provider (Stripe Payment Element) will mount once its keys land.
  */
 
 type Step = "shipping" | "payment" | "done";
 
-interface DemoOrder {
-  ref: string;
-  placedAt: string;
-  lines: Array<{ title: string; quantity: number; unitPrice: number }>;
-  total: number;
-  shipping: ShippingDetails;
-}
-
-const PAYMENT_METHODS = [
-  { id: "card", label: "Card — Visa / Mastercard", via: "Stripe Payment Element" },
-  { id: "paypal", label: "PayPal", via: "PayPal Checkout" },
-  { id: "alipay", label: "Alipay", via: "Stripe Alipay method" },
+const COUNTRIES: { code: string; name: string }[] = [
+  { code: "us", name: "United States" }, { code: "ca", name: "Canada" }, { code: "gb", name: "United Kingdom" },
+  { code: "ie", name: "Ireland" }, { code: "fr", name: "France" }, { code: "de", name: "Germany" },
+  { code: "es", name: "Spain" }, { code: "it", name: "Italy" }, { code: "nl", name: "Netherlands" },
+  { code: "au", name: "Australia" }, { code: "nz", name: "New Zealand" }, { code: "ae", name: "United Arab Emirates" },
+  { code: "ng", name: "Nigeria" }, { code: "gh", name: "Ghana" }, { code: "cm", name: "Cameroon" },
+  { code: "za", name: "South Africa" }, { code: "ke", name: "Kenya" }, { code: "ci", name: "Côte d’Ivoire" },
+  { code: "sn", name: "Senegal" }, { code: "tz", name: "Tanzania" }, { code: "ug", name: "Uganda" },
 ];
+
+interface PaymentProvider {
+  id: string;
+  label: string;
+}
 
 export default function CheckoutPage() {
   const { lines, subtotal, clear, hydrated } = useCart();
   const [step, setStep] = useState<Step>("shipping");
   const [shipping, setShipping] = useState<ShippingDetails | null>(null);
-  const [method, setMethod] = useState("card");
-  const [orderRef, setOrderRef] = useState<string | null>(null);
+
+  const [providers, setProviders] = useState<PaymentProvider[]>([]);
+  const [providerId, setProviderId] = useState("");
+  const [placing, setPlacing] = useState(false);
+  const [error, setError] = useState("");
+  const [orderNo, setOrderNo] = useState<number | null>(null);
 
   const {
     register,
@@ -48,41 +55,72 @@ export default function CheckoutPage() {
     defaultValues: { discreetPackaging: false },
   });
 
+  // Live payment methods from Medusa.
+  useEffect(() => {
+    fetch("/api/checkout")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.ok) {
+          setProviders(d.paymentProviders ?? []);
+          setProviderId(d.paymentProviders?.[0]?.id ?? "");
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   if (!hydrated) return <div className="min-h-[60vh]" aria-busy="true" />;
 
   if (lines.length === 0 && step !== "done") {
     return (
       <div className="mx-auto max-w-lg px-[4vw] py-32 text-center">
         <h1 className="text-3xl text-paper">Nothing to check out.</h1>
-        <Link
-          href="/shop"
-          className="cta-secondary mt-8 inline-block px-8 py-4 text-[0.8125rem] tracking-[0.14em] uppercase"
-        >
+        <Link href="/shop" className="cta-secondary mt-8 inline-block px-8 py-4 text-[0.8125rem] tracking-[0.14em] uppercase">
           View the collection
         </Link>
       </div>
     );
   }
 
-  function placeDemoOrder() {
-    if (!shipping) return;
-    const ref = `BL-${Date.now().toString(36).toUpperCase().slice(-6)}`;
-    const order: DemoOrder = {
-      ref,
-      placedAt: new Date().toISOString(),
-      lines: lines.map((l) => ({ title: l.title, quantity: l.quantity, unitPrice: l.unitPrice })),
-      total: subtotal,
-      shipping,
+  async function placeOrder() {
+    if (!shipping || !providerId) return;
+    setPlacing(true);
+    setError("");
+    const [first, ...rest] = shipping.fullName.trim().split(/\s+/);
+    const address = {
+      email: shipping.email,
+      first_name: first,
+      last_name: rest.join(" ") || first,
+      address_1: shipping.address1,
+      city: shipping.city,
+      postal_code: shipping.postalCode,
+      country_code: shipping.country.toLowerCase(),
+      phone: shipping.phone,
     };
     try {
-      const existing: DemoOrder[] = JSON.parse(localStorage.getItem("bl.orders.v1") ?? "[]");
-      localStorage.setItem("bl.orders.v1", JSON.stringify([order, ...existing]));
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lines: lines.map((l) => ({ slug: l.slug, selections: l.selections, quantity: l.quantity })),
+          address,
+          providerId,
+        }),
+      });
+      const data = await res.json();
+      if (data.ok && data.displayId != null) {
+        setOrderNo(data.displayId);
+        clear();
+        setStep("done");
+      } else if (data.ok && data.requiresAction) {
+        // A client-side provider (Stripe) will confirm here once keys are live.
+        setError("This method needs its live keys configured. Choose Test payment to place the order for now.");
+      } else {
+        setError(data.error ?? "We couldn't place the order. Please try again.");
+      }
     } catch {
-      // Storage unavailable — the confirmation still shows.
+      setError("Network error — please try again.");
     }
-    setOrderRef(ref);
-    clear();
-    setStep("done");
+    setPlacing(false);
   }
 
   const steps: Step[] = ["shipping", "payment", "done"];
@@ -111,72 +149,46 @@ export default function CheckoutPage() {
             })}
             noValidate
           >
-            <h1 className="mb-10 text-[clamp(1.75rem,4vw,2.75rem)] text-paper">
-              Where is it going?
-            </h1>
+            <h1 className="mb-10 text-[clamp(1.75rem,4vw,2.75rem)] text-paper">Where is it going?</h1>
             <div className="grid gap-6 sm:grid-cols-2">
               <Field label="Full name" error={errors.fullName?.message}>
                 <input className={inputClass} autoComplete="name" {...register("fullName")} />
               </Field>
               <Field label="Email" error={errors.email?.message}>
-                <input
-                  type="email"
-                  className={inputClass}
-                  autoComplete="email"
-                  {...register("email")}
-                />
+                <input type="email" className={inputClass} autoComplete="email" {...register("email")} />
               </Field>
               <Field label="Phone" error={errors.phone?.message}>
-                <input
-                  type="tel"
-                  className={inputClass}
-                  autoComplete="tel"
-                  {...register("phone")}
-                />
+                <input type="tel" className={inputClass} autoComplete="tel" {...register("phone")} />
               </Field>
               <Field label="Country" error={errors.country?.message}>
-                <input
-                  className={inputClass}
-                  autoComplete="country-name"
-                  {...register("country")}
-                />
+                <select className={inputClass} autoComplete="country" {...register("country")}>
+                  <option value="">Select country…</option>
+                  {COUNTRIES.map((c) => (
+                    <option key={c.code} value={c.code} className="bg-neutral-900">
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
               </Field>
               <div className="sm:col-span-2">
                 <Field label="Street address" error={errors.address1?.message}>
-                  <input
-                    className={inputClass}
-                    autoComplete="address-line1"
-                    {...register("address1")}
-                  />
+                  <input className={inputClass} autoComplete="address-line1" {...register("address1")} />
                 </Field>
               </div>
               <div className="sm:col-span-2">
                 <Field label="Apartment, suite (optional)" error={errors.address2?.message}>
-                  <input
-                    className={inputClass}
-                    autoComplete="address-line2"
-                    {...register("address2")}
-                  />
+                  <input className={inputClass} autoComplete="address-line2" {...register("address2")} />
                 </Field>
               </div>
               <Field label="City" error={errors.city?.message}>
                 <input className={inputClass} autoComplete="address-level2" {...register("city")} />
               </Field>
               <Field label="Postal code" error={errors.postalCode?.message}>
-                <input
-                  className={inputClass}
-                  autoComplete="postal-code"
-                  {...register("postalCode")}
-                />
+                <input className={inputClass} autoComplete="postal-code" {...register("postalCode")} />
               </Field>
               <label className="flex items-start gap-3 text-[0.875rem] text-neutral-400 sm:col-span-2">
-                <input
-                  type="checkbox"
-                  className="mt-0.5 accent-[#C9A66B]"
-                  {...register("discreetPackaging")}
-                />
-                Ship in unbranded outer packaging with a plain invoice. No brand name appears
-                anywhere visible.
+                <input type="checkbox" className="mt-0.5 accent-[#C9A66B]" {...register("discreetPackaging")} />
+                Ship in unbranded outer packaging with a plain invoice. No brand name appears anywhere visible.
               </label>
             </div>
             <div className="mt-10">
@@ -191,40 +203,46 @@ export default function CheckoutPage() {
         <div className="mt-14 grid gap-14 lg:grid-cols-[1.5fr_1fr]">
           <div>
             <h1 className="mb-4 text-[clamp(1.75rem,4vw,2.75rem)] text-paper">Payment.</h1>
-            <p className="mb-8 border border-gold/40 bg-plum-900/60 p-4 text-[0.8125rem] leading-relaxed text-blush-200">
-              <span className="text-gold">Demo mode.</span> Live payment activates when Stripe,
-              PayPal, and Alipay keys are configured (Phase 3 of the locked stack). Orders placed
-              now are demonstrations — nothing is charged, nothing ships.
-            </p>
-            <div className="space-y-3">
-              {PAYMENT_METHODS.map((m) => (
-                <label
-                  key={m.id}
-                  className={`flex cursor-pointer items-center justify-between border p-5 transition-colors ${
-                    method === m.id ? "border-gold" : "border-white/15 hover:border-white/40"
-                  }`}
-                >
-                  <span className="flex items-center gap-4">
-                    <input
-                      type="radio"
-                      name="payment"
-                      checked={method === m.id}
-                      onChange={() => setMethod(m.id)}
-                      className="accent-[#C9A66B]"
-                    />
-                    <span className="text-[0.9375rem] text-paper">{m.label}</span>
-                  </span>
-                  <span className="eyebrow">{m.via}</span>
-                </label>
-              ))}
-            </div>
+
+            {providers.length === 0 ? (
+              <p className="mb-8 border border-white/15 p-4 text-[0.8125rem] text-neutral-400">
+                Loading payment methods…
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {providers.map((p) => (
+                  <label
+                    key={p.id}
+                    className={`flex cursor-pointer items-center justify-between border p-5 transition-colors ${
+                      providerId === p.id ? "border-gold" : "border-white/15 hover:border-white/40"
+                    }`}
+                  >
+                    <span className="flex items-center gap-4">
+                      <input
+                        type="radio"
+                        name="payment"
+                        checked={providerId === p.id}
+                        onChange={() => setProviderId(p.id)}
+                        className="accent-[#C9A66B]"
+                      />
+                      <span className="text-[0.9375rem] text-paper">{p.label}</span>
+                    </span>
+                    {/^pp_system/.test(p.id) && <span className="eyebrow text-gold">No charge</span>}
+                  </label>
+                ))}
+              </div>
+            )}
+
+            {error && <p className="mt-5 text-[0.8125rem] text-red-400">{error}</p>}
+
             <div className="mt-10 flex items-center gap-6">
               <button
                 type="button"
-                onClick={placeDemoOrder}
-                className="cta-primary px-9 py-4 text-[0.8125rem] tracking-[0.14em] uppercase"
+                onClick={placeOrder}
+                disabled={placing || !providerId}
+                className="cta-primary px-9 py-4 text-[0.8125rem] tracking-[0.14em] uppercase disabled:opacity-60"
               >
-                Place demo order
+                {placing ? "Placing order…" : "Place order"}
               </button>
               <button
                 type="button"
@@ -241,13 +259,12 @@ export default function CheckoutPage() {
 
       {step === "done" && (
         <div className="mx-auto mt-20 max-w-xl text-center">
-          <p className="eyebrow mb-4 text-gold">Demo order placed</p>
+          <p className="eyebrow mb-4 text-gold">Order confirmed</p>
           <h1 className="text-[clamp(2rem,5vw,3.5rem)] text-paper">
-            Reference <span className="tabular-nums">{orderRef}</span>
+            Order <span className="tabular-nums">#{orderNo}</span>
           </h1>
           <p className="mt-6 text-[1.0625rem] leading-relaxed text-neutral-400">
-            In production this screen confirms payment, emails your receipt, and starts fulfilment
-            tracking. Your demo order is saved to this browser and visible in{" "}
+            Your order is in — a receipt is on its way, and you can track it from{" "}
             <Link href="/account" className="text-gold underline-offset-4 hover:underline">
               your account
             </Link>
@@ -256,13 +273,10 @@ export default function CheckoutPage() {
           <div className="rule-gilded my-10" />
           <p className="text-[0.9375rem] leading-relaxed text-neutral-400">
             A unit lasts as long as the hands that keep it —{" "}
-            <Link
-              href="/product/beyond-care-ritual-box"
-              className="text-gold underline-offset-4 hover:underline"
-            >
+            <Link href="/product/beyond-care-ritual-box" className="text-gold underline-offset-4 hover:underline">
               add the Care Ritual
             </Link>{" "}
-            before it ships.
+            to your next order.
           </p>
         </div>
       )}
@@ -288,10 +302,7 @@ function OrderSummary() {
       <div className="rule-gilded my-6" />
       <div className="flex justify-between">
         <span className="text-[0.9375rem] text-neutral-400">Total</span>
-        <Money
-          usd={subtotal}
-          className="font-[family-name:var(--font-display)] text-xl text-paper tabular-nums"
-        />
+        <Money usd={subtotal} className="font-[family-name:var(--font-display)] text-xl text-paper tabular-nums" />
       </div>
     </aside>
   );
