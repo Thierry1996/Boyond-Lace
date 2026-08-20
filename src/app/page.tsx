@@ -7,6 +7,7 @@ import { CollectionRail } from "@/components/home/CollectionRail";
 import { NewArrivals } from "@/components/home/NewArrivals";
 import { BestSellers } from "@/components/home/BestSellers";
 import { FlashSale } from "@/components/home/FlashSale";
+import type { FlashItem } from "@/lib/flash-sale";
 import { ReachCarousel, type ReachItem } from "@/components/home/ReachCarousel";
 import { CollectionTabs, type CatalogTab } from "@/components/home/CollectionTabs";
 import { SocialProof } from "@/components/home/SocialProof";
@@ -27,17 +28,42 @@ export default async function HomePage() {
   // by review volume, which floats the $5 test kit and the $34 adhesive to the
   // top — accessories always out-review units. That is the wrong first
   // impression for a brand justifying $600.
-  const [bestsellers, capsule, newArrivals, topRated, premium, bundlePool, carePool, kitPool] =
-    await Promise.all([
-      commerce.getProducts({ line: "luxe", sort: "featured", limit: 6 }),
-      commerce.getProducts({ avatar: "editorial", limit: 2 }),
-      commerce.getProducts({ sort: "newest", limit: 12 }),
-      commerce.getProducts({ sort: "rating", limit: 40 }),
-      commerce.getProducts({ sort: "price-desc", limit: 24 }),
-      commerce.getProducts({ line: "bundle", limit: 16 }),
-      commerce.getProducts({ line: "care", limit: 8 }),
-      commerce.getProducts({ line: "kit", limit: 4 }),
-    ]);
+  const [
+    bestsellers,
+    capsule,
+    newArrivals,
+    topRated,
+    premium,
+    bundlePool,
+    carePool,
+    kitPool,
+    flashPool,
+  ] = await Promise.all([
+    commerce.getProducts({ line: "luxe", sort: "featured", limit: 6 }),
+    commerce.getProducts({ avatar: "editorial", limit: 2 }),
+    commerce.getProducts({ sort: "newest", limit: 12 }),
+    commerce.getProducts({ sort: "rating", limit: 40 }),
+    commerce.getProducts({ sort: "price-desc", limit: 24 }),
+    commerce.getProducts({ line: "bundle", limit: 16 }),
+    commerce.getProducts({ line: "care", limit: 8 }),
+    commerce.getProducts({ line: "kit", limit: 4 }),
+    commerce.getProducts({ flashOnly: true, sort: "rating" }),
+  ]);
+
+  // Live flash-sale drop → the image-accordion items. Only priced units with a
+  // genuine markdown (compareAtPrice above price) qualify; each routes to its
+  // real PDP. Falls back to the curated seed inside <FlashSale/> if empty.
+  const flashItems: FlashItem[] = flashPool
+    .filter((p) => p.price > 0 && p.compareAtPrice && p.compareAtPrice > p.price)
+    .map((p) => ({
+      name: p.title,
+      slug: p.slug,
+      priceUsd: p.price,
+      compareUsd: p.compareAtPrice!,
+      discountPct: Math.round((1 - p.price / p.compareAtPrice!) * 100),
+      image: p.images[0].src,
+      href: `/product/${p.slug}`,
+    }));
   // Ten priced, in-stock units for the drop — accessories/by-application skip.
   const drop = newArrivals.filter((p) => p.price > 0).slice(0, 10);
   // Best Sale: wig units only (no $5 test kit / care accessories), discounted
@@ -224,7 +250,7 @@ export default async function HomePage() {
       {/* Flash-sale image accordion — the FOMO drop, just below the proof stats.
           Panels auto-cycle every 6s and route to real collections; the BUY
           button and card both link to the category. */}
-      <FlashSale />
+      <FlashSale items={flashItems} />
 
       {/* Reach-catalogue teasers — two auto-sliding carousels, stacked. Cards
           link to the PDP; heart -> wishlist, bag -> cart; View all -> collection. */}

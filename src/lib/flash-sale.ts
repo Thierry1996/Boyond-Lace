@@ -14,7 +14,9 @@ export interface FlashItem {
   priceUsd: number;
   compareUsd: number;
   discountPct: number;
-  image: ImageryKey;
+  /** A real product-image URL, or an on-brand gradient poster key. Both render
+   *  through <ProductImage>, so the accordion works with live or seed data. */
+  image: ImageryKey | string;
   href: string;
   presale?: boolean;
 }

@@ -133,6 +133,8 @@ export interface Product {
   /** Minor units (cents). */
   price: number;
   compareAtPrice?: number;
+  /** Part of the live flash-sale drop — drives the FOMO surface + sale badges. */
+  flashSale?: boolean;
   currency: string;
   texture?: Texture;
   laceType?: LaceType;
@@ -201,6 +203,8 @@ export interface ProductQuery {
   launchOnly?: boolean;
   /** Only SKUs a reseller can order at MOQ. */
   wholesaleOnly?: boolean;
+  /** Only SKUs in the live flash-sale drop. */
+  flashOnly?: boolean;
   minPrice?: number;
   maxPrice?: number;
   sort?: "featured" | "price-asc" | "price-desc" | "newest" | "rating" | "launch-rank";

@@ -20,6 +20,12 @@ import { Money } from "./Money";
  */
 export function ProductCard({ product }: { product: Product }) {
   const out = !product.inStock;
+  // Genuine markdown → a FOMO discount chip that takes the top-left slot over the
+  // generic badge. Pink to tie back to the flash-sale surface.
+  const discountPct =
+    product.compareAtPrice && product.compareAtPrice > product.price
+      ? Math.round((1 - product.price / product.compareAtPrice) * 100)
+      : 0;
 
   return (
     <Link href={`/product/${product.slug}`} className="group block">
@@ -72,10 +78,16 @@ export function ProductCard({ product }: { product: Product }) {
           ),
         )}
 
-        {product.badges[0] && (
-          <span className="absolute top-4 left-4 z-[2] border border-gold/40 bg-ink/70 px-2.5 py-1 text-[0.625rem] tracking-[0.14em] text-gold uppercase backdrop-blur-sm">
-            {product.badges[0]}
+        {discountPct > 0 ? (
+          <span className="absolute top-4 left-4 z-[2] flex items-center gap-1 rounded-full bg-pink-600 px-2.5 py-1 text-[0.625rem] font-bold tracking-[0.08em] text-white shadow">
+            −{discountPct}%
           </span>
+        ) : (
+          product.badges[0] && (
+            <span className="absolute top-4 left-4 z-[2] border border-gold/40 bg-ink/70 px-2.5 py-1 text-[0.625rem] tracking-[0.14em] text-gold uppercase backdrop-blur-sm">
+              {product.badges[0]}
+            </span>
+          )
         )}
 
         {out && (

@@ -175,6 +175,12 @@ function mapProduct(m: any): Product {
     description: m.description ?? "",
     price: base,
     compareAtPrice: md.compare_at_price ? Math.round(Number(md.compare_at_price) * 100) : undefined,
+    // Flash-sale members carry an explicit flag; also honour the collection tag so
+    // a unit added to "Flash Sale" in Medusa admin surfaces without a re-import.
+    flashSale:
+      md.flash_sale === "true" ||
+      md.flash_sale === true ||
+      (m.categories ?? []).some((c: any) => c.name === "Flash Sale"),
     currency: "USD",
     texture: (md.texture ? slugify(String(md.texture)) : undefined) as Product["texture"],
     shade: (md.shade as Product["shade"]) ?? undefined,
@@ -221,6 +227,7 @@ function matches(p: Product, q: ProductQuery): boolean {
   if (q.line && p.line !== q.line) return false;
   if (q.avatar && p.avatar !== q.avatar) return false;
   if (q.wholesaleOnly && !p.wholesale) return false;
+  if (q.flashOnly && !p.flashSale) return false;
   if (q.launchOnly && p.launchRank == null) return false;
   if (q.minPrice != null && p.price < q.minPrice) return false;
   if (q.maxPrice != null && p.price > q.maxPrice) return false;

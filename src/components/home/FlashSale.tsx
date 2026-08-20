@@ -6,7 +6,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Zap, ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { Money } from "@/components/ui/Money";
-import { FLASH_SALE } from "@/lib/flash-sale";
+import { FLASH_SALE, type FlashItem } from "@/lib/flash-sale";
 
 /**
  * Flash-sale image accordion. Five rounded panels; the active one is expanded
@@ -20,8 +20,11 @@ const PANELS = 5;
 const DWELL = 6000;
 const CYCLE = 2 * 3600; // countdown loops on a rolling two-hour window
 
-export function FlashSale() {
+export function FlashSale({ items }: { items?: FlashItem[] }) {
   const reduced = useReducedMotion();
+  // Live flash-sale units when the catalogue supplies them; the curated seed is
+  // the fallback so the section is never empty during a data gap.
+  const deals = items && items.length >= PANELS ? items : FLASH_SALE;
   const [base, setBase] = useState(0);
   const [hovered, setHovered] = useState<number | null>(null);
   const [now, setNow] = useState<number | null>(null);
@@ -36,9 +39,9 @@ export function FlashSale() {
   // Auto-advance, paused while a panel is hovered.
   useEffect(() => {
     if (hovered !== null) return;
-    const t = setInterval(() => setBase((b) => (b + 1) % FLASH_SALE.length), DWELL);
+    const t = setInterval(() => setBase((b) => (b + 1) % deals.length), DWELL);
     return () => clearInterval(t);
-  }, [hovered]);
+  }, [hovered, deals.length]);
 
   const left = now === null ? null : CYCLE - (Math.floor(now / 1000) % CYCLE);
   const pad = (n: number) => String(n).padStart(2, "0");
@@ -50,7 +53,7 @@ export function FlashSale() {
   const expandedIndex = hovered ?? 0;
   const visible = Array.from(
     { length: PANELS },
-    (_, i) => FLASH_SALE[(base + i) % FLASH_SALE.length],
+    (_, i) => deals[(base + i) % deals.length],
   );
 
   return (
@@ -85,7 +88,7 @@ export function FlashSale() {
           <button
             type="button"
             aria-label="Previous"
-            onClick={() => setBase((b) => (b - 1 + FLASH_SALE.length) % FLASH_SALE.length)}
+            onClick={() => setBase((b) => (b - 1 + deals.length) % deals.length)}
             className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full border border-pink-600/30 text-pink-600 transition-colors hover:bg-pink-600 hover:text-white sm:flex"
           >
             <ChevronLeft size={18} />
@@ -173,7 +176,7 @@ export function FlashSale() {
           <button
             type="button"
             aria-label="Next"
-            onClick={() => setBase((b) => (b + 1) % FLASH_SALE.length)}
+            onClick={() => setBase((b) => (b + 1) % deals.length)}
             className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full border border-pink-600/30 text-pink-600 transition-colors hover:bg-pink-600 hover:text-white sm:flex"
           >
             <ChevronRight size={18} />
@@ -182,7 +185,7 @@ export function FlashSale() {
 
         <div className="mt-8 text-center">
           <Link
-            href="/shop?sort=newest"
+            href="/sale"
             className="inline-flex items-center gap-1.5 rounded-full border border-pink-600/40 px-6 py-2.5 text-[0.75rem] font-semibold tracking-[0.12em] text-pink-600 uppercase transition-colors hover:bg-pink-600 hover:text-white"
           >
             Shop all flash deals
