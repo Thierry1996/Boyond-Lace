@@ -205,6 +205,8 @@ export interface ProductQuery {
   wholesaleOnly?: boolean;
   /** Only SKUs in the live flash-sale drop. */
   flashOnly?: boolean;
+  /** Only SKUs that belong to ALL of these collections/categories (by name). */
+  collections?: string[];
   minPrice?: number;
   maxPrice?: number;
   sort?: "featured" | "price-asc" | "price-desc" | "newest" | "rating" | "launch-rank";

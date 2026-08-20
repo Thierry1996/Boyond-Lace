@@ -1,8 +1,9 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ProductImage } from "@/components/ui/ProductImage";
+import { commerce } from "@/lib/commerce";
 import { getCollectionsWithCounts } from "@/lib/collections";
-import { getIntentionCategories } from "@/lib/intention-categories";
+import { getIntentionCategoriesWithCounts } from "@/lib/intention-categories";
 
 export const metadata: Metadata = {
   title: "Shop by Intention — Find Your Collection | Beyond Lace",
@@ -21,19 +22,31 @@ interface Circle {
 }
 
 export default async function ShopByIntentionsPage() {
-  const [collections, extra] = await Promise.all([
+  const [collections, extra, all] = await Promise.all([
     getCollectionsWithCounts(),
-    getIntentionCategories(),
+    getIntentionCategoriesWithCounts(),
+    commerce.getProducts({ sort: "rating" }),
   ]);
 
-  // Editorial collections (live counts) first, then the merchandising
-  // categories (display counts). Both render as the same circle.
+  // A representative, real product image for a circle — first priced, photographed
+  // unit in the category. Falls back to a top catalogue image, then the gradient.
+  const anyHero = all.find((p) => p.price > 0 && p.images?.[0]?.src)?.images[0].src;
+  const catImage = (cat?: string): string | undefined => {
+    if (!cat) return anyHero;
+    return (
+      all.find((p) => p.price > 0 && (p.collections ?? []).includes(cat) && p.images?.[0]?.src)
+        ?.images[0].src ?? anyHero
+    );
+  };
+
+  // Editorial collections (live counts) first, then the merchandising categories
+  // (also live). Both render as the same circle, each with a real category image.
   const circles: Circle[] = [
     ...collections.map((c) => ({
       slug: c.slug,
       label: c.label,
       eyebrow: c.eyebrow,
-      image: c.cardImage,
+      image: catImage(c.query?.collections?.[0]) ?? c.cardImage,
       href: `/collections/${c.slug}`,
       count: c.count,
     })),

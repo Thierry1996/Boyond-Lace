@@ -45,7 +45,7 @@ const FILTER_GROUPS: { key: string; label: string; collections: string[] }[] = [
   {
     key: "range",
     label: "Range",
-    collections: ["Extensions & Bundles"],
+    collections: ["Hair Extensions & Bundles", "Crochet Braids"],
   },
 ];
 const FACET_OF = new Map<string, string>(

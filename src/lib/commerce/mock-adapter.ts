@@ -34,6 +34,8 @@ function matchesQuery(product: Product, q: ProductQuery): boolean {
   if (q.launchOnly && product.launchRank == null) return false;
   if (q.wholesaleOnly && !product.wholesale) return false;
   if (q.flashOnly && !product.flashSale) return false;
+  if (q.collections && !q.collections.every((c) => (product.collections ?? []).includes(c)))
+    return false;
   if (q.minPrice != null && product.price < q.minPrice) return false;
   if (q.maxPrice != null && product.price > q.maxPrice) return false;
   return true;

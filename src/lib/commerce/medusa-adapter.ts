@@ -229,6 +229,8 @@ function matches(p: Product, q: ProductQuery): boolean {
   if (q.wholesaleOnly && !p.wholesale) return false;
   if (q.flashOnly && !p.flashSale) return false;
   if (q.launchOnly && p.launchRank == null) return false;
+  if (q.collections && !q.collections.every((c) => (p.collections ?? []).includes(c)))
+    return false;
   if (q.minPrice != null && p.price < q.minPrice) return false;
   if (q.maxPrice != null && p.price > q.maxPrice) return false;
   return true;

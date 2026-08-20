@@ -33,21 +33,25 @@ export default async function HomePage() {
     capsule,
     newArrivals,
     topRated,
-    premium,
-    bundlePool,
     carePool,
     kitPool,
     flashPool,
+    crochetPool,
+    colourPool,
+    extbundlePool,
   ] = await Promise.all([
     commerce.getProducts({ line: "luxe", sort: "featured", limit: 6 }),
     commerce.getProducts({ avatar: "editorial", limit: 2 }),
     commerce.getProducts({ sort: "newest", limit: 12 }),
     commerce.getProducts({ sort: "rating", limit: 40 }),
-    commerce.getProducts({ sort: "price-desc", limit: 24 }),
-    commerce.getProducts({ line: "bundle", limit: 16 }),
     commerce.getProducts({ line: "care", limit: 8 }),
     commerce.getProducts({ line: "kit", limit: 4 }),
     commerce.getProducts({ flashOnly: true, sort: "rating" }),
+    // Dedicated category pools so each tab / rail pulls from its OWN collection
+    // only — no cross-contamination, no "fill with random priced wigs" fallback.
+    commerce.getProducts({ collections: ["Crochet Braids"], sort: "rating" }),
+    commerce.getProducts({ collections: ["Coloured & Fashion Wigs"], sort: "rating" }),
+    commerce.getProducts({ collections: ["Hair Extensions & Bundles"], sort: "rating" }),
   ]);
 
   // Live flash-sale drop → the image-accordion items. Only priced units with a
@@ -75,8 +79,8 @@ export default async function HomePage() {
   const bestSale = [...discounted, ...priced.filter((p) => !discounted.includes(p))].slice(0, 10);
 
   // Two teaser catalogues. Ready-to-wear reads from the top-rated wigs; the
-  // fashion-colour rail from the premium (price-desc) wigs, so the two rails
-  // show different units. Both map to the lean ReachItem shape.
+  // fashion-colour rail from the Coloured & Fashion Wigs collection, so the two
+  // rails show different units. Both map to the lean ReachItem shape.
   const RTW_TAGS = [
     "Yaki Body",
     "Layer Cut",
@@ -101,8 +105,10 @@ export default async function HomePage() {
     tag: tag ? RTW_TAGS[i % RTW_TAGS.length] : undefined,
   });
   const readyToWear = priced.slice(0, 12).map((p, i) => toReach(p, i, true));
-  const fashionColor = premium
-    .filter(isWig)
+  // Fashion Colour rail pulls from the Coloured & Fashion Wigs collection ONLY —
+  // previously it showed the priciest units regardless of colour.
+  const fashionColor = colourPool
+    .filter((p) => p.price > 0)
     .slice(0, 12)
     .map((p, i) => toReach(p, i, false));
 
@@ -119,36 +125,25 @@ export default async function HomePage() {
     reviewCount: p.reviewCount,
     tag,
   });
-  const CURLY = [
-    "deep-wave",
-    "kinky-curly",
-    "kinky-straight",
-    "jerry-curl",
-    "water-wave",
-    "curly",
-    "afro-kinky",
-    "loose-deep",
-  ];
-  const bundles = bundlePool.filter((p) => p.price > 0);
-  const colouredWigs = priced.filter((p) => p.shade && p.shade !== "natural-black");
-  const curlyWigs = priced.filter(
-    (p) => p.texture && CURLY.includes(p.texture) && !colouredWigs.includes(p),
-  );
-  const fill = (set: typeof priced, min = 5) => (set.length >= min ? set : priced);
+  // Each tab pulls ONLY from its own collection — no fuzzy texture guess, no
+  // fallback that leaks unrelated units in. A tab with no stock simply shows
+  // fewer cards (the component handles an empty set), never the wrong category.
+  const priced0 = (set: typeof priced) => set.filter((p) => p.price > 0);
+  const RANGE = encodeURIComponent("Hair Extensions & Bundles");
   const catalogTabs: CatalogTab[] = [
     {
       id: "bundles",
       label: "Hair Bundles",
-      href: "/shop?line=bundle",
-      items: fill(bundles)
+      href: `/shop?range=${RANGE}`,
+      items: priced0(extbundlePool)
         .slice(0, 10)
         .map((p) => toItem(p, p.badges[0] ?? "Bundle Deal")),
     },
     {
       id: "crochet",
       label: "Crochet Hair",
-      href: "/shop?texture=kinky-curly",
-      items: fill(curlyWigs)
+      href: `/shop?range=${encodeURIComponent("Crochet Braids")}`,
+      items: priced0(crochetPool)
         .slice(0, 10)
         .map((p) => toItem(p, p.badges[0] ?? "Crochet Hair")),
     },
@@ -156,7 +151,7 @@ export default async function HomePage() {
       id: "colors",
       label: "Trending Colors",
       href: "/collections/coloured-wigs",
-      items: fill(colouredWigs)
+      items: priced0(colourPool)
         .slice(0, 10)
         .map((p) => toItem(p, p.badges[0] ?? "Trending Color")),
     },

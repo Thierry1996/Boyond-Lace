@@ -1,4 +1,4 @@
-import { commerce, type ProductQuery, type Shade } from "@/lib/commerce";
+import { commerce, type ProductQuery } from "@/lib/commerce";
 import { getDataClient } from "@/lib/supabase/data";
 
 /**
@@ -17,19 +17,6 @@ import { getDataClient } from "@/lib/supabase/data";
  * (ProductImage) until the shoot lands — the brand's photographic system is
  * locked to hair only.
  */
-
-/** Every shade that is not the natural-black default — the "colour" grouping. */
-const COLOURED_SHADES: Shade[] = [
-  "espresso",
-  "brunette",
-  "honey-blonde",
-  "platinum",
-  "custom-fashion",
-  "blonde-613",
-  "honey-balayage",
-  "auburn-copper",
-  "burgundy-99j",
-];
 
 /** Which refine groups the collection page exposes in its filter rail. */
 export type RefineKey = "texture" | "lace" | "shade" | "fit";
@@ -128,7 +115,7 @@ export const collections: Collection[] = [
     cardImage: "velvet",
     metaDescription:
       "Glueless human hair wigs from Beyond Lace: pre-plucked, wear-and-go HD lace units that go on in minutes with no adhesive.",
-    query: { capConstruction: ["glueless-wear-go", "bye-bye-knots"] },
+    query: { collections: ["Glueless Wigs"] },
     refine: ["texture", "shade"],
     intro:
       "A glueless unit does the two hardest parts for you before it ships: the knots are already bleached through the parting and the hairline is already plucked. An adjustable band and clips do the rest, so the unit goes on flat and secure in minutes and comes off in ninety seconds without lifting your own edges.",
@@ -158,7 +145,7 @@ export const collections: Collection[] = [
     cardImage: "plum",
     metaDescription:
       "HD Swiss full lace human hair wigs from Beyond Lace — an undetectable cap you can part anywhere and wear in an updo.",
-    query: { laceType: ["hd-swiss-full"] },
+    query: { collections: ["Full Lace Wigs"] },
     refine: ["texture", "shade"],
     intro:
       "Full lace is the construction you buy when the parting has to move — an updo, a centre part today and a deep side part tomorrow, a ponytail that shows the perimeter. The whole cap is HD Swiss lace with knots bleached individually through it, which is why it disappears where a frontal would show a track.",
@@ -184,7 +171,7 @@ export const collections: Collection[] = [
     cardImage: "mono-2",
     metaDescription:
       "13x6 HD lace frontal human hair wigs from Beyond Lace — six inches of parting depth with a pre-plucked, undetectable hairline.",
-    query: { laceType: ["hd-swiss-13x6"] },
+    query: { collections: ["Lace Front Wigs"] },
     refine: ["texture", "shade"],
     intro:
       "The 13x6 gives you six inches of parting depth against the 13x4's four — enough for a dramatic middle part, a deep side part, or a small bun at the front without the lace running out. It is the frontal to choose when you want parting freedom but do not need a full-lace updo.",
@@ -210,7 +197,7 @@ export const collections: Collection[] = [
     cardImage: "blush",
     metaDescription:
       "13x4 HD lace frontal human hair wigs from Beyond Lace — ear-to-ear lace with a natural, pre-plucked front parting.",
-    query: { laceType: ["hd-swiss-13x4"] },
+    query: { collections: ["Lace Front Wigs"] },
     refine: ["texture", "shade"],
     intro:
       "The 13x4 is the construction most people actually need: thirteen inches of lace ear-to-ear with four inches of parting depth, which covers a middle or side part and a face-framing style without paying for lace you will not use. It is the deepest-stocked cap we run, so it is also where the widest choice of texture and colour lives.",
@@ -236,7 +223,7 @@ export const collections: Collection[] = [
     cardImage: "aurora",
     metaDescription:
       "Body wave human hair wigs from Beyond Lace — a soft, glossy S-wave that reads as a blow-out and bounces back after every wash.",
-    query: { texture: ["body-wave"] },
+    query: { collections: ["Body Wave Wigs"] },
     refine: ["lace", "shade"],
     intro:
       "Body wave is the texture that flatters almost everyone: enough movement to look effortless, not so much that it needs daily definition. Because it is virgin human hair, you can wrap it straight or scrunch the wave back — and it returns to its pattern after a wash rather than dropping flat.",
@@ -262,7 +249,7 @@ export const collections: Collection[] = [
     cardImage: "gold",
     metaDescription:
       "Straight human hair wigs from Beyond Lace — natural straight to bone-straight, with a mirror finish that shows cuticle-aligned quality.",
-    query: { texture: ["straight"] },
+    query: { collections: ["Straight Wigs"] },
     refine: ["lace", "shade"],
     intro:
       "Straight hair hides nothing, which is exactly why it is the honest test of quality — every split cuticle or silicone coating shows. Ours is cuticle-aligned virgin Remy, so the shine is the hair's own and it stays sleek from root to end without a mid-length frizz line.",
@@ -288,7 +275,7 @@ export const collections: Collection[] = [
     cardImage: "velvet",
     metaDescription:
       "Deep wave human hair wigs from Beyond Lace — a defined, voluminous curl with a wet-look finish that holds to wash day.",
-    query: { texture: ["deep-wave"] },
+    query: { collections: ["Deep Wave Wigs"] },
     refine: ["lace", "shade"],
     intro:
       "Deep wave is the texture you choose for volume and drama — a defined, springy wave that reads full without teasing and takes a wet-look gel beautifully. Keep it hydrated and scrunch rather than brush, and the pattern stays crisp from install to wash day.",
@@ -314,7 +301,7 @@ export const collections: Collection[] = [
     cardImage: "blush",
     metaDescription:
       "Coloured human hair wigs from Beyond Lace — 613 blonde, balayage, copper and burgundy, lifted on virgin hair with the cuticle intact.",
-    query: { shade: COLOURED_SHADES },
+    query: { collections: ["Coloured & Fashion Wigs"] },
     refine: ["texture", "lace"],
     intro:
       "Colour is where cheap hair falls apart — over-processed lift leaves the cuticle stripped and the ends straw-dry. Ours is lifted slowly on virgin hair, so a 613 blonde tones cleanly to any shade a colourist wants and a burgundy reads deep rather than flat. Every colour unit is still the same batch-matched hair underneath.",
@@ -340,7 +327,7 @@ export const collections: Collection[] = [
     cardImage: "mono",
     metaDescription:
       "Human hair bundles and closures from Beyond Lace — wefted bundles with matching 5x5 and 4x4 closures, cut from one batch for a seamless sew-in.",
-    query: { laceType: ["hd-swiss-5x5", "closure-4x4"] },
+    query: { collections: ["Lace Closure Wigs"] },
     refine: ["texture", "shade"],
     intro:
       "For a sew-in, the risk is always the match — bundles from one lot and a closure from another that reads a shade off. We solve it by cutting the closure and its bundles from a single production run, so the install is one continuous head of hair rather than three pieces pretending to agree.",

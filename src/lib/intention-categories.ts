@@ -1,164 +1,76 @@
-import { getDataClient } from "@/lib/supabase/data";
+import { commerce } from "@/lib/commerce";
 
 /**
  * Shop-by-intention categories — the merchandising wall on /shop-by-intentions.
  *
  * These sit alongside the editorial `collections` (lib/collections.ts). A
  * collection is a full landing page with its own copy and FAQ; an intention
- * category is a lighter shortcut — a labelled circle that routes to the right
- * place: an existing collection, a pre-filtered /shop view, or a content hub.
- * That keeps merchandising buckets (sale, trending, accessories, price bands)
- * out of the heavy Collection type while still being real, working links.
+ * category is a lighter shortcut — a labelled circle that routes straight into
+ * the shop, pre-filtered to one real Medusa category.
  *
- * Categories that duplicate an existing collection (Best Sellers, HD invisible
- * lace, all-glueless, bundles-and-closure-only) are deliberately omitted here —
- * the collection already covers them. The wall is kept intentionally tight:
- * redundant-destination buckets (extra sale/price/trending duplicates) are left
+ * Everything here is DATA-DRIVEN: the category is a real collection the importer
+ * sorts products into, the count is a live query against that collection, the
+ * image is a real product photo from it, and the href hits the shop's actual
+ * filter param (`?<group>=<Category Name>`). No hard-coded phantom numbers, no
+ * dead links. Categories already owned by an editorial collection (glueless,
+ * frontals, body/deep wave, straight, colour, closures) are intentionally left
  * out so each circle earns its place.
- *
- * `count` is a merchandising display number, not a live query count (these
- * buckets span the aspirational full catalogue). Swap for live counts when the
- * real catalogue lands. Slugs, labels and routes are the source of truth; the
- * Supabase table below mirrors this seed and is the storefront's live source,
- * with this array as a bulletproof fallback.
  */
 export interface IntentionCategory {
   slug: string;
   label: string;
   eyebrow: string;
-  /** Gradient placeholder key (aurora/velvet/plum/blush/gold/mono/mono-2). */
+  /** Real product-image URL, or an on-brand gradient key if the category is empty. */
   image: string;
-  /** Working destination — existing collection, filtered /shop, or a hub. */
+  /** Working shop route, pre-filtered to this category. */
   href: string;
-  /** Merchandising display count. Omitted where the bucket has no headline number. */
-  count?: number;
+  /** Live count of units in the category. */
+  count: number;
 }
 
-export const intentionCategories: IntentionCategory[] = [
-  {
-    slug: "premium-wigs",
-    label: "Premium Wigs",
-    eyebrow: "The signature line",
-    image: "plum",
-    href: "/shop?line=luxe",
-    count: 1200,
-  },
-  {
-    slug: "premium-double-drawn-wigs",
-    label: "Premium Double Drawn Wigs",
-    eyebrow: "Root-to-tip fullness",
-    image: "gold",
-    href: "/shop?line=luxe&sort=price-desc",
-    count: 700,
-  },
-  {
-    slug: "top-tier-favourites",
-    label: "Top-Tier Favourites",
-    eyebrow: "Most loved",
-    image: "gold",
-    href: "/shop?sort=rating",
-    count: 104,
-  },
-  {
-    slug: "wear-go-straight-wigs",
-    label: "Wear & Go (Glueless) Straight Wigs",
-    eyebrow: "Wear & go",
-    image: "velvet",
-    href: "/shop?fit=glueless-wear-go&texture=straight",
-    count: 77,
-  },
-  {
-    slug: "glueless-curly-units",
-    label: "Glueless Curly Units",
-    eyebrow: "Wear & go curls",
-    image: "plum",
-    href: "/shop?fit=glueless-wear-go&texture=kinky-curly",
-    count: 100,
-  },
-  {
-    slug: "curly-full-frontal-wigs",
-    label: "Curly Full Frontal Wigs",
-    eyebrow: "Defined curls",
-    image: "velvet",
-    href: "/shop?lace=hd-swiss-full&texture=kinky-curly",
-    count: 512,
-  },
-  {
-    slug: "fringe-bob-pixie",
-    label: "Fringe Bob & Pixie Cut",
-    eyebrow: "Short & sharp",
-    image: "blush",
-    href: "/shop?texture=straight",
-    count: 782,
-  },
-  {
-    slug: "combos",
-    label: "Combos",
-    eyebrow: "Buy together, save",
-    image: "plum",
-    href: "/shop?line=bundle",
-    count: 198,
-  },
-  {
-    slug: "extensions-and-bundles",
-    label: "Extensions & Bundles",
-    eyebrow: "Build your install",
-    image: "mono",
-    href: "/shop?line=bundle",
-    count: 3120,
-  },
-  {
-    slug: "maintenance-accessories",
-    label: "Maintenance & Wig Accessories",
-    eyebrow: "Care & tools",
-    image: "mono",
-    href: "/shop?line=care",
-    count: 700,
-  },
-  {
-    slug: "anniversary-sale",
-    label: "10 Year Anniversary Sale",
-    eyebrow: "Limited time",
-    image: "blush",
-    href: "/shop?sort=price-asc",
-    count: 900,
-  },
+/** Seed = real category name + the shop filter group it lives under + copy. */
+interface IntentionSeed {
+  name: string;
+  group: "construction" | "cut" | "texture" | "colour" | "range";
+  eyebrow: string;
+  /** Fallback gradient key when the category has no photographed unit yet. */
+  poster: string;
+}
+
+const SEEDS: IntentionSeed[] = [
+  { name: "Crochet Braids", group: "range", eyebrow: "Boho & feather", poster: "velvet" },
+  { name: "Hair Extensions & Bundles", group: "range", eyebrow: "Build your install", poster: "mono" },
+  { name: "Curly Wigs", group: "texture", eyebrow: "Defined coils", poster: "plum" },
+  { name: "Kinky Straight Wigs", group: "texture", eyebrow: "Pressed natural", poster: "gold" },
+  { name: "Loose & Water Wave Wigs", group: "texture", eyebrow: "Beachy movement", poster: "aurora" },
+  { name: "Bob & Short Wigs", group: "cut", eyebrow: "Short & sharp", poster: "blush" },
+  { name: "Long Wigs", group: "cut", eyebrow: '26" and beyond', poster: "velvet" },
+  { name: "Layered Wigs", group: "cut", eyebrow: "Butterfly & layers", poster: "aurora" },
+  { name: "Curtain Bang Wigs", group: "cut", eyebrow: "Face-framing", poster: "blush" },
+  { name: "U-Part & V-Part Wigs", group: "construction", eyebrow: "No leave-out", poster: "plum" },
+  { name: "Natural Black Wigs", group: "colour", eyebrow: "The 1B classic", poster: "mono-2" },
 ];
 
-/* ── Supabase-backed source, static registry as fallback ─────────────────────
-   Mirrors the pattern in lib/collections.ts: read the live table when the data
-   client is configured, otherwise (or on any failure) fall back to the in-code
-   seed so the storefront never breaks. */
+const slugify = (s: string) =>
+  s.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
-interface IntentionRow {
-  slug: string;
-  label: string;
-  eyebrow: string;
-  image: string;
-  href: string;
-  count: number | null;
-}
-
-function rowToCategory(r: IntentionRow): IntentionCategory {
-  return {
-    slug: r.slug,
-    label: r.label,
-    eyebrow: r.eyebrow,
-    image: r.image,
-    href: r.href,
-    count: r.count ?? undefined,
-  };
-}
-
-/** Every intention category, in display order. Supabase-first, static fallback. */
-export async function getIntentionCategories(): Promise<IntentionCategory[]> {
-  const sb = getDataClient();
-  if (!sb) return intentionCategories;
-  try {
-    const { data, error } = await sb.from("intention_categories").select("*").order("sort_order");
-    if (error || !data || data.length === 0) return intentionCategories;
-    return (data as IntentionRow[]).map(rowToCategory);
-  } catch {
-    return intentionCategories;
-  }
+/**
+ * Every intention category with a LIVE count and a real representative image,
+ * derived from one products fetch. Empty categories fall back to their gradient
+ * poster and still render (count 0), so the wall never shows a broken circle.
+ */
+export async function getIntentionCategoriesWithCounts(): Promise<IntentionCategory[]> {
+  const all = await commerce.getProducts({ sort: "rating" });
+  return SEEDS.map((s) => {
+    const inCat = all.filter((p) => (p.collections ?? []).includes(s.name));
+    const hero = inCat.find((p) => p.price > 0 && p.images?.[0]?.src);
+    return {
+      slug: slugify(s.name),
+      label: s.name.replace(/ Wigs$/, ""),
+      eyebrow: s.eyebrow,
+      image: hero?.images[0].src ?? s.poster,
+      href: `/shop?${s.group}=${encodeURIComponent(s.name)}`,
+      count: inCat.length,
+    };
+  });
 }
