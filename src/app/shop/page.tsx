@@ -63,14 +63,29 @@ const SORTS = [
 type SearchParams = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
-/** Toggle a single filter value while preserving the rest. */
+const PER_PAGE = 16;
+
+/** Toggle a single filter value while preserving the rest. Any filter/sort change
+ *  drops `page`, so refining always returns you to the first page. */
 function toggleHref(params: SearchParams, key: string, value: string): string {
   const next = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
     const s = one(v);
-    if (s && k !== key) next.set(k, s);
+    if (s && k !== key && k !== "page") next.set(k, s);
   }
   if (one(params[key]) !== value) next.set(key, value);
+  const qs = next.toString();
+  return qs ? `/shop?${qs}` : "/shop";
+}
+
+/** Link to a specific page, preserving the active filters + sort. */
+function pageHref(params: SearchParams, page: number): string {
+  const next = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    const s = one(v);
+    if (s && k !== "page") next.set(k, s);
+  }
+  if (page > 1) next.set("page", String(page));
   const qs = next.toString();
   return qs ? `/shop?${qs}` : "/shop";
 }
@@ -97,6 +112,13 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
         others.every((c) => (p.collections ?? []).includes(c)),
     ).length;
   };
+
+  // Paginate the filtered set — 16 per page.
+  const totalPages = Math.max(1, Math.ceil(products.length / PER_PAGE));
+  const page = Math.min(Math.max(1, parseInt(one(params.page) ?? "1", 10) || 1), totalPages);
+  const pageProducts = products.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const firstOnPage = products.length ? (page - 1) * PER_PAGE + 1 : 0;
+  const lastOnPage = Math.min(page * PER_PAGE, products.length);
 
   return (
     <>
@@ -189,7 +211,9 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
           <div>
             <div className="mb-10 flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.07] pb-4">
               <p className="text-[0.8125rem] text-neutral-400 tabular-nums">
-                {products.length} {products.length === 1 ? "unit" : "units"}
+                {products.length === 0
+                  ? "0 units"
+                  : `${firstOnPage}–${lastOnPage} of ${products.length} units`}
               </p>
               <div className="flex flex-wrap items-center gap-5">
                 {SORTS.map((s) => {
@@ -224,11 +248,52 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                 </Link>
               </div>
             ) : (
-              <div className="grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {products.map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
-              </div>
+              <>
+                <div className="grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {pageProducts.map((p) => (
+                    <ProductCard key={p.id} product={p} />
+                  ))}
+                </div>
+
+                {totalPages > 1 && (
+                  <nav
+                    aria-label="Pagination"
+                    className="mt-16 flex items-center justify-center gap-6 border-t border-white/[0.07] pt-10"
+                  >
+                    {page > 1 ? (
+                      <Link
+                        href={pageHref(params, page - 1)}
+                        rel="prev"
+                        className="text-[0.75rem] tracking-[0.12em] text-neutral-200 uppercase transition-colors hover:text-gold"
+                      >
+                        ← Previous
+                      </Link>
+                    ) : (
+                      <span className="text-[0.75rem] tracking-[0.12em] text-neutral-400/40 uppercase">
+                        ← Previous
+                      </span>
+                    )}
+
+                    <span className="text-[0.75rem] tracking-[0.12em] text-neutral-400 uppercase tabular-nums">
+                      Page {page} of {totalPages}
+                    </span>
+
+                    {page < totalPages ? (
+                      <Link
+                        href={pageHref(params, page + 1)}
+                        rel="next"
+                        className="border border-gold px-7 py-3 text-[0.75rem] tracking-[0.14em] text-gold uppercase transition-all duration-300 hover:bg-gold hover:text-ink"
+                      >
+                        Next →
+                      </Link>
+                    ) : (
+                      <span className="border border-white/10 px-7 py-3 text-[0.75rem] tracking-[0.14em] text-neutral-400/40 uppercase">
+                        Next →
+                      </span>
+                    )}
+                  </nav>
+                )}
+              </>
             )}
           </div>
         </div>
