@@ -107,7 +107,7 @@ export function ProductCard({ product }: { product: Product }) {
 
       <div className="pt-5">
         <div className="flex items-start justify-between gap-3">
-          <h3 className="text-[1.0625rem] text-paper transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1 group-hover:text-gold">
+          <h3 className="line-clamp-2 text-[1.0625rem] leading-snug text-paper transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1 group-hover:text-gold">
             {product.title}
           </h3>
           <ArrowUpRight

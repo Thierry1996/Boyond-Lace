@@ -4,37 +4,75 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 /**
- * Price refine — two bound inputs plus a visual range bar. Server components
- * cannot own input state, so this small client control reads the current
- * min/max from the URL, lets the shopper edit them, and pushes an updated query
- * that preserves every other active filter. The bar is presentational; the
- * inputs are the source of truth.
+ * Price refine — a draggable dual-range slider AND two editable inputs, kept in
+ * sync. Server components can't own input state, so this small client control
+ * reads min/max from the URL, lets the shopper drag the thumbs or type a value,
+ * and pushes an updated query that preserves every other active filter.
+ * Dragging applies on release; typing applies on Enter/blur or the button.
  */
+const clamp = (n: number, a: number, b: number) => Math.min(b, Math.max(a, n));
+
 export function PriceFilter({ floor, ceil }: { floor: number; ceil: number }) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
 
-  const [min, setMin] = useState(params.get("min") ?? "");
-  const [max, setMax] = useState(params.get("max") ?? "");
+  const urlMin = params.get("min");
+  const urlMax = params.get("max");
+  const [lo, setLo] = useState(clamp(urlMin ? Number(urlMin) : floor, floor, ceil));
+  const [hi, setHi] = useState(clamp(urlMax ? Number(urlMax) : ceil, floor, ceil));
 
-  function apply() {
+  function apply(nextLo = lo, nextHi = hi) {
     const p = new URLSearchParams(params.toString());
-    const setOrDel = (k: string, v: string) => (v.trim() ? p.set(k, v.trim()) : p.delete(k));
-    setOrDel("min", min);
-    setOrDel("max", max);
+    if (Math.round(nextLo) > floor) p.set("min", String(Math.round(nextLo)));
+    else p.delete("min");
+    if (Math.round(nextHi) < ceil) p.set("max", String(Math.round(nextHi)));
+    else p.delete("max");
     const qs = p.toString();
     router.push(qs ? `${pathname}?${qs}` : pathname);
   }
 
-  const lo = min ? Number(min) : floor;
-  const hi = max ? Number(max) : ceil;
   const span = Math.max(1, ceil - floor);
-  const leftPct = Math.min(100, Math.max(0, ((lo - floor) / span) * 100));
-  const rightPct = Math.min(100, Math.max(0, ((hi - floor) / span) * 100));
+  const leftPct = clamp(((lo - floor) / span) * 100, 0, 100);
+  const rightPct = clamp(((hi - floor) / span) * 100, 0, 100);
+
+  const thumb =
+    "[&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-ink [&::-webkit-slider-thumb]:bg-gold [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-ink [&::-moz-range-thumb]:bg-gold";
 
   return (
     <div>
+      {/* Draggable dual-range */}
+      <div className="relative mb-5 h-4">
+        <span className="pointer-events-none absolute top-1/2 h-[3px] w-full -translate-y-1/2 rounded-full bg-white/12" />
+        <span
+          className="pointer-events-none absolute top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-gold"
+          style={{ left: `${leftPct}%`, right: `${100 - rightPct}%` }}
+        />
+        <input
+          type="range"
+          aria-label="Minimum price"
+          min={floor}
+          max={ceil}
+          value={lo}
+          onChange={(e) => setLo(Math.min(Number(e.target.value), hi))}
+          onPointerUp={() => apply()}
+          onKeyUp={(e) => e.key.startsWith("Arrow") && apply()}
+          className={`pointer-events-none absolute inset-0 m-0 h-full w-full appearance-none bg-transparent focus:outline-none ${thumb}`}
+        />
+        <input
+          type="range"
+          aria-label="Maximum price"
+          min={floor}
+          max={ceil}
+          value={hi}
+          onChange={(e) => setHi(Math.max(Number(e.target.value), lo))}
+          onPointerUp={() => apply()}
+          onKeyUp={(e) => e.key.startsWith("Arrow") && apply()}
+          className={`pointer-events-none absolute inset-0 m-0 h-full w-full appearance-none bg-transparent focus:outline-none ${thumb}`}
+        />
+      </div>
+
+      {/* Editable inputs */}
       <div className="flex items-center gap-3">
         <label className="flex-1">
           <span className="sr-only">Minimum price</span>
@@ -43,10 +81,11 @@ export function PriceFilter({ floor, ceil }: { floor: number; ceil: number }) {
             <input
               type="number"
               inputMode="numeric"
-              min={0}
-              placeholder={String(floor)}
-              value={min}
-              onChange={(e) => setMin(e.target.value)}
+              min={floor}
+              max={ceil}
+              value={Math.round(lo)}
+              onChange={(e) => setLo(clamp(Number(e.target.value) || floor, floor, hi))}
+              onBlur={() => apply()}
               onKeyDown={(e) => e.key === "Enter" && apply()}
               className="w-full bg-transparent text-[0.875rem] text-paper tabular-nums focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
             />
@@ -60,10 +99,11 @@ export function PriceFilter({ floor, ceil }: { floor: number; ceil: number }) {
             <input
               type="number"
               inputMode="numeric"
-              min={0}
-              placeholder={String(ceil)}
-              value={max}
-              onChange={(e) => setMax(e.target.value)}
+              min={floor}
+              max={ceil}
+              value={Math.round(hi)}
+              onChange={(e) => setHi(clamp(Number(e.target.value) || ceil, lo, ceil))}
+              onBlur={() => apply()}
               onKeyDown={(e) => e.key === "Enter" && apply()}
               className="w-full bg-transparent text-[0.875rem] text-paper tabular-nums focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
             />
@@ -71,16 +111,9 @@ export function PriceFilter({ floor, ceil }: { floor: number; ceil: number }) {
         </label>
       </div>
 
-      <div className="relative mt-4 h-[3px] rounded-full bg-white/12">
-        <span
-          className="absolute top-0 h-full rounded-full bg-gold"
-          style={{ left: `${leftPct}%`, right: `${100 - rightPct}%` }}
-        />
-      </div>
-
       <button
         type="button"
-        onClick={apply}
+        onClick={() => apply()}
         className="mt-4 w-full border border-gold/50 py-2 text-[0.75rem] tracking-[0.12em] text-gold uppercase transition-colors hover:bg-gold hover:text-ink"
       >
         Apply price

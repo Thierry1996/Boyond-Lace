@@ -7,6 +7,8 @@ import { ProductCard } from "@/components/ui/ProductCard";
 import { Section, SectionHeading } from "@/components/ui/Section";
 import { FaqAccordion } from "@/components/collections/FaqAccordion";
 import { PriceFilter } from "@/components/collections/PriceFilter";
+import { FilterGroup } from "@/components/collections/FilterGroup";
+import { SidebarPromo } from "@/components/collections/SidebarPromo";
 import { collections, getCollectionBySlug, type Collection } from "@/lib/collections";
 
 export function generateStaticParams() {
@@ -162,6 +164,8 @@ const SORTS = [
   { value: "newest", label: "Newest" },
 ] as const;
 
+const PER_PAGE = 16;
+
 /* ── Shared, brand-level editorial (same on every collection page) ───────── */
 const CONSTRUCTION_ROWS = [
   {
@@ -216,12 +220,13 @@ function csv(params: SearchParams, key: string): string[] {
   return v ? v.split(",").filter(Boolean) : [];
 }
 
-/** Toggle a value inside a comma-list param, preserving every other param. */
+/** Toggle a value inside a comma-list param, preserving every other param. Any
+ *  refine change drops `page`, so it always returns to the first page. */
 function toggleMultiHref(slug: string, params: SearchParams, key: string, value: string): string {
   const next = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
     const s = one(v);
-    if (s && k !== key) next.set(k, s);
+    if (s && k !== key && k !== "page") next.set(k, s);
   }
   const cur = csv(params, key);
   const updated = cur.includes(value) ? cur.filter((x) => x !== value) : [...cur, value];
@@ -230,14 +235,26 @@ function toggleMultiHref(slug: string, params: SearchParams, key: string, value:
   return qs ? `/collections/${slug}?${qs}` : `/collections/${slug}`;
 }
 
-/** Set a single-value param (sort), preserving the rest. */
+/** Set a single-value param (sort), preserving the rest; resets to page 1. */
 function sortHref(slug: string, params: SearchParams, value: string): string {
   const next = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
     const s = one(v);
-    if (s && k !== "sort") next.set(k, s);
+    if (s && k !== "sort" && k !== "page") next.set(k, s);
   }
   if (value !== "featured") next.set("sort", value);
+  const qs = next.toString();
+  return qs ? `/collections/${slug}?${qs}` : `/collections/${slug}`;
+}
+
+/** Link to a specific page, preserving the active refine + sort. */
+function pageHref(slug: string, params: SearchParams, page: number): string {
+  const next = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    const s = one(v);
+    if (s && k !== "page") next.set(k, s);
+  }
+  if (page > 1) next.set("page", String(page));
   const qs = next.toString();
   return qs ? `/collections/${slug}?${qs}` : `/collections/${slug}`;
 }
@@ -311,6 +328,13 @@ export default async function CollectionPage({
   const base = await getBaseProducts(collection, sort);
   const products = applyRefines(base, sp);
 
+  // Paginate the refined set — 16 per page.
+  const totalPages = Math.max(1, Math.ceil(products.length / PER_PAGE));
+  const page = Math.min(Math.max(1, parseInt(one(sp.page) ?? "1", 10) || 1), totalPages);
+  const pageProducts = products.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const firstOnPage = products.length ? (page - 1) * PER_PAGE + 1 : 0;
+  const lastOnPage = Math.min(page * PER_PAGE, products.length);
+
   // Facet groups with two or more options (a single-value group is redundant).
   const facetGroups = FACETS.map((g) => ({ g, options: facetOptions(base, g) })).filter(
     (x) => x.options.length >= 2,
@@ -373,7 +397,10 @@ export default async function CollectionPage({
       {/* Filters + grid */}
       <div className="mx-auto max-w-[1440px] px-[4vw] py-16">
         <div className="grid gap-14 lg:grid-cols-[248px_1fr]">
-          <aside aria-label="Refine">
+          <aside
+            aria-label="Refine"
+            className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:self-start lg:overflow-y-auto lg:pr-1"
+          >
             <div className="flex items-center justify-between border-b border-white/[0.07] pb-4">
               <p className="eyebrow">Refine</p>
               {activeCount > 0 && (
@@ -387,8 +414,7 @@ export default async function CollectionPage({
             </div>
 
             {facetGroups.map(({ g, options }) => (
-              <div key={g.key} className="border-b border-white/[0.07] py-6">
-                <p className="eyebrow mb-4">{g.label}</p>
+              <FilterGroup key={g.key} label={g.label}>
                 <ul className="space-y-2.5">
                   {options.map((opt) => {
                     const active = csv(sp, g.key).includes(opt.value);
@@ -419,14 +445,13 @@ export default async function CollectionPage({
                     );
                   })}
                 </ul>
-              </div>
+              </FilterGroup>
             ))}
 
             {priceCeil > priceFloor && (
-              <div className="border-b border-white/[0.07] py-6">
-                <p className="eyebrow mb-4">Price</p>
+              <FilterGroup label="Price">
                 <PriceFilter floor={priceFloor} ceil={priceCeil} />
-              </div>
+              </FilterGroup>
             )}
 
             <div className="mt-8 border border-gold/25 p-6">
@@ -441,12 +466,16 @@ export default async function CollectionPage({
                 Order the kit
               </Link>
             </div>
+
+            <SidebarPromo />
           </aside>
 
           <div>
             <div className="mb-10 flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.07] pb-4">
               <p className="text-[0.8125rem] text-neutral-400 tabular-nums">
-                {products.length} {products.length === 1 ? "unit" : "units"}
+                {products.length === 0
+                  ? "0 units"
+                  : `${firstOnPage}–${lastOnPage} of ${products.length} units`}
               </p>
               <div className="flex flex-wrap items-center gap-5">
                 {SORTS.map((s) => {
@@ -480,11 +509,52 @@ export default async function CollectionPage({
                 </Link>
               </div>
             ) : (
-              <div className="grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {products.map((p) => (
-                  <ProductCard key={p.id} product={p} />
-                ))}
-              </div>
+              <>
+                <div className="grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {pageProducts.map((p) => (
+                    <ProductCard key={p.id} product={p} />
+                  ))}
+                </div>
+
+                {totalPages > 1 && (
+                  <nav
+                    aria-label="Pagination"
+                    className="mt-16 flex items-center justify-center gap-6 border-t border-white/[0.07] pt-10"
+                  >
+                    {page > 1 ? (
+                      <Link
+                        href={pageHref(collection.slug, sp, page - 1)}
+                        rel="prev"
+                        className="text-[0.75rem] tracking-[0.12em] text-neutral-200 uppercase transition-colors hover:text-gold"
+                      >
+                        ← Previous
+                      </Link>
+                    ) : (
+                      <span className="text-[0.75rem] tracking-[0.12em] text-neutral-400/40 uppercase">
+                        ← Previous
+                      </span>
+                    )}
+
+                    <span className="text-[0.75rem] tracking-[0.12em] text-neutral-400 uppercase tabular-nums">
+                      Page {page} of {totalPages}
+                    </span>
+
+                    {page < totalPages ? (
+                      <Link
+                        href={pageHref(collection.slug, sp, page + 1)}
+                        rel="next"
+                        className="border border-gold px-7 py-3 text-[0.75rem] tracking-[0.14em] text-gold uppercase transition-all duration-300 hover:bg-gold hover:text-ink"
+                      >
+                        Next →
+                      </Link>
+                    ) : (
+                      <span className="border border-white/10 px-7 py-3 text-[0.75rem] tracking-[0.14em] text-neutral-400/40 uppercase">
+                        Next →
+                      </span>
+                    )}
+                  </nav>
+                )}
+              </>
             )}
           </div>
         </div>

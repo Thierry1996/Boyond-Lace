@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { commerce, type ProductQuery } from "@/lib/commerce";
 import { ProductCard } from "@/components/ui/ProductCard";
+import { FilterGroup } from "@/components/collections/FilterGroup";
+import { SidebarPromo } from "@/components/collections/SidebarPromo";
 
 export const metadata: Metadata = {
   title: "All Units — Luxury HD Lace Human Hair Wigs",
@@ -145,7 +147,10 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       <div className="mx-auto max-w-[1440px] px-[4vw] py-16">
         <div className="grid gap-14 lg:grid-cols-[240px_1fr]">
           {/* Filters — one group per facet, options are live collections */}
-          <aside aria-label="Filters">
+          <aside
+            aria-label="Filters"
+            className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:self-start lg:overflow-y-auto lg:pr-1"
+          >
             <div className="flex items-center justify-between border-b border-white/[0.07] pb-4">
               <p className="eyebrow">Refine</p>
               {active.length > 0 && (
@@ -161,8 +166,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                 .filter((o) => o.count > 0 || one(params[group.key]) === o.name);
               if (!opts.length) return null;
               return (
-                <div key={group.key} className="border-b border-white/[0.07] py-6">
-                  <p className="eyebrow mb-4">{group.label}</p>
+                <FilterGroup key={group.key} label={group.label}>
                   <ul className="space-y-2.5">
                     {opts.map((opt) => {
                       const isActive = one(params[group.key]) === opt.name;
@@ -189,7 +193,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                       );
                     })}
                   </ul>
-                </div>
+                </FilterGroup>
               );
             })}
 
@@ -205,6 +209,8 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
                 Order the kit
               </Link>
             </div>
+
+            <SidebarPromo />
           </aside>
 
           {/* Grid */}

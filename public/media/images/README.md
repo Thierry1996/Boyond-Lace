@@ -54,3 +54,4 @@ the **Wired slots** list below so the mapping stays clear.
 | File | Appears at |
 |---|---|
 | `sections/bestseller-feature.jpg` | Home → "What people come back for." left feature panel |
+| `sidebar/promo.gif` | Shop + collection filter sidebars (sticky promo). GIF/JPG/WebP; portrait ~4:5. Shows a placeholder until dropped. |
