@@ -296,7 +296,9 @@ export default async function HomePage() {
             eyebrow: "The glueless edit",
             title: "Wear & Go.",
             href: "/collections/glueless-wigs",
-            image: "aurora",
+            // Real Canva art — public/media/images/sections/bestseller-feature.jpg
+            // (served from /media/images/sections/…). Dark panel if the file is missing.
+            image: "/media/images/sections/bestseller-feature.jpg",
             cta: "Shop all",
           }}
         />

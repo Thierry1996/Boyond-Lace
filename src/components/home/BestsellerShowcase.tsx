@@ -38,34 +38,30 @@ export interface FeaturePanelData {
   cta?: string;
 }
 
-/** Full-bleed editorial panel — the left column of the split (image 1). */
+/** Large editorial ad panel — the left column of the split. Shows the FULL ad
+ *  image (object-contain, never cropped) on a brand ground, with a light CTA. */
 function FeaturePanel({ feature }: { feature: FeaturePanelData }) {
+  const isReal = /^(https?:|\/|data:)/.test(feature.image);
   return (
     <Link
       href={feature.href}
-      className="dark-island group relative flex min-h-[24rem] flex-col justify-end overflow-hidden rounded-xl ring-1 ring-white/[0.06] transition-all duration-500 hover:ring-gold/40 lg:min-h-full"
+      className="group flex flex-col overflow-hidden rounded-xl bg-plum-900 ring-1 ring-white/[0.06] transition-all duration-500 hover:ring-gold/40"
     >
-      <ProductImage
-        src={feature.image}
-        alt={feature.title}
-        className="absolute inset-0 h-full w-full transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
-      />
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/25 to-transparent"
-      />
-      <div className="relative p-7 sm:p-8">
-        <p className="text-[0.6875rem] font-semibold tracking-[0.2em] text-gold uppercase">
-          {feature.eyebrow}
-        </p>
-        <h3 className="mt-2 font-[family-name:var(--font-display)] text-[clamp(1.75rem,3vw,2.5rem)] leading-[1.05] text-paper">
-          {feature.title}
-        </h3>
-        <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-gold px-6 py-2.5 text-[0.6875rem] font-semibold tracking-[0.14em] text-ink uppercase transition-transform duration-300 group-hover:-translate-y-0.5">
-          {feature.cta ?? "Shop all"}
-          <ArrowUpRight size={14} strokeWidth={2} />
-        </span>
-      </div>
+      {isReal ? (
+        // Full natural length — no crop, no letterbox.
+        <img
+          src={feature.image}
+          alt={feature.title}
+          className="block h-auto w-full transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.02]"
+        />
+      ) : (
+        <ProductImage src={feature.image} alt={feature.title} className="w-full" />
+      )}
+      {/* Long CTA bar, pinned to the bottom of the panel below the image */}
+      <span className="mx-4 mt-auto mb-4 flex items-center justify-center gap-2 rounded-full bg-gold px-8 py-4 text-[0.75rem] font-semibold tracking-[0.16em] text-ink uppercase transition-transform duration-300 group-hover:-translate-y-0.5">
+        {feature.cta ?? "Shop all"}
+        <ArrowUpRight size={15} strokeWidth={2} />
+      </span>
     </Link>
   );
 }
@@ -111,7 +107,7 @@ function Card({ item, onQuickView }: { item: BestsellerItem; onQuickView: () => 
           <ProductImage
             src={item.image}
             alt={item.title}
-            ratio="4 / 5"
+            ratio="1 / 1"
             className="transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
           />
         </Link>
@@ -153,37 +149,37 @@ function Card({ item, onQuickView }: { item: BestsellerItem; onQuickView: () => 
       </div>
 
       {/* Body — name, price, rating, action (image 1, brand palette) */}
-      <div className="flex flex-1 flex-col p-4 text-center">
-        <h3 className="text-[0.9375rem] leading-snug text-paper transition-colors duration-300 group-hover:text-gold">
+      <div className="flex flex-1 flex-col p-3 text-center">
+        <h3 className="line-clamp-2 text-[0.8125rem] leading-snug text-paper transition-colors duration-300 group-hover:text-gold">
           <Link href={`/product/${item.slug}`}>{item.title}</Link>
         </h3>
 
-        <div className="mt-2 flex items-baseline justify-center gap-2">
+        <div className="mt-1.5 flex items-baseline justify-center gap-1.5">
           {priced ? (
             <>
-              {fromPrice && <span className="text-[0.75rem] text-neutral-400 lowercase">from</span>}
+              {fromPrice && <span className="text-[0.6875rem] text-neutral-400 lowercase">from</span>}
               <Money
                 usd={item.price}
-                className={`text-[0.9375rem] tabular-nums ${onSale ? "font-semibold text-rose-300" : "text-paper"}`}
+                className={`text-[0.875rem] tabular-nums ${onSale ? "font-semibold text-rose-300" : "text-paper"}`}
               />
               {onSale && (
                 <Money
                   usd={item.compareAtPrice as number}
-                  className="text-[0.8125rem] text-neutral-500 line-through tabular-nums"
+                  className="text-[0.75rem] text-neutral-500 line-through tabular-nums"
                 />
               )}
             </>
           ) : (
-            <span className="text-[0.9375rem] text-gold">By application</span>
+            <span className="text-[0.875rem] text-gold">By application</span>
           )}
         </div>
 
-        <div className="mt-2 flex items-center justify-center gap-2 text-[0.75rem] text-neutral-400">
+        <div className="mt-1.5 flex items-center justify-center gap-1.5 text-[0.6875rem] text-neutral-400">
           <span className="text-gold" aria-hidden="true">
             {"★".repeat(Math.round(item.rating))}
           </span>
           <span className="tabular-nums">
-            {item.rating.toFixed(1)} · {item.reviewCount.toLocaleString()} reviews
+            {item.rating.toFixed(1)} · {item.reviewCount.toLocaleString()}
           </span>
         </div>
 
@@ -192,14 +188,14 @@ function Card({ item, onQuickView }: { item: BestsellerItem; onQuickView: () => 
             type="button"
             onClick={hasChoices ? onQuickView : quickAdd}
             disabled={!item.inStock}
-            className="mt-4 w-full rounded-md border border-gold/50 py-3 text-[0.6875rem] font-semibold tracking-[0.14em] text-gold uppercase transition-colors duration-300 hover:bg-gold hover:text-ink disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gold"
+            className="mt-3 w-full rounded-md border border-gold/50 py-2.5 text-[0.625rem] font-semibold tracking-[0.12em] text-gold uppercase transition-colors duration-300 hover:bg-gold hover:text-ink disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-gold"
           >
             {!item.inStock ? "Join waitlist" : hasChoices ? "Choose options" : "Add to Cart"}
           </button>
         ) : (
           <Link
             href={`/product/${item.slug}`}
-            className="mt-4 w-full rounded-md border border-gold/50 py-3 text-[0.6875rem] font-semibold tracking-[0.14em] text-gold uppercase transition-colors duration-300 hover:bg-gold hover:text-ink"
+            className="mt-3 w-full rounded-md border border-gold/50 py-2.5 text-[0.625rem] font-semibold tracking-[0.12em] text-gold uppercase transition-colors duration-300 hover:bg-gold hover:text-ink"
           >
             View details
           </Link>
@@ -221,11 +217,12 @@ export function BestsellerShowcase({
 
   return (
     <>
-      {/* Split: editorial feature left, product cards gridded right (image 1) */}
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,2fr)]">
+      {/* Split: large editorial feature left (full ad image), a tidy 2×3 grid of
+          compact square cards right. */}
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,2fr)]">
         <FeaturePanel feature={feature} />
-        <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
-          {items.map((item) => (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          {items.slice(0, 6).map((item) => (
             <Card key={item.id} item={item} onQuickView={() => setQv(item)} />
           ))}
         </div>
