@@ -122,6 +122,39 @@ export default function SizeGuidePage() {
             </p>
           </div>
         </div>
+
+        <div className="mt-16">
+          <p className="eyebrow mb-6 text-center text-gold">Visual size & length chart</p>
+          <div className="mx-auto max-w-lg space-y-8">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/media/images/guides/size-guide-2.jpg"
+              alt="Hair length guide by texture (straight, wavy, curly) with cap size measurement chart"
+              className="block h-auto w-full rounded-lg ring-1 ring-white/[0.08]"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/media/images/guides/size-guide-1.avif"
+              alt="Beyond Lace wig cap size and measurement chart"
+              className="block h-auto w-full rounded-lg ring-1 ring-white/[0.08]"
+            />
+          </div>
+        </div>
+      </Section>
+
+      <Section className="pb-24" eyebrowLeft="Texture guide" eyebrowRight="At a glance">
+        <SectionHeading
+          title="Know your texture."
+          body="From kinky curly to bone straight — how each Beyond Lace texture reads next to the others, so you can match the look you're after before you buy."
+        />
+        <div className="mx-auto mt-12 max-w-md overflow-hidden rounded-lg bg-white ring-1 ring-white/[0.08]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/media/images/guides/texture-guide-1.jpg"
+            alt="Hair texture comparison: kinky curly, jerry curly, deep, loose, water, body, and straight"
+            className="block h-auto w-full"
+          />
+        </div>
       </Section>
     </>
   );

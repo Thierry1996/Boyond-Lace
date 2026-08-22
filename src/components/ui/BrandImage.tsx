@@ -17,6 +17,7 @@ export function BrandImage({
   priority = false,
   sizes = "(max-width: 768px) 50vw, 25vw",
   overlay = true,
+  objectFit = "cover",
 }: {
   name: ImageryKey;
   width?: number;
@@ -28,8 +29,14 @@ export function BrandImage({
   sizes?: string;
   /** Plum→ink scrim so gold/white type stays legible over any photograph. */
   overlay?: boolean;
+  /** "cover" fills + crops; "contain" shows the whole image (owned art collages). */
+  objectFit?: "cover" | "contain";
 }) {
   const photo = IMAGERY[name];
+  // Owned assets (local /media paths or absolute URLs in the registry) are
+  // already sized — serve them unoptimised so replacing a file with the same
+  // name shows immediately, instead of Next's image cache pinning the old one.
+  const owned = /^(https?:|\/)/.test(photo.id);
 
   return (
     <div
@@ -42,7 +49,8 @@ export function BrandImage({
         fill
         sizes={sizes}
         priority={priority}
-        className={`object-cover ${imgClassName}`}
+        unoptimized={owned}
+        className={`${objectFit === "contain" ? "object-contain" : "object-cover"} ${imgClassName}`}
       />
       {overlay && (
         <div

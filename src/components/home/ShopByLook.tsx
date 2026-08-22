@@ -26,32 +26,37 @@ const LOOKS: Look[] = [
   {
     slug: "vacation-hair",
     label: "Vacation Hair",
-    image: "aurora",
+    image: "/media/images/models/41-22.png",
     href: "/collections/body-wave-wigs",
   },
   {
     slug: "wedding-hair",
     label: "Wedding Hair",
-    image: "blush",
+    image: "/media/images/models/model-1.avif",
     href: "/collections/hd-full-lace",
   },
-  { slug: "chic-bob", label: "Chic Bob", image: "mono-2", href: "/shop?texture=straight" },
+  {
+    slug: "chic-bob",
+    label: "Chic Bob",
+    image: "/media/images/models/model-2.avif",
+    href: "/shop?texture=straight",
+  },
   {
     slug: "trendy-color",
     label: "Trendy Color",
-    image: "gold",
+    image: "/media/images/models/model-3.avif",
     href: "/collections/coloured-wigs",
   },
   {
     slug: "bundles-deal",
     label: "Bundles Deal",
-    image: "velvet",
+    image: "/media/images/models/32-10Pre-cut-lace-body-wave-wear-go-glueless-wig-1.jpg",
     href: "/collections/closures-and-bundles",
   },
   {
     slug: "braiding-hair",
     label: "Braiding Hair",
-    image: "plum",
+    image: "/media/images/models/32-3upgrade-6x5-pre-cut-everything-wear-go-glueless-wig-3.jpg",
     href: "/shop?texture=kinky-curly",
   },
 ];

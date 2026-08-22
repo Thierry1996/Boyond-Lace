@@ -102,10 +102,11 @@ export function MegaMenu({ item, onNavigate }: { item: PrimaryNavItem; onNavigat
             <div className="relative">
               <BrandImage
                 name={panelImage}
-                ratio="4 / 3"
+                ratio="1 / 1"
+                objectFit="contain"
                 width={900}
                 sizes="30vw"
-                imgClassName="transition-transform duration-[900ms] ease-[var(--ease-editorial)] group-hover/panel:scale-[1.06]"
+                imgClassName="transition-transform duration-[900ms] ease-[var(--ease-editorial)] group-hover/panel:scale-[1.03]"
               />
               <div className="absolute inset-x-0 bottom-0 p-6">
                 <p

@@ -11,49 +11,18 @@ import { ChevronLeft, ChevronRight, BadgeCheck, Truck, RotateCcw, CreditCard } f
  * photographic system (hair only) delivers; swap `bg` for CDN images then.
  */
 
+/**
+ * Full designed hero banners (Canva art, ~1440×450). Each is shown edge-to-edge
+ * as its own slide — no overlay text, since the artwork carries its own message —
+ * and the whole banner links to a destination. Drop replacements/new ones in
+ * public/media/images/hero and add a row here.
+ */
 const SLIDES = [
-  {
-    eyebrow: "Pillar 01 · Supply Chain Mastery",
-    title: "Batch-perfect. Every run.",
-    body: "Texture, tone, and density measured against the reference batch — your reorder matches the unit in your hand.",
-    cta: { label: "The collection", href: "/shop" },
-    bg: "radial-gradient(120% 90% at 50% 0%, #5A2D67 0%, #321528 55%, #090909 100%)",
-  },
-  {
-    eyebrow: "Pillar 02 · Private Label Agility",
-    title: "Your name. Our floor.",
-    body: "Five-unit first trials, custom packaging, turnkey assets — Beyond Lace Pro puts salons in the manufacturing seat.",
-    cta: { label: "Wholesale programme", href: "/wholesale" },
-    bg: "linear-gradient(160deg, #5A2D67 0%, #321528 60%, #090909 100%)",
-  },
-  {
-    eyebrow: "Pillar 03 · Dual Revenue",
-    title: "Retail proves. Wholesale steadies.",
-    body: "Two channels, one rule: neither undercuts the other. MAP is enforced, not suggested.",
-    cta: { label: "Become a partner", href: "/wholesale#apply" },
-    bg: "linear-gradient(120deg, #321528 0%, #5A2D67 45%, #A9834D 100%)",
-  },
-  {
-    eyebrow: "Pillar 04 · Data-First",
-    title: "Ninety seconds to your unit.",
-    body: "Five questions, three ranked matches, and a shade sheet in your inbox. Stop guessing with $800.",
-    cta: { label: "Take the quiz", href: "/learn/quiz" },
-    bg: "linear-gradient(135deg, #46215A 0%, #5A2D67 30%, #DCA8B7 75%, #C9A66B 100%)",
-  },
-  {
-    eyebrow: "Pillar 05 · The Ambassador Ecosystem",
-    title: "Not gifting. Partnership.",
-    body: "Three tiers, from micro-affiliate to celebrity stylist — every one trades real value both directions.",
-    cta: { label: "The Beyond Circle", href: "/circle" },
-    bg: "radial-gradient(120% 100% at 30% 0%, #71407F 0%, #46215A 50%, #321528 100%)",
-  },
-  {
-    eyebrow: "Pillar 06 · Retention Engineering",
-    title: "Returns, designed out.",
-    body: "A $5 lace test, a monthly care ritual, a private community. The industry loses a third to returns — we don't.",
-    cta: { label: "The Lace Test — $5", href: "/product/lace-test-kit" },
-    bg: "linear-gradient(165deg, #2A252A 0%, #321528 55%, #090909 100%)",
-  },
+  { image: "/media/images/hero/hero-image-1.svg", href: "/shop", alt: "Beyond Lace human hair wig collection" },
+  { image: "/media/images/hero/hero-image-2.svg", href: "/wholesale", alt: "Beyond Lace wholesale hair programme" },
+  { image: "/media/images/hero/hero-image-3.svg", href: "/wholesale#apply", alt: "Beyond Lace partner programme" },
+  { image: "/media/images/hero/hero-image-4.svg", href: "/circle", alt: "The Beyond Circle ambassador community" },
+  { image: "/media/images/hero/hero-image-5.svg", href: "/product/lace-test-kit", alt: "Beyond Lace $5 lace test kit" },
 ];
 
 const BENEFITS = [
@@ -81,55 +50,20 @@ export function HeroCarousel() {
 
   return (
     <section aria-label="Beyond Lace highlights">
-      <div className="grain relative min-h-[82vh] overflow-hidden">
+      <div className="grain relative aspect-[1440/450] overflow-hidden bg-plum-900">
         {SLIDES.map((slide, i) => (
-          <div
-            key={slide.eyebrow}
+          <Link
+            key={slide.image}
+            href={slide.href}
             aria-hidden={i !== index}
-            className={`dark-island absolute inset-0 flex items-center justify-center transition-opacity duration-[1200ms] ease-[var(--ease-editorial)] ${
+            aria-label={slide.alt}
+            className={`absolute inset-0 block transition-opacity duration-[1200ms] ease-[var(--ease-editorial)] ${
               i === index ? "opacity-100" : "pointer-events-none opacity-0"
             }`}
-            style={{ background: slide.bg }}
           >
-            {/* Scrim. Several slide gradients resolve to blush and champagne at
-                their far end (#DCA8B7 → #C9A66B), and the gilded headline, the
-                pale body copy and the outlined CTA all vanish into that corner —
-                gold type on a gold ground. A centred radial pool of ink keeps a
-                dark ground under the text on every slide without flattening the
-                gradient at the edges, where it is doing the decorative work. */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0"
-              style={{
-                background:
-                  "radial-gradient(70% 60% at 50% 50%, rgb(9 9 9 / 0.72) 0%, rgb(9 9 9 / 0.55) 45%, rgb(9 9 9 / 0.12) 100%)",
-              }}
-            />
-            {/* Centred, gilded — per the official wordmark reference. */}
-            <div className="relative mx-auto max-w-4xl px-[6vw] pt-10 pb-24 text-center">
-              <p className="eyebrow mb-7 !text-gold-300">{slide.eyebrow}</p>
-              <h2
-                className="font-[family-name:var(--font-display)] text-[clamp(2.75rem,7vw,6rem)] leading-[1.02]"
-                style={{
-                  background: "var(--grad-gilded)",
-                  WebkitBackgroundClip: "text",
-                  backgroundClip: "text",
-                  color: "transparent",
-                }}
-              >
-                {slide.title}
-              </h2>
-              <p className="mx-auto mt-6 max-w-xl text-[1.0625rem] leading-relaxed text-[#F8F5F1]/75">
-                {slide.body}
-              </p>
-              <Link
-                href={slide.cta.href}
-                className="cta-secondary mt-10 inline-block px-9 py-4 text-[0.8125rem] tracking-[0.14em] uppercase"
-              >
-                {slide.cta.label}
-              </Link>
-            </div>
-          </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={slide.image} alt={slide.alt} className="h-full w-full object-cover" />
+          </Link>
         ))}
 
         {/* Arrows */}
@@ -154,7 +88,7 @@ export function HeroCarousel() {
         <div className="absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 gap-3">
           {SLIDES.map((s, i) => (
             <button
-              key={s.eyebrow}
+              key={s.image}
               type="button"
               aria-label={`Go to slide ${i + 1}`}
               aria-current={i === index}

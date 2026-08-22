@@ -164,15 +164,21 @@ export default async function HomePage() {
   const reviewsTotal = priced.reduce((s, p) => s + p.reviewCount, 0);
 
   // "Real Looks" impulse carousel — bold product cards with a Buy-Now quick view.
-  const showcase: ShowcaseProduct[] = priced.slice(0, 10).map((p) => ({
-    id: p.id,
-    slug: p.slug,
-    title: p.title,
-    image: p.images[0].src,
-    price: p.price,
-    compareAtPrice: p.compareAtPrice,
-    options: p.options,
-  }));
+  // "Real Looks, Real Confidence" shows ONLY the hand-picked product videos
+  // dropped in public/media/videos/products — nothing else fills in. Match on the
+  // local path so source-scraped videos never leak in either.
+  const showcase: ShowcaseProduct[] = (await commerce.getProducts({ sort: "rating" }))
+    .filter((p) => p.video?.startsWith("/media/videos/products/") && p.price > 0)
+    .map((p) => ({
+      id: p.id,
+      slug: p.slug,
+      title: p.title,
+      image: p.images[0].src,
+      price: p.price,
+      compareAtPrice: p.compareAtPrice,
+      options: p.options,
+      video: p.video,
+    }));
   // "What people come back for" — bestsellers mapped to the image-1 card shape,
   // carrying the extras the card renders (rating, badges, stock).
   const bestsellerItems: BestsellerItem[] = bestsellers.map((p) => ({
@@ -220,10 +226,10 @@ export default async function HomePage() {
       {/* Gilded statement ticker — a pulse between two dark blocks. */}
       <BrandMarquee />
 
-      {/* Real Looks impulse carousel — top-level bold auto-sliding product-in-
-          action cards (6s dwell, chevrons, spotlight upscale), each opening a
-          Buy-Now quick view straight to checkout. */}
-      <RealLooks products={showcase} />
+      {/* Real Looks impulse carousel — ONLY the hand-picked product videos.
+          Auto-sliding cards, each opening a Buy-Now quick view. Hidden if there
+          are no product videos, so the section never renders empty. */}
+      {showcase.length > 0 && <RealLooks products={showcase} />}
 
       {/* New-arrivals drop — rendered just below the on-page gilded ticker.
           Cards link to the PDP, the cart button quick-adds, "View all" routes

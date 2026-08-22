@@ -60,7 +60,7 @@ export const collections: Collection[] = [
     titleItalic: "Freshly cut, first to ship.",
     tagline:
       "The most recent units to come off the floor — new textures, new caps, new colour work, batch-matched and ready to reorder.",
-    cardImage: "aurora",
+    cardImage: "/media/images/collections/honey-blonde-highlight-wig-upgrade-6x5-pre-cut-lace.jpg",
     metaDescription:
       "New arrivals at Beyond Lace: the latest HD Swiss lace human hair wigs, glueless units and colour work, freshly cut and batch-matched.",
     select: "new",
@@ -86,7 +86,7 @@ export const collections: Collection[] = [
     titleItalic: "come back for.",
     tagline:
       "Ranked by what actually reorders. These are the caps and textures our customers install, review, and buy again — the safest place to start.",
-    cardImage: "gold",
+    cardImage: "/media/images/collections/body-wave-wear-go.jpg",
     metaDescription:
       "Beyond Lace bestselling human hair wigs — the most reviewed, most reordered HD lace units. The safest place to start.",
     select: "bestsellers",
@@ -112,7 +112,7 @@ export const collections: Collection[] = [
     titleItalic: "On in four minutes, no adhesive.",
     tagline:
       "Pre-plucked, pre-bleached, elastic-band and clip-secured units you can put on and walk out in — no glue, no melt, no appointment.",
-    cardImage: "velvet",
+    cardImage: "/media/images/collections/6x5-pre-cut-lace-highlight-glueless-wig.jpg",
     metaDescription:
       "Glueless human hair wigs from Beyond Lace: pre-plucked, wear-and-go HD lace units that go on in minutes with no adhesive.",
     query: { collections: ["Glueless Wigs"] },
@@ -142,7 +142,7 @@ export const collections: Collection[] = [
     titleItalic: "Part it anywhere.",
     tagline:
       "Swiss HD lace across the entire cap — a scalp-melt so thin you can part it in any direction and wear it up without a seam showing.",
-    cardImage: "plum",
+    cardImage: "/media/images/collections/kinky-straight-hd-lace-wig.jpg",
     metaDescription:
       "HD Swiss full lace human hair wigs from Beyond Lace — an undetectable cap you can part anywhere and wear in an updo.",
     query: { collections: ["Full Lace Wigs"] },
@@ -168,7 +168,7 @@ export const collections: Collection[] = [
     titleItalic: "Six inches of parting space.",
     tagline:
       "A frontal deep enough to part six inches back — the versatility of a full lace look at a frontal's price, with a pre-plucked HD hairline.",
-    cardImage: "mono-2",
+    cardImage: "/media/images/collections/ombre-blonde-body-wave-wig-3.jpg",
     metaDescription:
       "13x6 HD lace frontal human hair wigs from Beyond Lace — six inches of parting depth with a pre-plucked, undetectable hairline.",
     query: { collections: ["Lace Front Wigs"] },
@@ -194,7 +194,7 @@ export const collections: Collection[] = [
     titleItalic: "The everyday workhorse.",
     tagline:
       "Ear-to-ear lace, a natural front parting, and the most-stocked construction we run — the reliable default for a front-facing style.",
-    cardImage: "blush",
+    cardImage: "/media/images/collections/94-7straight-wig-with-layers-1-1.jpg",
     metaDescription:
       "13x4 HD lace frontal human hair wigs from Beyond Lace — ear-to-ear lace with a natural, pre-plucked front parting.",
     query: { collections: ["Lace Front Wigs"] },
@@ -220,7 +220,7 @@ export const collections: Collection[] = [
     titleItalic: "The wave that reads as a blow-out.",
     tagline:
       "A loose, glossy S-wave that photographs like a fresh salon blow-out and returns to pattern after every wash — our most-reached-for texture.",
-    cardImage: "aurora",
+    cardImage: "/media/images/collections/short-cut-loose-body-wave-wig.jpg",
     metaDescription:
       "Body wave human hair wigs from Beyond Lace — a soft, glossy S-wave that reads as a blow-out and bounces back after every wash.",
     query: { collections: ["Body Wave Wigs"] },
@@ -246,7 +246,7 @@ export const collections: Collection[] = [
     titleItalic: "Bone-straight, mirror finish.",
     tagline:
       "From a soft natural straight to a sharp bone-straight press — the cleanest way to show off length, shine, and a healthy cuticle.",
-    cardImage: "gold",
+    cardImage: "/media/images/collections/pixie-cut-straight-wig.jpg",
     metaDescription:
       "Straight human hair wigs from Beyond Lace — natural straight to bone-straight, with a mirror finish that shows cuticle-aligned quality.",
     query: { collections: ["Straight Wigs"] },
@@ -272,7 +272,7 @@ export const collections: Collection[] = [
     titleItalic: "Wet-look definition, dry-hand hold.",
     tagline:
       "A tight, defined wave with real depth — the texture for volume, a wet-look finish, and a curl that survives to wash day.",
-    cardImage: "velvet",
+    cardImage: "/media/images/collections/deep-wave-bob-wig.webp",
     metaDescription:
       "Deep wave human hair wigs from Beyond Lace — a defined, voluminous curl with a wet-look finish that holds to wash day.",
     query: { collections: ["Deep Wave Wigs"] },
@@ -298,7 +298,7 @@ export const collections: Collection[] = [
     titleItalic: "Lifted properly, cuticle intact.",
     tagline:
       "613 blonde, honey balayage, auburn copper, burgundy 99J and custom colour — lifted on virgin hair so the tone is rich and the cuticle survives.",
-    cardImage: "blush",
+    cardImage: "/media/images/collections/colored.jpg",
     metaDescription:
       "Coloured human hair wigs from Beyond Lace — 613 blonde, balayage, copper and burgundy, lifted on virgin hair with the cuticle intact.",
     query: { collections: ["Coloured & Fashion Wigs"] },
@@ -324,7 +324,7 @@ export const collections: Collection[] = [
     titleItalic: "Build it your way.",
     tagline:
       "Wefted bundles with matching 5x5 and 4x4 closures — cut from one production run so the sew-in matches from crown to hem.",
-    cardImage: "mono",
+    cardImage: "/media/images/collections/bouncy-wand-curly-wig.webp",
     metaDescription:
       "Human hair bundles and closures from Beyond Lace — wefted bundles with matching 5x5 and 4x4 closures, cut from one batch for a seamless sew-in.",
     query: { collections: ["Lace Closure Wigs"] },

@@ -26,8 +26,11 @@ export interface BrandPhoto {
   alt: string;
 }
 
-/** Builds a sized, format-optimised URL. Square by default for 1:1 grids. */
+/** Builds a sized, format-optimised URL. Square by default for 1:1 grids.
+ *  An owned asset (a local `/media/…` path or an absolute http(s) URL) is used
+ *  verbatim — only Unsplash `photo-…` ids get the CDN + sizing params. */
 export function photoUrl(id: string, w = 800, h?: number): string {
+  if (/^(https?:|\/)/.test(id)) return id;
   const crop = h ? `&fit=crop&w=${w}&h=${h}` : `&fit=crop&w=${w}`;
   return `${CDN}/${id}?auto=format&q=75${crop}`;
 }
@@ -61,6 +64,44 @@ export const IMAGERY = {
   navSupport: {
     id: "photo-1562322140-8baeececf3df",
     alt: "Stylist blow-drying and finishing a client's hair",
+  },
+
+  // --- Owned mega-menu panel art (public/media/images/menu), one per panel --
+  menuShop: {
+    id: "/media/images/menu/shop-mega-menu.jpg",
+    alt: "Beyond Lace human hair wig collection",
+  },
+  menuWholesale: {
+    id: "/media/images/menu/wholesale-menu-new.jpg",
+    alt: "Beyond Lace wholesale hair programme",
+  },
+  menuBrand: {
+    id: "/media/images/menu/menu-new-18.jpg",
+    alt: "Beyond Lace brand editorial",
+  },
+  menuRecommended: {
+    id: "/media/images/menu/recommended-mega-menu.jpg",
+    alt: "Recommended Beyond Lace human hair wig styles",
+  },
+  menuBundles: {
+    id: "/media/images/menu/bundle-and-extension.webp",
+    alt: "Human hair bundles and extensions",
+  },
+  menuTools: {
+    id: "/media/images/menu/tools-and-accessories.jpg",
+    alt: "Wig tools and accessories",
+  },
+  menuCircle: {
+    id: "/media/images/menu/beyond-circle.jpg",
+    alt: "The Beyond Circle community wearing Beyond Lace hair",
+  },
+  menuLearn: {
+    id: "/media/images/menu/learn-mega-menu.jpg",
+    alt: "Beyond Lace hair education and tutorials",
+  },
+  menuSupport: {
+    id: "/media/images/menu/mega-menu-support.jpg",
+    alt: "Beyond Lace customer support",
   },
 
   // --- Support resource groups --------------------------------------------
@@ -107,6 +148,56 @@ export const IMAGERY = {
   laceDetail: {
     id: "photo-1560869713-7d0a29430803",
     alt: "Close-up of hair being curled and styled with a heat tool",
+  },
+
+  // --- Blog post covers (public/media/images/blog) -------------------------
+  blogCover1: {
+    id: "/media/images/blog/blog-1.jpg",
+    alt: "Beyond Lace journal article cover",
+  },
+  blogCover2: {
+    id: "/media/images/blog/blog-2.jpg",
+    alt: "Beyond Lace journal article cover",
+  },
+  blogCover3: {
+    id: "/media/images/blog/blog-3.jpg",
+    alt: "Beyond Lace journal article cover",
+  },
+  blogCover4: {
+    id: "/media/images/blog/blog-4.jpg",
+    alt: "Beyond Lace journal article cover",
+  },
+  blogCover5: {
+    id: "/media/images/blog/blog-5.jpg",
+    alt: "Beyond Lace journal article cover",
+  },
+  blogCover6: {
+    id: "/media/images/blog/blog-6.jpg",
+    alt: "Beyond Lace journal article cover",
+  },
+  blogCover7: {
+    id: "/media/images/blog/blog-7.jpg",
+    alt: "Beyond Lace journal article cover",
+  },
+  blogCover8: {
+    id: "/media/images/blog/blog-8.jpg",
+    alt: "Beyond Lace journal article cover",
+  },
+  blogCover9: {
+    id: "/media/images/blog/blog-9.jpg",
+    alt: "Beyond Lace journal article cover",
+  },
+  blogCover10: {
+    id: "/media/images/blog/blog-10.jpg",
+    alt: "Beyond Lace journal article cover",
+  },
+  blogCover11: {
+    id: "/media/images/blog/blog-11.jpg",
+    alt: "Beyond Lace journal article cover",
+  },
+  blogCover12: {
+    id: "/media/images/blog/blog-12.jpg",
+    alt: "Beyond Lace journal article cover",
   },
 } as const satisfies Record<string, BrandPhoto>;
 

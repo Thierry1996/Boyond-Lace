@@ -39,7 +39,7 @@ export const primaryNav: PrimaryNavItem[] = [
   {
     label: "Shop",
     href: "/shop",
-    image: "navShop",
+    image: "menuShop",
     groups: [
       {
         heading: "Collections",
@@ -92,7 +92,7 @@ export const primaryNav: PrimaryNavItem[] = [
   {
     label: "Wholesale",
     href: "/wholesale",
-    image: "navWholesale",
+    image: "menuWholesale",
     groups: [
       {
         heading: "Programmes",
@@ -131,7 +131,7 @@ export const primaryNav: PrimaryNavItem[] = [
   {
     label: "Our Brand",
     href: "/brand",
-    image: "navBrand",
+    image: "menuBrand",
     groups: [
       {
         heading: "The Why",
@@ -169,7 +169,7 @@ export const primaryNav: PrimaryNavItem[] = [
      */
     label: "Recommended",
     href: "/recommended",
-    image: "navShop",
+    image: "menuRecommended",
     groups: [
       {
         heading: "By Construction",
@@ -239,7 +239,7 @@ export const primaryNav: PrimaryNavItem[] = [
      */
     label: "Extensions & Bundles",
     href: "/shop?line=bundle",
-    image: "navShop",
+    image: "menuBundles",
     groups: [
       {
         heading: "Shop by Style",
@@ -302,7 +302,7 @@ export const primaryNav: PrimaryNavItem[] = [
      */
     label: "Tools & Accessories",
     href: "/shop?line=care",
-    image: "navSupport",
+    image: "menuTools",
     groups: [
       {
         heading: "Cleaning & Care",
@@ -352,7 +352,7 @@ export const primaryNav: PrimaryNavItem[] = [
   {
     label: "The Beyond Circle",
     href: "/circle",
-    image: "navCircle",
+    image: "menuCircle",
     groups: [
       {
         heading: "Community",
@@ -399,7 +399,7 @@ export const primaryNav: PrimaryNavItem[] = [
   {
     label: "Learn",
     href: "/learn",
-    image: "navLearn",
+    image: "menuLearn",
     groups: [
       {
         heading: "Before You Buy",
@@ -432,7 +432,7 @@ export const primaryNav: PrimaryNavItem[] = [
   {
     label: "Support",
     href: "/support",
-    image: "navSupport",
+    image: "menuSupport",
     groups: [
       {
         heading: "Fit & Product Guides",
